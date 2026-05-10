@@ -1,9 +1,17 @@
-#ifndef xo_h
-#define xo_h
+#ifndef XO_H
+#define XO_H
 #include "player.h"
-void displayBoard(char board[3][3]);
-void gameLoop();
-bool winCheck(char board[3][3], char symbol);
-bool drawCheck(char board[3][3]);
-
+class XO{
+private:
+Player player1;
+Player player2;
+char board[3][3];
+bool checkWin(char symbol);
+bool checkDraw();
+void displayBoard();
+void playerMove(Player &player);
+public:
+XO(Player &p1, Player &p2);
+void playGame();
+};
 #endif
