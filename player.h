@@ -17,6 +17,6 @@ class Player
     void incrementScore();
     void setName(std::string name);
     void setSymbol(char symbol);
-    void validateSymbol(char symbol);
+    void validateSymbol();
  };
 #endif 

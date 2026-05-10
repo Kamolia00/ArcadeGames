@@ -35,10 +35,14 @@ void Player::setSymbol(char symbol)
 {
     this->symbol = symbol;
 }
-void Player::validateSymbol(char symbol)
+void Player::validateSymbol()
 {
-    if(symbol != 'X' && symbol != 'O')
-    {
-        throw std::invalid_argument("Invalid symbol. Symbol must be 'X' or 'O'.");
-    }
+  while(getSymbol()!= 'X' && getSymbol()!= 'O')
+  {
+    std::cout<<"Invalid symbol. Please enter 'X' or 'O': ";
+    char symbol;
+    std::cin>>symbol;
+    setSymbol(symbol);
+  }     
 }
+

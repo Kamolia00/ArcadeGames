@@ -51,9 +51,11 @@ bool drawCheck(char board[3][3])
 
 void gameLoop(Player &player1, Player &player2) {
     // Implementation for the game loop
+    // Initialize the game board
     char board[3][3] = { {' ', ' ', ' '},
                          {' ', ' ', ' '},
                          {' ', ' ', ' '} };
+                         // Game loop
 while(true){
     displayBoard(board);
     int row, col;
