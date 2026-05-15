@@ -158,6 +158,7 @@ void XO::vsai_hard(){
             if (checkWin(player1.getSymbol())) {
                 displayBoard();
                 cout << player1.getName() << " wins!" << endl;
+                player1.incrementScore();
                 break;
             }
             if (checkDraw()) {
@@ -169,6 +170,7 @@ void XO::vsai_hard(){
             if (checkWin(player2.getSymbol())) {
                 displayBoard();
                 cout << "ai wins!" << endl;
+                player2.incrementScore();
                 break;
             }
             if (checkDraw()) {
@@ -183,6 +185,7 @@ void XO::vsai_hard(){
             if (checkWin(player2.getSymbol())) {
                 displayBoard();
                 cout << "ai wins!" << endl;
+                player2.incrementScore();
                 break;
             }
             if (checkDraw()) {
@@ -194,6 +197,7 @@ void XO::vsai_hard(){
             if (checkWin(player1.getSymbol())) {
                 displayBoard();
                 cout << player1.getName() << " wins!" << endl;
+                player1.incrementScore();
                 break;
             }
             if (checkDraw()) {
@@ -212,6 +216,7 @@ void XO::vsai_easy(){
             if (checkWin(player1.getSymbol())) {
                 displayBoard();
                 cout << player1.getName() << " wins!" << endl;
+               player1.incrementScore();
                 break;
             }
             if (checkDraw()) {
@@ -228,6 +233,7 @@ void XO::vsai_easy(){
             if (checkWin(player2.getSymbol())) {
                 displayBoard();
                 cout << "ai wins!" << endl;
+                player2.incrementScore();
                 break;
             }
             if (checkDraw()) {
@@ -247,6 +253,7 @@ void XO::vsai_easy(){
             if (checkWin(player2.getSymbol())) {
                 displayBoard();
                 cout << "ai wins!" << endl;
+                player2.incrementScore();
                 break;
             }
             if (checkDraw()) {
@@ -258,6 +265,7 @@ void XO::vsai_easy(){
             if (checkWin(player1.getSymbol())) {
                 displayBoard();
                 cout << player1.getName() << " wins!" << endl;
+player1.incrementScore();
                 break;
             }
             if (checkDraw()) {
