@@ -3,8 +3,8 @@
 #include "player.h"
 class XO{
 private:
-Player player1;
-Player player2;
+Player &player1;
+Player &player2;
 char board[3][3];
 bool checkWin(char symbol);
 bool checkDraw();

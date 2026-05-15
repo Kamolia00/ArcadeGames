@@ -52,8 +52,10 @@ void XO::playerMove(Player &player) {
     cout << player.getName() << " (" << player.getSymbol() << ") - Enter your move (row and column): ";
     while (true) {
         cin >> row >> col;
-        input(row);
-        input(col);
+        if (cin.fail()) {
+            input(row);
+            input(col);
+        }
         if (row >= 1 && row <= 3 && col >= 1 && col <= 3 && board[row - 1][col - 1] == ' ') {
             board[row - 1][col - 1] = player.getSymbol();
             break;

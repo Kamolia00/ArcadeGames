@@ -1,14 +1,14 @@
 #include"connect4.h"
 #include<iostream>
-connect4::connect4(Player &p1, Player &p2){
-    this->p1 = p1;
-    this->p2 = p2;
-    for(int i = 0; i < 7; i++){
-        for(int j = 0; j < 7; j++){
+#include "valid_input.h"
+connect4::connect4(Player &p1, Player &p2) : p1(p1), p2(p2) {
+    for (int i = 0; i < 7; i++) {
+        for (int j = 0; j < 7; j++) {
             this->board[i][j] = ' ';
         }
     }
 }
+
 void connect4::display_board(){
    cout << "  1   2   3   4   5   6   7" << endl;
 for(int i = 0; i < 7; i++){
@@ -20,8 +20,7 @@ for(int i = 0; i < 7; i++){
 }
 cout << "+---+---+---+---+---+---+---+" << endl;
 }
-bool connect4::check_win(char symbol){
-    // start with rows
+bool connect4::check_win(char symbol){    // start with rows
     for(int i = 0; i < 7; i++){
         for(int j = 0; j <= 3; j++){
             if(board[i][j] == symbol && board[i][j+1] == symbol && board[i][j+2] == symbol && board[i][j+3] == symbol and symbol !=' '){
@@ -68,9 +67,12 @@ void connect4::player_move(Player &player){
     int col,row=-1;
         cout << player.getName() << " (" << player.getSymbol() << ") - Enter column (1-7): ";
         cin >> col;
+    if (cin.fail()) {
+        input(col);
+    }
         while(col < 1 or col > 7 or board[0][col-1] != ' '){
             cout << "Invalid column. Please try again." << endl;
-            cin >> col;
+            input(col);
         }
         for(int i = 6; i >= 0; i--){
             if(board[i][col-1] == ' '){

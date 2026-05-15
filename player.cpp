@@ -27,7 +27,7 @@ int Player::getScore()
 }
 void Player::incrementScore()
 {
-    score++;
+   this->score++;
 }
 void Player::setName(std::string name)
 {
