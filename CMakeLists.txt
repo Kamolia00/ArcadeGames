@@ -10,6 +10,6 @@ add_executable(ArcadeGames
         player.h
         xo.cpp
         xo.h
-        main.cpp
         connect4.cpp
-        valid_input.cpp)
+        valid_input.cpp
+)

@@ -94,3 +94,113 @@ void XO::playGame() {
         }
     }
 }
+int XO::minimax(bool isMax){
+    if(checkWin(player2.getSymbol())){
+        return 10;
+    }
+    if(checkWin(player1.getSymbol())){
+        return -10;
+    }
+    if(checkDraw()){
+        return 0;
+    }
+if(isMax){
+ int best=-10;
+    for(int i=0;i<3;i++){
+        for(int j=0;j<3;j++){
+            if(board[i][j]==' '){
+                board[i][j]=player2.getSymbol();
+                best=max(best,minimax(false));
+                board[i][j]=' ';
+            }
+        }
+    }
+    return best;   
+}
+else{
+    int best=10;
+    for(int i=0;i<3;i++){
+        for(int j=0;j<3;j++){
+            if(board[i][j]==' '){
+                board[i][j]=player1.getSymbol();
+                best=min(best,minimax(true));
+                board[i][j]=' ';
+            }
+        }
+    }
+    return best;
+}
+}
+void XO::bestMove(){
+    int bestVal=-10;
+    int row=-1,col=-1;
+    for(int i=0;i<3;i++){
+        for(int j=0;j<3;j++){
+            if(board[i][j]==' '){
+                board[i][j]=player2.getSymbol();
+                int moveVal=minimax(false);
+                board[i][j]=' ';
+                if(moveVal>bestVal){
+                    row=i;
+                    col=j;
+                    bestVal=moveVal;
+                }
+            }
+        }
+    }
+    board[row][col]=player2.getSymbol();
+}
+void XO::vsai(){
+    while (true) {
+        if (player1.getSymbol() == 'X') {
+            displayBoard();
+            playerMove(player1);
+            if (checkWin(player1.getSymbol())) {
+                displayBoard();
+                cout << player1.getName() << " wins!" << endl;
+                break;
+            }
+            if (checkDraw()) {
+                displayBoard();
+                cout << "It's a draw!" << endl;
+                break;
+            }
+            bestMove();
+            if (checkWin(player2.getSymbol())) {
+                displayBoard();
+                cout << "ai wins!" << endl;
+                break;
+            }
+            if (checkDraw()) {
+                displayBoard();
+                cout << "It's a draw!" << endl;
+                break;
+            }
+        }
+        else{
+            bestMove();
+            displayBoard();
+            if (checkWin(player2.getSymbol())) {
+                displayBoard();
+                cout << "ai wins!" << endl;
+                break;
+            }
+            if (checkDraw()) {
+                displayBoard();
+                cout << "It's a draw!" << endl;
+                break;
+            }
+            playerMove(player1);
+            if (checkWin(player1.getSymbol())) {
+                displayBoard();
+                cout << player1.getName() << " wins!" << endl;
+                break;
+            }
+            if (checkDraw()) {
+                displayBoard();
+                cout << "It's a draw!" << endl;
+                break;
+            }
+        }
+    }
+}
