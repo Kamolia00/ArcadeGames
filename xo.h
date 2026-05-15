@@ -15,6 +15,7 @@ void bestMove();
 public:
 XO(Player &p1, Player &p2);
 void playGame();
-void vsai();
+void vsai_hard();
+void vsai_easy();
 };
 #endif

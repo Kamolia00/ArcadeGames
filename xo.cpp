@@ -150,7 +150,7 @@ void XO::bestMove(){
     }
     board[row][col]=player2.getSymbol();
 }
-void XO::vsai(){
+void XO::vsai_hard(){
     while (true) {
         if (player1.getSymbol() == 'X') {
             displayBoard();
@@ -179,6 +179,70 @@ void XO::vsai(){
         }
         else{
             bestMove();
+            displayBoard();
+            if (checkWin(player2.getSymbol())) {
+                displayBoard();
+                cout << "ai wins!" << endl;
+                break;
+            }
+            if (checkDraw()) {
+                displayBoard();
+                cout << "It's a draw!" << endl;
+                break;
+            }
+            playerMove(player1);
+            if (checkWin(player1.getSymbol())) {
+                displayBoard();
+                cout << player1.getName() << " wins!" << endl;
+                break;
+            }
+            if (checkDraw()) {
+                displayBoard();
+                cout << "It's a draw!" << endl;
+                break;
+            }
+        }
+    }
+}
+void XO::vsai_easy(){
+    while (true) {
+        if (player1.getSymbol() == 'X') {
+            displayBoard();
+            playerMove(player1);
+            if (checkWin(player1.getSymbol())) {
+                displayBoard();
+                cout << player1.getName() << " wins!" << endl;
+                break;
+            }
+            if (checkDraw()) {
+                displayBoard();
+                cout << "It's a draw!" << endl;
+                break;
+            }
+            int row, col;
+            do {
+                row = rand() % 3;
+                col = rand() % 3;
+            } while (board[row][col] != ' ');
+            board[row][col] = player2.getSymbol();
+            if (checkWin(player2.getSymbol())) {
+                displayBoard();
+                cout << "ai wins!" << endl;
+                break;
+            }
+            if (checkDraw()) {
+                displayBoard();
+                cout << "It's a draw!" << endl;
+                break;
+            }
+        }
+        else{
+            int row, col;
+            do {
+                row = rand() % 3;
+                col = rand() % 3;
+            } while (board[row][col] != ' ');
+            board[row][col] = player2.getSymbol();
             displayBoard();
             if (checkWin(player2.getSymbol())) {
                 displayBoard();

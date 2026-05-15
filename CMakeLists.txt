@@ -11,5 +11,7 @@ add_executable(ArcadeGames
         xo.cpp
         xo.h
         connect4.cpp
+        connect4.h
         valid_input.cpp
+        main.cpp
 )
