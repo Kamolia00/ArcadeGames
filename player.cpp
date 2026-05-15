@@ -1,4 +1,5 @@
 #include"player.h"
+#include"valid_input.h"
 Player::Player()
 {
     name = "";
@@ -7,6 +8,7 @@ Player::Player()
 }
 Player::Player(std::string name, char symbol)
 {
+
     this->name = name;
     this->symbol = symbol;
     score = 0;
@@ -41,8 +43,7 @@ void Player::validateSymbol()
   {
     std::cout<<"Invalid symbol. Please enter 'X' or 'O': ";
     char symbol;
-    std::cin>>symbol;
+    input(symbol);
     setSymbol(symbol);
   }     
 }
-

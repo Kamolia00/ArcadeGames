@@ -10,16 +10,15 @@ connect4::connect4(Player &p1, Player &p2){
     }
 }
 void connect4::display_board(){
-   cout << "    1   2   3   4   5   6   7" << endl;
-    for(int i = 0; i < 7; i++){
-        cout << "  +---+---+---+---+---+---+---+" << endl;
-        cout << i+1 << " ";
-        for(int j = 0; j < 7; j++){
-            cout << "| " << board[i][j] << " ";
-        }
-        cout << "|" << endl;
+   cout << "  1   2   3   4   5   6   7" << endl;
+for(int i = 0; i < 7; i++){
+    cout << "+---+---+---+---+---+---+---+" << endl;
+    for(int j = 0; j < 7; j++){
+        cout << "| " << board[i][j] << " ";
     }
-    cout << "  +---+---+---+---+---+---+---+" << endl;
+    cout << "|" << endl;
+}
+cout << "+---+---+---+---+---+---+---+" << endl;
 }
 bool connect4::check_win(char symbol){
     // start with rows
@@ -58,20 +57,18 @@ bool connect4::check_win(char symbol){
     return false;
 }
 bool connect4::check_draw(){
-    for(int i = 0; i < 7; i++){
-        for(int j = 0; j < 7; j++){
-            if(board[i][j] == ' '){
-                return false;
-            }
-        }
+   for(int i=0;i<7;i++){
+    if(board[0][i] == ' '){
+        return false;
     }
+   }
     return true;
 }
 void connect4::player_move(Player &player){
     int col,row=-1;
         cout << player.getName() << " (" << player.getSymbol() << ") - Enter column (1-7): ";
         cin >> col;
-        while(col < 1 or col > 7){
+        while(col < 1 or col > 7 or board[0][col-1] != ' '){
             cout << "Invalid column. Please try again." << endl;
             cin >> col;
         }
@@ -80,22 +77,6 @@ void connect4::player_move(Player &player){
                 board[i][col-1] = player.getSymbol();
                 row = i;
                 break;
-            }
-        }
-        while(row == -1){
-            
-    cout << "Column is full. Please choose another column: ";
-    cin >> col;
-    while(col < 1 || col > 7){
-        cout << "Invalid column. Please enter a number between 1 and 7: ";
-        cin >> col;
-    }
-    for(int i = 6; i >= 0; i--){
-        if(board[i][col-1] == ' '){
-            board[i][col-1] = player.getSymbol();
-            row = i;
-            break;
-        }
             }
         }
     }

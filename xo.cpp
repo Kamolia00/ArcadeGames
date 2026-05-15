@@ -1,4 +1,5 @@
 #include"xo.h"
+#include"valid_input.h"
 using namespace std;
 XO::XO(Player &p1, Player &p2) : player1(p1), player2(p2) {
     for (int i = 0; i < 3; i++) {
@@ -48,9 +49,11 @@ void XO::displayBoard() {
 }
 void XO::playerMove(Player &player) {
     int row, col;
+    cout << player.getName() << " (" << player.getSymbol() << ") - Enter your move (row and column): ";
     while (true) {
-        cout << player.getName() << " (" << player.getSymbol() << ") - Enter your move (row and column): ";
         cin >> row >> col;
+        input(row);
+        input(col);
         if (row >= 1 && row <= 3 && col >= 1 && col <= 3 && board[row - 1][col - 1] == ' ') {
             board[row - 1][col - 1] = player.getSymbol();
             break;
