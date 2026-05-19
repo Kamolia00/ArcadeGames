@@ -42,8 +42,8 @@ void Player::validateSymbol()
   while(getSymbol()!= 'X' && getSymbol()!= 'O')
   {
     std::cout<<"Invalid symbol. Please enter 'X' or 'O': ";
-    char symbol;
-    input(symbol);
-    setSymbol(symbol);
+    char s;
+    input(s);
+    setSymbol(s);
   }     
 }

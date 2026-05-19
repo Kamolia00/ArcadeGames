@@ -10,8 +10,12 @@ bool checkWin(char symbol);
 bool checkDraw();
 void displayBoard();
 void playerMove(Player &player);
+int minimax(bool isMax);
+void bestMove();
 public:
 XO(Player &p1, Player &p2);
 void playGame();
+void vsai_hard();
+void vsai_easy();
 };
 #endif
