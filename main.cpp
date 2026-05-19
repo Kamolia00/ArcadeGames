@@ -2,7 +2,6 @@
 #include "connect4.h"
 #include "valid_input.h"
 #include "player.h"
-
 #include <iostream>
 
 using namespace std;
@@ -38,41 +37,28 @@ if(main_choice == 1)
     while(true)
     {
         cin.ignore();
-
-        string name1, name2;
-
-        cout << "Enter Player 1 name: ";
-        input(name1);
-
-        cout << "Enter Player 2 name: ";
-        input(name2);
-
+//=======
+// player info
+      Player p1,p2;
+        string player_name1,player_name2;
+        cout << "Player 1 Enter your name: ";
+        input(player_name1);
+        p1.setName(player_name1);
+        cout<<"Player 2 Enter your name: ";
+        input(player_name2);
+        p2.setName(player_name2);
+        cout<<p1.getName()<<" Choose 'X' or 'O': ";
         char symbol;
-
-        cout << name1 << " choose X or O: ";
         input(symbol);
-
-        while(symbol != 'X' && symbol != 'O' &&
-              symbol != 'x' && symbol != 'o')
-        {
-            cout << "Invalid symbol. Choose X or O: ";
-            input(symbol);
-        }
-
-        if(symbol == 'x') symbol = 'X';
-        if(symbol == 'o') symbol = 'O';
-
-        Player p1(name1, symbol);
-
-        Player p2;
-
-        p2.setName(name2);
-
-        if(symbol == 'X')
-            p2.setSymbol('O');
+        p1.setSymbol(symbol);
+        p1.validateSymbol();
+        if (p1.getSymbol()=='X')
+       p2.setSymbol('O');
         else
             p2.setSymbol('X');
-
+        cout<<p1.getName()<<" Your symbol is"<<p1.getSymbol()<<'\n';
+        cout<<p2.getName()<<" Your symbol is "<<p2.getSymbol()<<'\n';
+        // game is on
         while(true)
         {
             int choice;

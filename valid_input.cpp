@@ -3,12 +3,13 @@
 void input(char &c){
     while(true){
         if(std::cin >> c){
+            std::cin.ignore(1000, '\n');  // clear rest of line here
             break;
         }
         else{
             std::cout << "Error: Not a character. Try again." << std::endl;
             std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cin.ignore(1000, '\n');
         }
     }
 }
