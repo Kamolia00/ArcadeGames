@@ -15,6 +15,8 @@ class connect4{
         public:
         connect4(Player &p1, Player &p2);
         void play_game();
+        void vs_ai_easy();
+    void vs_ai_hard();
         
 };
 #endif

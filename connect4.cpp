@@ -1,5 +1,7 @@
 #include"connect4.h"
 #include<iostream>
+#include<cstdlib>
+#include<ctime>
 #include "valid_input.h"
 connect4::connect4(Player &p1, Player &p2) : p1(p1), p2(p2) {
     for (int i = 0; i < 7; i++) {
@@ -112,3 +114,42 @@ void connect4::play_game(){
         }
     }
 }
+void connect4::vs_ai_easy() {
+    while (true) {
+        display_board();
+        player_move(p1);
+        if (check_win(p1.getSymbol())) {
+            display_board();
+            cout << p1.getName() << " wins!" << endl;
+            p1.incrementScore();
+            break;
+        }
+        if (check_draw()) {
+            display_board();
+            cout << "It's a draw!" << endl;
+            break;
+        }
+        int col;
+        do {
+            col = rand() % 7;
+        } while (board[0][col] != ' ');
+        for (int i = 6; i >= 0; i--) {
+            if (board[i][col] == ' ') {
+                board[i][col] = p2.getSymbol();
+                break;
+            }
+        }
+        if (check_win(p2.getSymbol())) {
+            display_board();
+            cout << p2.getName() << " wins!" << endl;
+            p2.incrementScore();
+            break;
+        }
+        if (check_draw()) {
+            display_board();
+            cout << "It's a draw!" << endl;
+            break;
+        }
+    }
+}
+
