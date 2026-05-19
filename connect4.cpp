@@ -152,4 +152,143 @@ void connect4::vs_ai_easy() {
         }
     }
 }
-
+int connect4::minimax(int depth, bool isMax, int alpha, int beta) {
+    if(depth == 0 || check_win(p1.getSymbol()) || check_win(p2.getSymbol()) || check_draw()) {
+        if(check_win(p2.getSymbol())) return depth + 10;
+        else if(check_win(p1.getSymbol())) return -1*(depth + 10);
+        else return 0;
+    }
+    if(isMax){
+        int best=-1000;
+        for(int i=0;i<7;i++){
+            if(board[0][i] == ' '){
+                int row;
+                for(row=6;row>=0;row--){
+                    if(board[row][i] == ' '){
+                        board[row][i] = p2.getSymbol();
+                        break;
+                    }
+                }
+                best=max(best,minimax(depth-1,false,alpha,beta));
+                board[row][i] = ' ';
+                alpha=max(alpha,best);
+                if(beta <= alpha) break;
+            }
+        }
+        return best;
+    }
+    else{
+        int worst=1000;
+        for(int i=0;i<7;i++){
+            if(board[0][i] == ' '){
+                int row;
+                for(row=6;row>=0;row--){
+                    if(board[row][i] == ' '){
+                        board[row][i] = p1.getSymbol();
+                        break;
+                    }
+                }
+                worst=min(worst,minimax(depth-1,true,alpha,beta));
+                board[row][i] = ' ';
+                beta=min(beta,worst);
+                if(beta <= alpha) break;
+            }
+        }
+        return worst;
+    }
+}
+int connect4::getBestMove(int depth) {
+    int order[] = {3,2,4,1,5,0,6};
+    int bestVal = -1000;
+    int bestCol = -1;
+    for(int k = 0; k < 7; k++){
+        int i = order[k];
+        if(board[0][i] == ' '){
+            int row;
+            for(row = 6; row >= 0; row--){
+                if(board[row][i] == ' '){
+                    board[row][i] = p2.getSymbol();
+                    break;
+                }
+            }
+            int moveVal = minimax(depth-1, false, -1000, 1000);
+            board[row][i] = ' ';
+            if(moveVal > bestVal){
+                bestCol = i;
+                bestVal = moveVal;
+            }
+        }
+    }
+    return bestCol;
+}
+void connect4::vs_ai_hard(){
+    while(true){
+        if(p1.getSymbol()=='X'){
+        display_board();
+        player_move(p1);
+        if(check_win(p1.getSymbol())){
+            display_board();
+            cout << p1.getName() << " wins!" << endl;
+            p1.incrementScore();
+            break;
+        }
+        if(check_draw()){
+            display_board();
+            cout << "It's a draw!" << endl;
+            break;
+        }
+        int bestCol = getBestMove(12);  // depth can be adjusted
+        for (int i = 6; i >= 0; i--) {
+            if (board[i][bestCol] == ' ') {
+                board[i][bestCol] = p2.getSymbol();
+                break;
+            }
+        }
+        display_board();
+        if (check_win(p2.getSymbol())) {
+            display_board();
+            cout <<"ai wins!" << endl;
+            p2.incrementScore();
+            break;
+        }
+        if (check_draw()) {
+            display_board();
+            cout << "It's a draw!" << endl;
+            break;
+        }
+    }
+else{
+        int bestCol = getBestMove(9);  // depth can be adjusted
+        for (int i = 6; i >= 0; i--) {
+            if (board[i][bestCol] == ' ') {
+                board[i][bestCol] = p2.getSymbol();
+                break;
+            }
+        }
+        display_board();
+        if (check_win(p2.getSymbol())) {
+            display_board();
+            cout <<"ai wins!" << endl;
+            p2.incrementScore();
+            break;
+        }
+        if (check_draw()) {
+            display_board();
+            cout << "It's a draw!" << endl;
+            break;
+        }
+        player_move(p1);
+        if(check_win(p1.getSymbol())){
+            display_board();
+            cout << p1.getName() << " wins!" << endl;
+            p1.incrementScore();
+            break;
+        }
+        if(check_draw()){
+            display_board();
+            cout << "It's a draw!" << endl;
+            break;
+        }
+}    
+}
+}
