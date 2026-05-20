@@ -421,9 +421,9 @@ bool p1_turn=(player1.getSymbol()=='X');
                 int x = startX + j * cell_size + 30;
                 int y = startY + i * cell_size + 30;
                 if (board[i][j] == 'X')
-                    DrawTextEx(font, "X", {(float)x, (float)y}, 30, 0, RED);
+                    DrawTextEx(font, "X", {(float)x, (float)y}, 40, 0, RED);
                 else if (board[i][j] == 'O')
-                    DrawTextEx(font, "O", {(float)x, (float)y}, 30, 0, GREEN);
+                    DrawTextEx(font, "O", {(float)x, (float)y}, 40, 0, GREEN);
             }
         }
         if (game_over) {
@@ -481,9 +481,9 @@ int startX = 490, startY = 210,cell_size=100;
             int x = startX + j * cell_size + 30;
             int y = startY + i * cell_size + 30;
             if (board[i][j] == 'X')
-                DrawTextEx(font, "X", {(float)x, (float)y}, 30, 0, RED);
+                DrawTextEx(font, "X", {(float)x, (float)y}, 40, 0, RED);
             else if (board[i][j] == 'O')
-                DrawTextEx(font, "O", {(float)x, (float)y}, 30, 0, GREEN);
+                DrawTextEx(font, "O", {(float)x, (float)y}, 40, 0, GREEN);
         }
     }
         if (game_over) {
