@@ -3,8 +3,11 @@ project(ArcadeGames)
 
 set(CMAKE_CXX_STANDARD 14)
 
-include_directories(.)
+set(RAYLIB_DIR "D:/raylib-6.0_win64_mingw-w64")
 
+include_directories(.)
+include_directories(${RAYLIB_DIR}/include)
+link_directories(${RAYLIB_DIR}/lib)
 add_executable(ArcadeGames
         player.cpp
         player.h
@@ -15,3 +18,5 @@ add_executable(ArcadeGames
         valid_input.cpp
         main.cpp
 )
+
+target_link_libraries(ArcadeGames raylib winmm gdi32 opengl32)

@@ -1,5 +1,6 @@
 #include"xo.h"
 #include"valid_input.h"
+#include<raylib.h>
 using namespace std;
 XO::XO(Player &p1, Player &p2) : player1(p1), player2(p2) {
     for (int i = 0; i < 3; i++) {
@@ -275,4 +276,78 @@ player1.incrementScore();
             }
         }
     }
+}
+void XO::drawBoard() {
+    int startX = 490, startY = 210;
+    int cellSize = 100;
+    int gridSize = 300;
+    Color lineColor = {100, 200, 255, 255};
+    int thickness = 3;
+
+    // border lines
+    DrawLineEx({(float)startX, (float)startY}, {(float)(startX + gridSize), (float)startY}, thickness, lineColor);                          // top
+    DrawLineEx({(float)startX, (float)(startY + gridSize)}, {(float)(startX + gridSize), (float)(startY + gridSize)}, thickness, lineColor); // bottom
+    DrawLineEx({(float)startX, (float)startY}, {(float)startX, (float)(startY + gridSize)}, thickness, lineColor);                          // left
+    DrawLineEx({(float)(startX + gridSize), (float)startY}, {(float)(startX + gridSize), (float)(startY + gridSize)}, thickness, lineColor); // right
+
+    // inner lines
+    DrawLineEx({(float)(startX + cellSize), (float)startY}, {(float)(startX + cellSize), (float)(startY + gridSize)}, thickness, lineColor);
+    DrawLineEx({(float)(startX + cellSize*2), (float)startY}, {(float)(startX + cellSize*2), (float)(startY + gridSize)}, thickness, lineColor);
+    DrawLineEx({(float)startX, (float)(startY + cellSize)}, {(float)(startX + gridSize), (float)(startY + cellSize)}, thickness, lineColor);
+    DrawLineEx({(float)startX, (float)(startY + cellSize*2)}, {(float)(startX + gridSize), (float)(startY + cellSize*2)}, thickness, lineColor);
+}
+void XO::playGameGUI_pvp() {
+   const int startX = 490, startY = 210,cell_size=100;
+    bool game_over = false;
+    bool p1_turn = true;
+    string msg=" ";
+    InitWindow(1280, 720, "XO");
+    SetTargetFPS(60);
+    while (!WindowShouldClose()) {
+        //input
+        if (!game_over and IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            Vector2 mouse_pos = GetMousePosition();
+    // cel check
+            int col = (mouse_pos.x-startX)/cell_size ;
+            int row = (mouse_pos.y-startY)/cell_size;
+            if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
+            //validation
+                board[row][col] = p1_turn ? player1.getSymbol() : player2.getSymbol();
+               //check win
+if (checkWin(board[row][col])) {
+    game_over = true;
+    msg = p1_turn ? player1.getName() + " wins!" : player2.getName() + " wins!";
+}
+                //draw
+else if (checkDraw()) {
+    game_over = true;
+    msg = "It's a draw!";
+}else {
+    p1_turn = !p1_turn;
+}
+//p2 turn
+            }
+        }
+        BeginDrawing();
+        ClearBackground({20, 20, 40, 255});
+        drawBoard();
+        // put x and o on board
+for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 3; j++) {
+        int x = startX + j * cell_size + 30;
+        int y = startY + i * cell_size + 30;
+        if (board[i][j] == 'X') {
+            DrawText("X",x,y,50,RED);
+        }
+        else if (board[i][j] == 'O'){
+            DrawText("O", x, y, 50, GREEN);
+    }
+    }
+}
+        if (game_over) {
+            DrawText(msg.c_str(),500,150,30,YELLOW);
+        }
+        EndDrawing();
+    }
+    CloseWindow();
 }

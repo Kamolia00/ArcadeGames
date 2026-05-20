@@ -12,10 +12,12 @@ void displayBoard();
 void playerMove(Player &player);
 int minimax(bool isMax);
 void bestMove();
+    void drawBoard();
 public:
 XO(Player &p1, Player &p2);
 void playGame();
 void vsai_hard();
 void vsai_easy();
+    void playGameGUI_pvp();
 };
 #endif
