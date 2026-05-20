@@ -1,6 +1,8 @@
 #ifndef XO_H
 #define XO_H
 #include "player.h"
+#include "raylib.h"
+extern Font font;
 class XO{
 private:
 Player &player1;
@@ -19,5 +21,7 @@ void playGame();
 void vsai_hard();
 void vsai_easy();
     void playGameGUI_pvp();
+void playGameGUI_ai_easy();
+    void playGameGUI_ai_hard();
 };
 #endif

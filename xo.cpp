@@ -2,6 +2,7 @@
 #include"valid_input.h"
 #include<raylib.h>
 using namespace std;
+//const
 XO::XO(Player &p1, Player &p2) : player1(p1), player2(p2) {
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
@@ -9,6 +10,7 @@ XO::XO(Player &p1, Player &p2) : player1(p1), player2(p2) {
         }
     }
 }
+//common
 bool XO::checkWin(char symbol) {
     for (int i = 0; i < 3; i++) {
         if (board[i][0] == symbol && board[i][1] == symbol && board[i][2] == symbol) {
@@ -36,6 +38,7 @@ bool XO::checkDraw() {
     }
     return true;
 }
+//terminal game
 void XO::displayBoard() {
   cout << "    1   2   3" << endl;
   for(int i = 0; i < 3; i++) {
@@ -95,6 +98,7 @@ void XO::playGame() {
         }
     }
 }
+//ai
 int XO::minimax(bool isMax){
     if(checkWin(player2.getSymbol())){
         return 10;
@@ -116,7 +120,7 @@ if(isMax){
             }
         }
     }
-    return best;   
+    return best;
 }
 else{
     int best=10;
@@ -277,6 +281,7 @@ player1.incrementScore();
         }
     }
 }
+//gui
 void XO::drawBoard() {
     int startX = 490, startY = 210;
     int cellSize = 100;
@@ -301,8 +306,6 @@ void XO::playGameGUI_pvp() {
     bool game_over = false;
     bool p1_turn = true;
     string msg=" ";
-    InitWindow(1280, 720, "XO");
-    SetTargetFPS(60);
     while (!WindowShouldClose()) {
         //input
         if (!game_over and IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
@@ -337,10 +340,10 @@ for (int i = 0; i < 3; i++) {
         int x = startX + j * cell_size + 30;
         int y = startY + i * cell_size + 30;
         if (board[i][j] == 'X') {
-            DrawText("X",x,y,50,RED);
+            DrawTextEx(font, "X", {(float)x, (float)y}, 30, 0, RED);
         }
         else if (board[i][j] == 'O'){
-            DrawText("O", x, y, 50, GREEN);
+            DrawTextEx(font, "O", {(float)x, (float)y}, 30, 0, GREEN);
     }
     }
 }
@@ -349,5 +352,133 @@ for (int i = 0; i < 3; i++) {
         }
         EndDrawing();
     }
-    CloseWindow();
+}
+void XO::playGameGUI_ai_easy() {
+int startX = 490, startY = 210,cell_size=100;
+        bool game_over=false;
+        string msg=" ";
+         srand(time(nullptr));
+bool p1_turn=(player1.getSymbol()=='X');
+   //ai first if p1!=x
+    if (!p1_turn) {
+        int ai_row, ai_col;
+        do {
+            ai_row = rand() % 3;
+            ai_col = rand() % 3;
+        } while (board[ai_row][ai_col] != ' ');
+        board[ai_row][ai_col] = player2.getSymbol();
+        p1_turn = true;
+    }
+    while (!WindowShouldClose()) {
+        if (!game_over and IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            Vector2 mouse_pos = GetMousePosition();
+            int col = (mouse_pos.x - startX) / cell_size;
+            int row = (mouse_pos.y - startY) / cell_size;
+            if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
+                board[row][col] =  player1.getSymbol() ;
+                p1_turn = false;
+                if (checkWin(player1.getSymbol())) {
+                    game_over = true;
+                    msg =player1.getName() +" wins!" ;
+                    player1.incrementScore();
+                }
+                else if (checkDraw()) {
+                    game_over = true;
+                    msg = "It's a draw!";
+                }else {
+                    int ai_row, ai_col;
+                    do {
+                        ai_row = rand() % 3;
+                        ai_col = rand() % 3;
+                    } while (board[ai_row][ai_col] != ' ');
+                    board[ai_row][ai_col] = player2.getSymbol();
+                    p1_turn = true;
+                    if (checkWin(player2.getSymbol())) {
+                        game_over = true;
+                        msg ="ai wins!";
+                        player2.incrementScore();
+                    }
+                    else if (checkDraw()) {
+                        game_over = true;
+                        msg = "It's a draw!";
+                    }
+                }
+            }
+        }
+        BeginDrawing();
+        ClearBackground({20, 20, 40, 255});
+        drawBoard();
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                int x = startX + j * cell_size + 30;
+                int y = startY + i * cell_size + 30;
+                if (board[i][j] == 'X')
+                    DrawTextEx(font, "X", {(float)x, (float)y}, 30, 0, RED);
+                else if (board[i][j] == 'O')
+                    DrawTextEx(font, "O", {(float)x, (float)y}, 30, 0, GREEN);
+            }
+        }
+        if (game_over) {
+            DrawText(msg.c_str(), 500, 150, 30, YELLOW);
+        }
+        EndDrawing();
+    }
+}
+void XO::playGameGUI_ai_hard() {
+int startX = 490, startY = 210,cell_size=100;
+        bool game_over=false;
+    bool p1_turn=(player1.getSymbol()=='X');
+    string msg=" ";
+        if (!p1_turn) {
+            bestMove();
+            p1_turn = true;
+        }
+    while (!WindowShouldClose()) {
+        if (!game_over and IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            Vector2 mouse_pos = GetMousePosition();
+            int col = (mouse_pos.x - startX) / cell_size;
+            int row = (mouse_pos.y - startY) / cell_size;
+            if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
+                board[row][col] = player1.getSymbol();
+                p1_turn = false;
+                if (checkWin(player1.getSymbol())) {
+                    game_over = true;
+                    msg = player1.getName() + " wins!";
+                    player1.incrementScore();
+                }
+                else if (checkDraw()) {
+                    game_over = true;
+                    msg = "It's a draw!";
+                }else {
+                    bestMove();
+                    if (checkWin(player2.getSymbol())) {
+                        game_over = true;
+                        msg = "ai wins!";
+                        player2.incrementScore();
+                    }
+                    else if (checkDraw()) {
+                        game_over = true;
+                        msg = "It's a draw!";
+                    }
+                }
+            }
+        }
+    BeginDrawing();
+    ClearBackground({20, 20, 40, 255});
+    drawBoard();
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            int x = startX + j * cell_size + 30;
+            int y = startY + i * cell_size + 30;
+            if (board[i][j] == 'X')
+                DrawTextEx(font, "X", {(float)x, (float)y}, 30, 0, RED);
+            else if (board[i][j] == 'O')
+                DrawTextEx(font, "O", {(float)x, (float)y}, 30, 0, GREEN);
+        }
+    }
+        if (game_over) {
+            DrawText(msg.c_str(), 500, 150, 30, YELLOW);
+        }
+        EndDrawing();
+    }
 }

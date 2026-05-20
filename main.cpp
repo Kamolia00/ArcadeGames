@@ -1,15 +1,29 @@
-#include "xo.h"
-#include "raylib.h"
-#include "connect4.h"
-#include "valid_input.h"
-#include "player.h"
 #include <iostream>
-using namespace std;
-#include "raylib.h"
+#include "player.h"
+#include "xo.h"
+#include "menuXo.h"
 
+Font font;
 int main() {
-Player p1("Player 1", 'X');
-    Player p2("Player 2", 'O');
-    XO game(p1, p2);
-    game.playGameGUI();
+   InitWindow(1280, 720, "Arcade Games");
+   SetTargetFPS(60);
+   font = LoadFont("C:/Windows/Fonts/arial.ttf");  // load once
+
+   Player p1("Player 1", 'X');
+   Player p2("Player 2", 'O');
+   Player ai("ai", 'O');
+
+   int choice = showmenu();
+   if(choice == 1){
+      XO game(p1, p2);
+      game.playGameGUI_pvp();
+   }
+   else if(choice == 2){
+      int difficulty = showAiMenu();
+      XO game(p1, ai);
+      if(difficulty == 1) game.playGameGUI_ai_easy();
+      else if(difficulty == 2) game.playGameGUI_ai_hard();
+   }
+   CloseWindow();
+   return 0;
 }
