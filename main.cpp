@@ -7,7 +7,8 @@ Font font;
 int main() {
    InitWindow(1280, 720, "Arcade Games");
    SetTargetFPS(60);
-   font = LoadFont("C:/Windows/Fonts/arial.ttf");  // load once
+   //custom font
+   font = LoadFont("C:/Windows/Fonts/arial.ttf");
 
    Player p1("Player 1", 'X');
    Player p2("Player 2", 'O');

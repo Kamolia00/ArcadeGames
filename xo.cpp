@@ -289,7 +289,7 @@ void XO::drawBoard() {
     Color lineColor = {100, 200, 255, 255};
     int thickness = 3;
 
-    // border lines
+    // borderlines
     DrawLineEx({(float)startX, (float)startY}, {(float)(startX + gridSize), (float)startY}, thickness, lineColor);                          // top
     DrawLineEx({(float)startX, (float)(startY + gridSize)}, {(float)(startX + gridSize), (float)(startY + gridSize)}, thickness, lineColor); // bottom
     DrawLineEx({(float)startX, (float)startY}, {(float)startX, (float)(startY + gridSize)}, thickness, lineColor);                          // left
@@ -317,9 +317,15 @@ void XO::playGameGUI_pvp() {
             //validation
                 board[row][col] = p1_turn ? player1.getSymbol() : player2.getSymbol();
                //check win
-if (checkWin(board[row][col])) {
+if (checkWin(player1.getSymbol())) {
     game_over = true;
-    msg = p1_turn ? player1.getName() + " wins!" : player2.getName() + " wins!";
+    msg =  player1.getName() + " wins!" ;
+player1.incrementScore();
+}
+else if (checkWin(player2.getSymbol())) {
+    game_over = true;
+    msg = player2.getName() + " wins!";
+    player2.incrementScore();
 }
                 //draw
 else if (checkDraw()) {
@@ -327,10 +333,11 @@ else if (checkDraw()) {
     msg = "It's a draw!";
 }else {
     p1_turn = !p1_turn;
-}
 //p2 turn
+}
             }
         }
+        // Drawing begins
         BeginDrawing();
         ClearBackground({20, 20, 40, 255});
         drawBoard();
@@ -340,10 +347,10 @@ for (int i = 0; i < 3; i++) {
         int x = startX + j * cell_size + 30;
         int y = startY + i * cell_size + 30;
         if (board[i][j] == 'X') {
-            DrawTextEx(font, "X", {(float)x, (float)y}, 30, 0, RED);
+            DrawTextEx(font, "X", {(float)x, (float)y}, 40, 0, RED);
         }
         else if (board[i][j] == 'O'){
-            DrawTextEx(font, "O", {(float)x, (float)y}, 30, 0, GREEN);
+            DrawTextEx(font, "O", {(float)x, (float)y}, 40, 0, GREEN);
     }
     }
 }
@@ -362,6 +369,7 @@ bool p1_turn=(player1.getSymbol()=='X');
    //ai first if p1!=x
     if (!p1_turn) {
         int ai_row, ai_col;
+        // random generator
         do {
             ai_row = rand() % 3;
             ai_col = rand() % 3;
@@ -372,8 +380,8 @@ bool p1_turn=(player1.getSymbol()=='X');
     while (!WindowShouldClose()) {
         if (!game_over and IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
-            int col = (mouse_pos.x - startX) / cell_size;
-            int row = (mouse_pos.y - startY) / cell_size;
+            const int col = (mouse_pos.x - startX) / cell_size;
+            const int row = (mouse_pos.y - startY) / cell_size;
             if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
                 board[row][col] =  player1.getSymbol() ;
                 p1_turn = false;
@@ -436,9 +444,10 @@ int startX = 490, startY = 210,cell_size=100;
     while (!WindowShouldClose()) {
         if (!game_over and IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
-            int col = (mouse_pos.x - startX) / cell_size;
-            int row = (mouse_pos.y - startY) / cell_size;
+            const int col = (mouse_pos.x - startX) / cell_size;
+            const int row = (mouse_pos.y - startY) / cell_size;
             if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
+                //p1 turn
                 board[row][col] = player1.getSymbol();
                 p1_turn = false;
                 if (checkWin(player1.getSymbol())) {
@@ -450,6 +459,7 @@ int startX = 490, startY = 210,cell_size=100;
                     game_over = true;
                     msg = "It's a draw!";
                 }else {
+                    //ai turn
                     bestMove();
                     if (checkWin(player2.getSymbol())) {
                         game_over = true;
