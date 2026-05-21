@@ -357,7 +357,12 @@ for (int i = 0; i < 3; i++) {
         if (game_over) {
             DrawText(msg.c_str(),500,150,30,YELLOW);
         }
+        if (game_over) {
+            DrawText(msg.c_str(), 500, 150, 30, YELLOW);
+            DrawText("Press Enter to continue", 500, 190, 20, DARKGRAY);
+        }
         EndDrawing();
+        if(game_over && IsKeyPressed(KEY_ENTER)) break;
     }
 }
 void XO::playGameGUI_ai_easy() {
@@ -429,7 +434,12 @@ bool p1_turn=(player1.getSymbol()=='X');
         if (game_over) {
             DrawText(msg.c_str(), 500, 150, 30, YELLOW);
         }
+        if (game_over) {
+            DrawText(msg.c_str(), 500, 150, 30, YELLOW);
+            DrawText("Press Enter to continue", 500, 190, 20, DARKGRAY);
+        }
         EndDrawing();
+        if(game_over && IsKeyPressed(KEY_ENTER)) break;
     }
 }
 void XO::playGameGUI_ai_hard() {
@@ -489,6 +499,11 @@ int startX = 490, startY = 210,cell_size=100;
         if (game_over) {
             DrawText(msg.c_str(), 500, 150, 30, YELLOW);
         }
+        if (game_over) {
+            DrawText(msg.c_str(), 500, 150, 30, YELLOW);
+            DrawText("Press Enter to continue", 500, 190, 20, DARKGRAY);
+        }
         EndDrawing();
+        if(game_over && IsKeyPressed(KEY_ENTER)) break;
     }
 }

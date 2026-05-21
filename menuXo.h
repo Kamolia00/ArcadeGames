@@ -7,4 +7,5 @@ int showmenu();
 int showAiMenu();
 std::string getPlayerName(Player &p , const std::string& prompt);
 void getPlayerSymbol(Player &p,std::string prompt);
+int showPostGameMenu(bool is_ai);
 #endif

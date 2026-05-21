@@ -64,6 +64,46 @@ int showAiMenu(){
     }
     return 0;
 }
+int showPostGameMenu(bool is_ai) {
+    Rectangle same_btn = {490, 200, 300, 60};
+    Rectangle new_btn = {490, 300, 300, 60};
+    Rectangle switch_btn = {490, 400, 300, 60};
+    Rectangle main_btn = {490, 500, 300, 60};
+    BeginDrawing();
+    EndDrawing();
+    while (true) {
+        if(WindowShouldClose()) break;
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+            Vector2 mouse_pos = GetMousePosition();
+            if (CheckCollisionPointRec(mouse_pos, same_btn)) {
+                return 1;
+            }
+            if (CheckCollisionPointRec(mouse_pos, new_btn)) {
+                return 2;
+            }
+            if (CheckCollisionPointRec(mouse_pos, switch_btn)) {
+                return 3;
+            }
+            if (CheckCollisionPointRec(mouse_pos, main_btn)) {
+                return 0;
+            }
+        }
+        BeginDrawing();
+        ClearBackground({20, 20, 40, 255});
+        DrawText("Game Over", 560, 140, 40, WHITE);
+        DrawRectangleRec(same_btn, DARKBLUE);
+        DrawText("Play Again", 560, 215, 25, WHITE);
+        DrawRectangleRec(new_btn, DARKBLUE);
+        DrawText("New Game", 550, 315, 25, WHITE);
+        DrawRectangleRec(switch_btn, DARKBLUE);
+        DrawText(is_ai?"Switch to PvP":"Switch to AI", 530, 415, 25, WHITE);
+        DrawRectangleRec(main_btn, DARKBLUE);
+        DrawText("Main Menu", 555, 515, 25, WHITE);
+
+        EndDrawing();
+    }
+    return 0;
+}
 // user input
 std::string getPlayerName(Player &p , const std::string& prompt) {
     std::string name="";
