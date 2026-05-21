@@ -1,7 +1,7 @@
 #include "menuXo.h"
 
 #include <raylib.h>
-
+//menu
 int showmenu(){
     //buttons
 Rectangle pvp_btn={490,250,300,60};
@@ -32,13 +32,7 @@ Rectangle exit_btn={490,450,300,60};
         DrawText("Exit",600, 465, 25, WHITE);
         EndDrawing();
     }
-    // DrawText("Choose Difficulty", 480, 140, 40, WHITE);
-    // DrawRectangleRec(easy_btn, DARKBLUE);
-    // DrawText("Easy", 600, 265, 25, WHITE);
-    // DrawRectangleRec(hard_btn, DARKBLUE);
-    // DrawText("Hard", 600, 365, 25, WHITE);
-    // DrawRectangleRec(back_btn, DARKBLUE);
-    // DrawText("exit", 600, 465, 25, WHITE);
+    return 0;
 }
 int showAiMenu(){
     Rectangle easy_btn = {490, 250, 300, 60};
@@ -69,4 +63,59 @@ int showAiMenu(){
         EndDrawing();
     }
     return 0;
+}
+// user input
+std::string getPlayerName(Player &p , const std::string& prompt) {
+    std::string name="";
+
+    BeginDrawing();
+    EndDrawing();
+    while (!WindowShouldClose()) {
+        int key=GetCharPressed();
+        if(IsKeyPressed(KEY_ENTER) and !name.empty()){
+            p.setName(name);
+          break;
+        }
+        if(IsKeyPressed(KEY_BACKSPACE) and !name.empty()){
+            name.pop_back();
+        }
+        if(key >= 32 && key <= 125) name += (char)key;
+
+
+        BeginDrawing();
+        ClearBackground({20,20,40,225});
+        DrawText((prompt+" Enter Your Name:").c_str(), 400, 280, 25, WHITE);
+        DrawText(name.c_str(), 400, 320, 25, WHITE);
+        DrawText("Press Enter to Continue", 400, 380, 20, WHITE);
+        EndDrawing();
+    }
+    return name;
+}
+void getPlayerSymbol(Player &p,std::string prompt)
+ {
+Rectangle x_btn={400,300,150,60};
+Rectangle o_btn={600,300,150,60};
+    BeginDrawing();
+    EndDrawing();
+    while (!WindowShouldClose()) {
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+            Vector2 mouse_pos = GetMousePosition();
+            if (CheckCollisionPointRec(mouse_pos, x_btn)) {
+                p.setSymbol('X');
+return;
+            }
+            if (CheckCollisionPointRec(mouse_pos, o_btn)) {
+                p.setSymbol('O');
+                return;
+            }
+        }
+        BeginDrawing();
+        ClearBackground({20,20,40,225});
+        DrawText((prompt+" Choose Your Symbol:").c_str(), 380, 220, 25, WHITE);
+        DrawRectangleRec(x_btn, DARKBLUE);
+        DrawText("X", 460, 318, 30, RED);
+        DrawRectangleRec(o_btn, DARKBLUE);
+        DrawText("O", 660, 318, 30, GREEN);
+        EndDrawing();
+    }
 }
