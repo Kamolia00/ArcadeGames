@@ -304,7 +304,8 @@ void XO::drawBoard() {
 void XO::playGameGUI_pvp() {
    const int startX = 490, startY = 210,cell_size=100;
     bool game_over = false;
-    bool p1_turn = true;
+    // X always starts: p1 goes first only if p1 holds the X symbol, otherwise p2 starts
+    bool p1_turn = (player1.getSymbol() == 'X');
     string msg=" ";
     while (!WindowShouldClose()) {
         //input

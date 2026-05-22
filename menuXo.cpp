@@ -101,8 +101,11 @@ int showPostGameMenu(Player &p1, Player &p2) {
     return 0;
 }
 // user input
-std::string getPlayerName(Player &p , const std::string& prompt) {
+// now returns bool: true = name confirmed, false = user pressed Back/ESC
+bool getPlayerName(Player &p , const std::string& prompt) {
     std::string name="";
+    // back button rectangle (added so the user can return to the main menu)
+    Rectangle back_btn={490,450,300,60};
 
     BeginDrawing();
     EndDrawing();
@@ -110,7 +113,15 @@ std::string getPlayerName(Player &p , const std::string& prompt) {
         int key=GetCharPressed();
         if(IsKeyPressed(KEY_ENTER) and !name.empty()){
             p.setName(name);
-          break;
+          // signal success to caller
+          return true;
+        }
+        // ESC key also cancels back to main menu
+        if(IsKeyPressed(KEY_ESCAPE)) return false;
+        // mouse click on Back cancels too
+        if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
+            Vector2 mouse_pos = GetMousePosition();
+            if(CheckCollisionPointRec(mouse_pos, back_btn)) return false;
         }
         if(IsKeyPressed(KEY_BACKSPACE) and !name.empty()){
             name.pop_back();
@@ -123,27 +134,40 @@ std::string getPlayerName(Player &p , const std::string& prompt) {
         DrawText((prompt+" Enter Your Name:").c_str(), 400, 280, 25, WHITE);
         DrawText(name.c_str(), 400, 320, 25, WHITE);
         DrawText("Press Enter to Continue", 400, 380, 20, WHITE);
+        // draw the Back button
+        DrawRectangleRec(back_btn, DARKBLUE);
+        DrawText("Back", 600, 465, 25, WHITE);
         EndDrawing();
     }
-    return name;
+    // window closed without confirming -> treat as cancel
+    return false;
 }
-void getPlayerSymbol(Player &p,std::string prompt)
+// now returns bool: true = symbol chosen, false = user pressed Back/ESC
+bool getPlayerSymbol(Player &p,std::string prompt)
  {
 Rectangle x_btn={400,300,150,60};
 Rectangle o_btn={600,300,150,60};
+// back button rectangle (added so the user can return to the main menu)
+Rectangle back_btn={490,450,300,60};
     BeginDrawing();
     EndDrawing();
     while (!WindowShouldClose()) {
+        // ESC key cancels back to main menu
+        if(IsKeyPressed(KEY_ESCAPE)) return false;
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
             if (CheckCollisionPointRec(mouse_pos, x_btn)) {
                 p.setSymbol('X');
-return;
+// signal success to caller
+return true;
             }
             if (CheckCollisionPointRec(mouse_pos, o_btn)) {
                 p.setSymbol('O');
-                return;
+                // signal success to caller
+                return true;
             }
+            // mouse click on Back cancels too
+            if (CheckCollisionPointRec(mouse_pos, back_btn)) return false;
         }
         BeginDrawing();
         ClearBackground({20,20,40,225});
@@ -152,6 +176,11 @@ return;
         DrawText("X", 460, 318, 30, RED);
         DrawRectangleRec(o_btn, DARKBLUE);
         DrawText("O", 660, 318, 30, GREEN);
+        // draw the Back button
+        DrawRectangleRec(back_btn, DARKBLUE);
+        DrawText("Back", 600, 465, 25, WHITE);
         EndDrawing();
     }
+    // window closed without choosing -> treat as cancel
+    return false;
 }
