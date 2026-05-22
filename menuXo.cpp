@@ -1,8 +1,12 @@
 #include "menuXo.h"
-
+#include "xo.h"
+#include<string>
+#include "player.h"
 #include <raylib.h>
 //menu
 int showmenu(){
+    BeginDrawing();
+    EndDrawing();
     //buttons
 Rectangle pvp_btn={490,250,300,60};
 Rectangle ai_btn={490,350,300,60};
@@ -64,11 +68,9 @@ int showAiMenu(){
     }
     return 0;
 }
-int showPostGameMenu(bool is_ai) {
-    Rectangle same_btn = {490, 200, 300, 60};
-    Rectangle new_btn = {490, 300, 300, 60};
-    Rectangle switch_btn = {490, 400, 300, 60};
-    Rectangle main_btn = {490, 500, 300, 60};
+int showPostGameMenu(Player &p1, Player &p2) {
+    Rectangle same_btn = {490, 260, 300, 60};
+    Rectangle main_btn = {490, 340, 300, 60};
     BeginDrawing();
     EndDrawing();
     while (true) {
@@ -78,12 +80,6 @@ int showPostGameMenu(bool is_ai) {
             if (CheckCollisionPointRec(mouse_pos, same_btn)) {
                 return 1;
             }
-            if (CheckCollisionPointRec(mouse_pos, new_btn)) {
-                return 2;
-            }
-            if (CheckCollisionPointRec(mouse_pos, switch_btn)) {
-                return 3;
-            }
             if (CheckCollisionPointRec(mouse_pos, main_btn)) {
                 return 0;
             }
@@ -91,14 +87,14 @@ int showPostGameMenu(bool is_ai) {
         BeginDrawing();
         ClearBackground({20, 20, 40, 255});
         DrawText("Game Over", 560, 140, 40, WHITE);
+        // players scores
+        DrawText((p1.getName() + ": " + std::to_string(p1.getScore())).c_str(), 490, 180, 25, YELLOW);
+        DrawText((p2.getName() + ": " + std::to_string(p2.getScore())).c_str(), 490, 220, 25, YELLOW);
+
         DrawRectangleRec(same_btn, DARKBLUE);
-        DrawText("Play Again", 560, 215, 25, WHITE);
-        DrawRectangleRec(new_btn, DARKBLUE);
-        DrawText("New Game", 550, 315, 25, WHITE);
-        DrawRectangleRec(switch_btn, DARKBLUE);
-        DrawText(is_ai?"Switch to PvP":"Switch to AI", 530, 415, 25, WHITE);
-        DrawRectangleRec(main_btn, DARKBLUE);
-        DrawText("Main Menu", 555, 515, 25, WHITE);
+        DrawText("Play Again", 560, 275, 25, WHITE);
+        DrawRectangleRec(main_btn, DARKBLUE);  // add this back
+        DrawText("Main Menu", 555, 355, 25, WHITE);
 
         EndDrawing();
     }
