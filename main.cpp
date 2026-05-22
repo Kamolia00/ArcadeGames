@@ -32,8 +32,8 @@ XO game(p1,p2);
           }
           if (WindowShouldClose())break;
       }else if (choice==2) {
-          getPlayerName(p1,"Player 1");
-getPlayerSymbol(p1,p1.getName() + " choose your symbol");
+          if(!getPlayerName(p1,"Player 1")) { if(WindowShouldClose()) break; continue; }
+          if(!getPlayerSymbol(p1,p1.getName() + " choose your symbol")) { if(WindowShouldClose()) break; continue; }
           ai.setSymbol(p1.getSymbol()=='X'?'O':'X');
           int difficulty=showAiMenu();
           if(difficulty == 0 || WindowShouldClose()) continue;
