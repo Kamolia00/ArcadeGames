@@ -294,6 +294,7 @@ else{
 }
 }
 void connect4::draw_board(){
+    // consts
     int startX = 342, startY =100;
     int cellSize = 85;
     int cols = 7, rows = 7;
@@ -316,16 +317,16 @@ void connect4::draw_board(){
     for (int i = 1; i < rows; i++)
         DrawLineEx({(float)startX, (float)(startY + i * cellSize)}, {(float)(startX + gridWidth), (float)(startY + i * cellSize)}, thickness, lineColor);
 
-    // circles
+    // circles and colors
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             int cx = startX + j * cellSize + cellSize / 2;
             int cy = startY + i * cellSize + cellSize / 2;
             int radius = 30;
 
-            if (board[i][j] == p1.getSymbol())
+            if (board[i][j] == 'X')
                 DrawCircle(cx, cy, radius, RED);
-            else if (board[i][j] == p2.getSymbol())
+            else if (board[i][j] == 'O')
                 DrawCircle(cx, cy, radius, YELLOW);
             else
                 DrawCircle(cx, cy, radius, {20, 20, 40, 255});
@@ -335,10 +336,11 @@ void connect4::draw_board(){
 void connect4::pvp_gui() {
 // x=red o=yellow
 // (red starts)
+// consts
 bool game_over = false;
 bool p1_turn = (p1.getSymbol() == 'X');
-int startX = 342, startY = 100,cell_size=85;
-    const int gridWidth = cell_size * 7, gridHeight = cell_size * 7;
+const int startX = 342, startY = 100,cell_size=85;
+    const int gridHeight = cell_size * 7;
 string msg=" ";
  while (!WindowShouldClose()) {
  if (!game_over and IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
@@ -387,4 +389,151 @@ string msg=" ";
      EndDrawing();
      if (game_over && IsKeyPressed(KEY_ENTER)) break;
  }
+}
+void connect4::ai_ez_gui() {
+    // x=red o=yellow
+    // (red starts)
+    // ai is player 2
+    bool game_over = false;
+    bool p1_turn = p1.getSymbol() == 'X';
+    const int startX = 342, startY = 100, cell_size = 85;
+    const int gridHeight = cell_size * 7;
+    string msg = " ";
+    while (!WindowShouldClose()) {
+        // p1 is the real player
+        if (!game_over && p1_turn && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            Vector2 mouse_pos = GetMousePosition();
+            const int col = (mouse_pos.x - startX) / cell_size;
+            if (col >= 0 && col < 7 && board[0][col] == ' ') {
+                for (int i = 6; i >= 0; i--) {
+                    if (board[i][col] == ' ') {
+                        board[i][col] = p1.getSymbol();
+                        break;
+                    }
+                }
+                if (check_win(p1.getSymbol())) {
+                    game_over = true;
+                    msg = p1.getName() + " wins!";
+                    p1.incrementScore();
+                } else if (check_draw()) {
+                    game_over = true;
+                    msg = "It's a draw!";
+                } else {
+                    p1_turn = false;
+                }
+            }
+        }
+        // p2 move via random
+        if (!game_over && !p1_turn) {
+            int col;
+            do {
+                col = rand() % 7;
+            } while (board[0][col] != ' ');
+            for (int i = 6; i >= 0; i--) {
+                if (board[i][col] == ' ') {
+                    board[i][col] = p2.getSymbol();
+                    break;
+                }
+            }
+            if (check_win(p2.getSymbol())) {
+                game_over = true;
+                msg = p2.getName() + " wins!";
+                p2.incrementScore();
+            } else if (check_draw()) {
+                game_over = true;
+                msg = "It's a draw!";
+            } else {
+                p1_turn = true;
+            }
+        }
+        // drawing
+        BeginDrawing();
+        ClearBackground({20, 20, 40, 255});
+        Vector2 mouse_pos = GetMousePosition();
+        const int hover_col = (mouse_pos.x - startX) / cell_size;
+        if (!game_over && p1_turn && hover_col >= 0 && hover_col < 7)
+            DrawRectangle(startX + hover_col * cell_size, startY, cell_size, gridHeight, {100, 200, 255, 50});
+        draw_board();
+        string turn = p1_turn ? p1.getName() + "'s turn" : p2.getName() + "'s turn";
+        if (game_over) {
+            DrawText(msg.c_str(), startX, startY - 70, 25, YELLOW);
+            DrawText("Press Enter to continue", startX, startY - 45, 20, DARKGRAY);
+        } else {
+            DrawText(turn.c_str(), startX, startY - 40, 25, WHITE);
+        }
+        EndDrawing();
+        if (game_over && IsKeyPressed(KEY_ENTER)) break;
+    }
+}
+void connect4::ai_hard_gui() {
+    // x=red o=yellow
+    // (red starts)
+    // ai is player 2
+    bool game_over = false;
+    bool p1_turn = p1.getSymbol() == 'X';
+    const int startX = 342, startY = 100, cell_size = 85;
+    const int gridHeight = cell_size * 7;
+    string msg = " ";
+    while (!WindowShouldClose()) {
+        if (!game_over and p1_turn && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            Vector2 mouse_pos = GetMousePosition();
+            const int col = (mouse_pos.x - startX) / cell_size;
+            if (col >= 0 && col < 7 && board[0][col] == ' ') {
+                for (int i = 6; i >= 0; i--) {
+                    if (board[i][col] == ' ') {
+                        board[i][col] = p1.getSymbol();
+                        break;
+                    }
+                }
+                if (check_win(p1.getSymbol())) {
+                    game_over = true;
+                    msg = p1.getName() + " wins!";
+                    p1.incrementScore();
+                }
+                else if (check_draw()) {
+                    game_over = true;
+                    msg = "It's a draw!";
+                }
+                else {
+                    p1_turn = false;
+                }
+            }
+        }
+        if (!game_over && !p1_turn) {
+            int bestCol = getBestMove(9);  // depth can be adjusted
+            for (int i = 6; i >= 0; i--) {
+                if (board[i][bestCol] == ' ') {
+                    board[i][bestCol] = p2.getSymbol();
+                    break;
+                }
+            }
+        }
+        if (check_win(p2.getSymbol())) {
+            game_over = true;
+            msg = p2.getName() + " wins!";
+            p2.incrementScore();
+        } else if (check_draw()) {
+            game_over = true;
+            msg = "It's a draw!";
+        } else {
+            p1_turn = true;
+        }
+    // drawing
+    BeginDrawing();
+    ClearBackground({20, 20, 40, 255});
+    Vector2 mouse_pos = GetMousePosition();
+    const int hover_col = (mouse_pos.x - startX) / cell_size;
+    if (!game_over && p1_turn && hover_col >= 0 && hover_col < 7)
+        DrawRectangle(startX + hover_col * cell_size, startY, cell_size, gridHeight, {100, 200, 255, 50});
+    draw_board();
+    string turn = p1_turn ? p1.getName() + "'s turn" : p2.getName() + "'s turn";
+    if (game_over) {
+        DrawText(msg.c_str(), startX, startY - 70, 25, YELLOW);
+        DrawText("Press Enter to continue", startX, startY - 45, 20, DARKGRAY);
+    } else {
+        DrawText(turn.c_str(), startX, startY - 40, 25, WHITE);
+    }
+    EndDrawing();
+    if (game_over && IsKeyPressed(KEY_ENTER)) break;
+}
 }

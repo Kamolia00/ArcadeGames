@@ -79,10 +79,10 @@ int main() {
     font = LoadFont("C:/Windows/Fonts/arial.ttf");
   Player p1, p2;
    p1.setName("Player 1");
-   p2.setName("Player 2");
-    p1.setSymbol('X');
-    p2.setSymbol('O');
+   p2.setName("ai");
+    p1.setSymbol('O');
+    p2.setSymbol('X');
 
    connect4 game(p1,p2);
-game.pvp_gui();
+game.ai_hard_gui();
 }
