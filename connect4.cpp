@@ -507,16 +507,16 @@ void connect4::ai_hard_gui() {
                     break;
                 }
             }
-        }
-        if (check_win(p2.getSymbol())) {
-            game_over = true;
-            msg = p2.getName() + " wins!";
-            p2.incrementScore();
-        } else if (check_draw()) {
-            game_over = true;
-            msg = "It's a draw!";
-        } else {
-            p1_turn = true;
+            if (check_win(p2.getSymbol())) {
+                game_over = true;
+                msg = p2.getName() + " wins!";
+                p2.incrementScore();
+            } else if (check_draw()) {
+                game_over = true;
+                msg = "It's a draw!";
+            } else {
+                p1_turn = true;
+            }
         }
     // drawing
     BeginDrawing();
