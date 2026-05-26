@@ -3,6 +3,8 @@
 #include<cstdlib>
 #include<ctime>
 #include "valid_input.h"
+#include "raylib.h"
+//const
 connect4::connect4(Player &p1, Player &p2) : p1(p1), p2(p2) {
     for (int i = 0; i < 7; i++) {
         for (int j = 0; j < 7; j++) {
@@ -10,7 +12,6 @@ connect4::connect4(Player &p1, Player &p2) : p1(p1), p2(p2) {
         }
     }
 }
-
 void connect4::display_board(){
    cout << "  1   2   3   4   5   6   7" << endl;
 for(int i = 0; i < 7; i++){
@@ -291,4 +292,99 @@ else{
         }
 }    
 }
+}
+void connect4::draw_board(){
+    int startX = 342, startY =100;
+    int cellSize = 85;
+    int cols = 7, rows = 7;
+    int gridWidth = cellSize * cols;
+    int gridHeight = cellSize * rows;
+    Color lineColor = {100, 200, 255, 255};
+    int thickness = 2;
+
+    // border
+    DrawLineEx({(float)startX, (float)startY}, {(float)(startX + gridWidth), (float)startY}, thickness, lineColor);
+    DrawLineEx({(float)startX, (float)(startY + gridHeight)}, {(float)(startX + gridWidth), (float)(startY + gridHeight)}, thickness, lineColor);
+    DrawLineEx({(float)startX, (float)startY}, {(float)startX, (float)(startY + gridHeight)}, thickness, lineColor);
+    DrawLineEx({(float)(startX + gridWidth), (float)startY}, {(float)(startX + gridWidth), (float)(startY + gridHeight)}, thickness, lineColor);
+
+    // vertical inner lines
+    for (int j = 1; j < cols; j++)
+        DrawLineEx({(float)(startX + j * cellSize), (float)startY}, {(float)(startX + j * cellSize), (float)(startY + gridHeight)}, thickness, lineColor);
+
+    // horizontal inner lines
+    for (int i = 1; i < rows; i++)
+        DrawLineEx({(float)startX, (float)(startY + i * cellSize)}, {(float)(startX + gridWidth), (float)(startY + i * cellSize)}, thickness, lineColor);
+
+    // circles
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            int cx = startX + j * cellSize + cellSize / 2;
+            int cy = startY + i * cellSize + cellSize / 2;
+            int radius = 30;
+
+            if (board[i][j] == p1.getSymbol())
+                DrawCircle(cx, cy, radius, RED);
+            else if (board[i][j] == p2.getSymbol())
+                DrawCircle(cx, cy, radius, YELLOW);
+            else
+                DrawCircle(cx, cy, radius, {20, 20, 40, 255});
+        }
+    }
+}
+void connect4::pvp_gui() {
+// x=red o=yellow
+// (red starts)
+bool game_over = false;
+bool p1_turn = (p1.getSymbol() == 'X');
+int startX = 342, startY = 100,cell_size=85;
+    const int gridWidth = cell_size * 7, gridHeight = cell_size * 7;
+string msg=" ";
+ while (!WindowShouldClose()) {
+ if (!game_over and IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+     Vector2 mouse_pos = GetMousePosition();
+     const int col = (mouse_pos.x - startX) / cell_size;
+ if (col >= 0 && col < 7 && board[0][col] == ' ') {
+     for (int i = 6; i >= 0; i--) {
+         if (board[i][col] == ' ') {
+             board[i][col]=p1_turn?p1.getSymbol():p2.getSymbol();
+             break;
+         }
+     }
+     if (check_win(p1_turn?p1.getSymbol():p2.getSymbol())) {
+         game_over = true;
+         msg=p1_turn?p1.getName()+" wins!":p2.getName()+" wins!";
+         p1_turn?p1.incrementScore():p2.incrementScore();
+     }
+     else if (check_draw()) {
+         game_over = true;
+         msg = "It's a draw!";
+     }
+     else {
+         p1_turn = !p1_turn;
+     }
+ }
+ }
+     //drawing begins
+     BeginDrawing();
+     ClearBackground({20, 20, 40, 255});
+     //hover over the game board
+     Vector2 mouse_pos = GetMousePosition();
+     const int hover_col = (mouse_pos.x - startX) / cell_size;
+     if (!game_over && hover_col >= 0 && hover_col < 7)
+         DrawRectangle(startX + hover_col * cell_size, startY, cell_size, gridHeight, {100, 200, 255, 50});
+
+     draw_board();
+     //turn track
+     string turn = p1_turn ? p1.getName() + "'s turn" : p2.getName() + "'s turn";
+     if (game_over) {
+         DrawText(msg.c_str(), startX, startY - 70, 25, YELLOW);
+         DrawText("Press Enter to continue", startX, startY - 45, 20, DARKGRAY);
+     }
+     if (!game_over) {
+         DrawText(turn.c_str(), startX, startY - 40, 25, WHITE);
+     }
+     EndDrawing();
+     if (game_over && IsKeyPressed(KEY_ENTER)) break;
+ }
 }
