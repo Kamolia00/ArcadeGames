@@ -19,6 +19,8 @@ add_executable(ArcadeGames
         main.cpp
         menuXo.h
         menuXo.cpp
+        menuC4.h
+        menuC4.cpp
 )
 
 target_link_libraries(ArcadeGames raylib winmm gdi32 opengl32)
