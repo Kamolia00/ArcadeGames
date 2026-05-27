@@ -10,7 +10,7 @@ int main() {
     // custom font
     font = LoadFont("C:/Windows/Fonts/arial.ttf");
 
-    Player p1("kamal", 'O'), p2("hima", 'O'), ai("ai", 'X');
+    Player p1("kamal", 'X'), p2("hima", 'O'), ai("ai", 'O');
 
     while (!WindowShouldClose()) {
         int choice = showmenu_c4();
