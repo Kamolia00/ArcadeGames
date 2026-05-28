@@ -347,22 +347,25 @@ void connect4::pvp_gui() {
     int   animCol      = 0;
     int   animTargetRow= 0;
     char  animSymbol   = ' ';
-    const float animSpeed = 800.0f;
+    const float animSpeed = 900.0f;
 
-    // owner and slave
+    // wasta cases
     int kamoliaMovesP1 = 0;
     int kamoliaMovesP2 = 0;
 
     while (!WindowShouldClose()) {
 
-        // --- input ---
+        //  input
         if (!game_over && !animating && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
             const int col = (mouse_pos.x - startX) / cell_size;
             if (col >= 0 && col < 7 && board[0][col] == ' ') {
                 for (int i = 6; i >= 0; i--) {
-                    if (board[i][col] == ' ') { animTargetRow = i; break; }
+                    if (board[i][col] == ' ') {
+                        animTargetRow = i; break;
+                    }
                 }
+                // animation of each move
                 animCol     = col;
                 animSymbol  = p1_turn ? p1.getSymbol() : p2.getSymbol();
                 animY       = startY + cell_size / 2.0f;
@@ -375,7 +378,7 @@ void connect4::pvp_gui() {
             }
         }
 
-        // --- animation update ---
+        //  animation update
         if (animating) {
             animY += animSpeed * GetFrameTime();
             if (animY >= animTargetY) {
@@ -387,7 +390,7 @@ void connect4::pvp_gui() {
                 Player &cur = wasP1 ? p1 : p2;
                 int &kamoliaCount = wasP1 ? kamoliaMovesP1 : kamoliaMovesP2;
 
-                // easter egg: kamolia wins after 4 moves
+                // wasta case
                 if (cur.getName() == "kamolia" && kamoliaCount >= 4) {
                     game_over = true;
                     msg = "kamolia wins! (obviously)";
@@ -408,7 +411,7 @@ void connect4::pvp_gui() {
             }
         }
 
-        // --- drawing ---
+        //  drawing 
         BeginDrawing();
         ClearBackground({20, 20, 40, 255});
         Vector2 mouse_pos = GetMousePosition();

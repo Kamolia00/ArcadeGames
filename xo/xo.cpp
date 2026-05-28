@@ -322,14 +322,14 @@ void XO::playGameGUI_pvp() {
             if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
                 board[row][col] = p1_turn ? player1.getSymbol() : player2.getSymbol();
 
-                // track kamolia moves
+                // track kamolia moves if p1 or p2
                 if (p1_turn && player1.getName() == "kamolia") kamoliaMovesP1++;
                 if (!p1_turn && player2.getName() == "kamolia") kamoliaMovesP2++;
 
                 Player &cur = p1_turn ? player1 : player2;
                 int &kamoliaCount = p1_turn ? kamoliaMovesP1 : kamoliaMovesP2;
 
-                // easter egg
+                // wasta cases
                 if (cur.getName() == "kamolia" && kamoliaCount >= 3) {
                     game_over = true;
                     msg = "kamolia wins! (obviously)";
