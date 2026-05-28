@@ -1,7 +1,11 @@
 #ifndef player_h
 #define player_h
-#include<iostream>
-#include<string>
+#include "xo/xo.h"
+#include "xo/menuXo.h"
+#include "connect 4/connect4.h"
+#include "connect 4/menuC4.h"
+#include "player stuff/player.h"
+#include "player stuff/valid_input.h"
 class Player
 {  
     private:

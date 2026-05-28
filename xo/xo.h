@@ -1,6 +1,11 @@
 #ifndef XO_H
 #define XO_H
-#include "player.h"
+#include "xo/xo.h"
+#include "xo/menuXo.h"
+#include "connect 4/connect4.h"
+#include "connect 4/menuC4.h"
+#include "player stuff/player.h"
+#include "player stuff/valid_input.h"
 #include "raylib.h"
 extern Font font;
 class XO{

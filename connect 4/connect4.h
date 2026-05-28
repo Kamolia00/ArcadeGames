@@ -1,7 +1,11 @@
 #ifndef connect4_h
 #define connect4_h
-#include "player.h"
-#include<vector>
+#include "xo/xo.h"
+#include "xo/menuXo.h"
+#include "connect 4/connect4.h"
+#include "connect 4/menuC4.h"
+#include "player stuff/player.h"
+#include "player stuff/valid_input.h"
 using namespace std;
 class connect4{
     private:

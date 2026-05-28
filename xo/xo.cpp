@@ -1,6 +1,9 @@
-#include"xo.h"
-#include"valid_input.h"
-#include<raylib.h>
+#include "xo/xo.h"
+#include "xo/menuXo.h"
+#include "connect 4/connect4.h"
+#include "connect 4/menuC4.h"
+#include "player stuff/player.h"
+#include "player stuff/valid_input.h"
 using namespace std;
 //const
 XO::XO(Player &p1, Player &p2) : player1(p1), player2(p2) {
@@ -367,58 +370,69 @@ for (int i = 0; i < 3; i++) {
     }
 }
 void XO::playGameGUI_ai_easy() {
-int startX = 490, startY = 210,cell_size=100;
-        bool game_over=false;
-        string msg=" ";
-         srand(time(nullptr));
-bool p1_turn=(player1.getSymbol()=='X');
-   //ai first if p1!=x
+    const int startX = 490, startY = 210, cell_size = 100;
+    bool game_over = false;
+    bool p1_turn = (player1.getSymbol() == 'X');
+    string msg = " ";
+    srand(time(nullptr));
+
+    // AI delay
+    bool   aiWaiting  = false;
+    double aiMoveTime = 0.0;
+
+    // AI goes first if player is O
     if (!p1_turn) {
-        int ai_row, ai_col;
-        // random generator
-        do {
-            ai_row = rand() % 3;
-            ai_col = rand() % 3;
-        } while (board[ai_row][ai_col] != ' ');
-        board[ai_row][ai_col] = player2.getSymbol();
+        int r, c;
+        do { r = rand() % 3; c = rand() % 3; } while (board[r][c] != ' ');
+        board[r][c] = player2.getSymbol();
         p1_turn = true;
     }
+
     while (!WindowShouldClose()) {
-        if (!game_over and IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+
+        //  player input for his move
+        if (!game_over && p1_turn && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
-            const int col = (mouse_pos.x - startX) / cell_size;
-            const int row = (mouse_pos.y - startY) / cell_size;
+            int col = (mouse_pos.x - startX) / cell_size;
+            int row = (mouse_pos.y - startY) / cell_size;
             if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
-                board[row][col] =  player1.getSymbol() ;
-                p1_turn = false;
-                if (checkWin(player1.getSymbol())) {
-                    game_over = true;
-                    msg =player1.getName() +" wins!" ;
-                    player1.incrementScore();
+                board[row][col] = player1.getSymbol();
+                if      (checkWin(player1.getSymbol())) {
+                    game_over=true; msg=player1.getName()+" wins!"; player1.incrementScore();
                 }
                 else if (checkDraw()) {
-                    game_over = true;
-                    msg = "It's a draw!";
-                }else {
-                    int ai_row, ai_col;
-                    do {
-                        ai_row = rand() % 3;
-                        ai_col = rand() % 3;
-                    } while (board[ai_row][ai_col] != ' ');
-                    board[ai_row][ai_col] = player2.getSymbol();
-                    p1_turn = true;
-                    if (checkWin(player2.getSymbol())) {
-                        game_over = true;
-                        msg ="ai wins!";
-                        player2.incrementScore();
-                    }
-                    else if (checkDraw()) {
-                        game_over = true;
-                        msg = "It's a draw!";
-                    }
+                    game_over=true; msg="It's a draw!";
+                }
+                else {
+                    p1_turn=false; aiWaiting=false;
                 }
             }
         }
+
+        // AI delay
+        if (!game_over && !p1_turn) {
+            if (!aiWaiting) {
+                aiMoveTime = GetTime() + 1;
+                aiWaiting  = true;
+            }
+            if (aiWaiting && GetTime() >= aiMoveTime) {
+                aiWaiting = false;
+                int r, c;
+                do { r = rand() % 3; c = rand() % 3; } while (board[r][c] != ' ');
+                board[r][c] = player2.getSymbol();
+                if      (checkWin(player2.getSymbol())) {
+                    game_over=true; msg="AI wins!"; player2.incrementScore();
+                }
+                else if (checkDraw()) {
+                    game_over=true; msg="It's a draw!";
+                }
+                else {
+                    p1_turn=true;
+                }
+            }
+        }
+
+        // drawing
         BeginDrawing();
         ClearBackground({20, 20, 40, 255});
         drawBoard();
@@ -426,85 +440,98 @@ bool p1_turn=(player1.getSymbol()=='X');
             for (int j = 0; j < 3; j++) {
                 int x = startX + j * cell_size + 30;
                 int y = startY + i * cell_size + 30;
-                if (board[i][j] == 'X')
-                    DrawTextEx(font, "X", {(float)x, (float)y}, 40, 0, RED);
-                else if (board[i][j] == 'O')
-                    DrawTextEx(font, "O", {(float)x, (float)y}, 40, 0, GREEN);
+                if      (board[i][j] == 'X') DrawTextEx(font, "X", {(float)x,(float)y}, 40, 0, RED);
+                else if (board[i][j] == 'O') DrawTextEx(font, "O", {(float)x,(float)y}, 40, 0, GREEN);
             }
         }
         if (game_over) {
             DrawText(msg.c_str(), 500, 150, 30, YELLOW);
-        }
-        if (game_over) {
-            DrawText(msg.c_str(), 500, 150, 30, YELLOW);
             DrawText("Press Enter to continue", 500, 190, 20, DARKGRAY);
+        } else {
+            DrawText(p1_turn ? "Your turn" : "AI thinking...", 500, 150, 25, WHITE);
         }
         EndDrawing();
-        if(game_over && IsKeyPressed(KEY_ENTER)) break;
+        if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }
 }
 void XO::playGameGUI_ai_hard() {
-int startX = 490, startY = 210,cell_size=100;
-        bool game_over=false;
-    bool p1_turn=(player1.getSymbol()=='X');
-    string msg=" ";
-        if (!p1_turn) {
-            bestMove();
-            p1_turn = true;
-        }
+    const int startX = 490, startY = 210, cell_size = 100;
+    bool game_over = false;
+    bool p1_turn = (player1.getSymbol() == 'X');
+    string msg = " ";
+
+    // AI delay
+    bool   aiWaiting  = false;
+    double aiMoveTime = 0.0;
+
+    if (!p1_turn) {
+        bestMove();
+        p1_turn = true;
+    }
+
     while (!WindowShouldClose()) {
-        if (!game_over and IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+
+        //  player input move
+        if (!game_over && p1_turn && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
-            const int col = (mouse_pos.x - startX) / cell_size;
-            const int row = (mouse_pos.y - startY) / cell_size;
+            int col = (mouse_pos.x - startX) / cell_size;
+            int row = (mouse_pos.y - startY) / cell_size;
             if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
-                //p1 turn
                 board[row][col] = player1.getSymbol();
-                p1_turn = false;
-                if (checkWin(player1.getSymbol())) {
-                    game_over = true;
-                    msg = player1.getName() + " wins!";
-                    player1.incrementScore();
+                if      (checkWin(player1.getSymbol())) {
+                    game_over=true; msg=player1.getName()+" wins!"; player1.incrementScore();
                 }
                 else if (checkDraw()) {
-                    game_over = true;
-                    msg = "It's a draw!";
-                }else {
-                    //ai turn
-                    bestMove();
-                    if (checkWin(player2.getSymbol())) {
-                        game_over = true;
-                        msg = "ai wins!";
-                        player2.incrementScore();
-                    }
-                    else if (checkDraw()) {
-                        game_over = true;
-                        msg = "It's a draw!";
-                    }
+                    game_over=true; msg="It's a draw!";
+                }
+                else {
+                    p1_turn=false; aiWaiting=false;
                 }
             }
         }
-    BeginDrawing();
-    ClearBackground({20, 20, 40, 255});
-    drawBoard();
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            int x = startX + j * cell_size + 30;
-            int y = startY + i * cell_size + 30;
-            if (board[i][j] == 'X')
-                DrawTextEx(font, "X", {(float)x, (float)y}, 40, 0, RED);
-            else if (board[i][j] == 'O')
-                DrawTextEx(font, "O", {(float)x, (float)y}, 40, 0, GREEN);
+
+        // AI delay
+        if (!game_over && !p1_turn) {
+            if (!aiWaiting) {
+                aiMoveTime = GetTime() + 1.5;
+                aiWaiting  = true;
+            }
+            if (aiWaiting && GetTime() >= aiMoveTime) {
+                aiWaiting = false;
+                bestMove();
+                if      (checkWin(player2.getSymbol())) {
+                    game_over=true; msg="AI wins!"; player2.incrementScore();
+                }
+                else if (checkDraw()) {
+                    game_over=true; msg="It's a draw!";
+                }
+                else {
+                    p1_turn=true;
+                }
+            }
         }
-    }
-        if (game_over) {
-            DrawText(msg.c_str(), 500, 150, 30, YELLOW);
+
+        //drawing
+        BeginDrawing();
+        ClearBackground({20, 20, 40, 255});
+        drawBoard();
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                int x = startX + j * cell_size + 30;
+                int y = startY + i * cell_size + 30;
+                if      (board[i][j] == 'X')
+                    DrawTextEx(font, "X", {(float)x,(float)y}, 40, 0, RED);
+                else if (board[i][j] == 'O')
+                    DrawTextEx(font, "O", {(float)x,(float)y}, 40, 0, GREEN);
+            }
         }
         if (game_over) {
             DrawText(msg.c_str(), 500, 150, 30, YELLOW);
             DrawText("Press Enter to continue", 500, 190, 20, DARKGRAY);
+        } else {
+            DrawText(p1_turn ? "Your turn" : "AI thinking...", 500, 150, 25, WHITE);
         }
         EndDrawing();
-        if(game_over && IsKeyPressed(KEY_ENTER)) break;
+        if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }
 }

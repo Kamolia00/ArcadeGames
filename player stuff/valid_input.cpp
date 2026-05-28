@@ -1,4 +1,9 @@
-#include "valid_input.h"
+#include "xo/xo.h"
+#include "xo/menuXo.h"
+#include "connect 4/connect4.h"
+#include "connect 4/menuC4.h"
+#include "player stuff/player.h"
+#include "player stuff/valid_input.h"
 #include <limits>
 void input(char &c){
     while(true){

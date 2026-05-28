@@ -1,9 +1,10 @@
-#include "xo.h"
-#include "menuXo.h"
-#include "connect4.h"
-#include "menuC4.h"
-#include "player.h"
-
+#include "xo/xo.h"
+#include "xo/menuXo.h"
+#include "connect 4/connect4.h"
+#include "connect 4/menuC4.h"
+#include "player stuff/player.h"
+#include "player stuff/valid_input.h"
+#include "raylib.h"
 Font font;
 int showmenu_main() {
     BeginDrawing();
@@ -44,7 +45,7 @@ int main() {
 
         Player p1, p2, ai;
         ai.setName("AI");
-
+//1 xo 2 c4 3 exit
         switch (game) {
 
             case 1: {  // XO
@@ -54,9 +55,9 @@ int main() {
                 switch (mode) {
                     case 1: {  // PvP
                         while (!WindowShouldClose()) {
-                            if (!getPlayerName(p1, "Player 1"))         break;
-                            if (!getPlayerSymbol(p1, p1.getName()))     break;
-                            if (!getPlayerName(p2, "Player 2"))         break;
+                            if (!getPlayerName(p1, "Player 1"))           break;
+                            if (!getPlayerSymbol(p1, p1.getName()))         break;
+                            if (!getPlayerName(p2, "Player 2"))           break;
                             p2.setSymbol(p1.getSymbol() == 'X' ? 'O' : 'X');
                             XO game(p1, p2);
                             game.playGameGUI_pvp();
