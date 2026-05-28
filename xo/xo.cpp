@@ -306,6 +306,8 @@ void XO::drawBoard() {
 }
 void XO::playGameGUI_pvp() {
    const int startX = 490, startY = 210,cell_size=100;
+    int kamoliaMovesP1 = 0;
+    int kamoliaMovesP2 = 0;
     bool game_over = false;
     // X always starts: p1 goes first only if p1 holds the X symbol, otherwise p2 starts
     bool p1_turn = (player1.getSymbol() == 'X');
@@ -318,27 +320,38 @@ void XO::playGameGUI_pvp() {
             int col = (mouse_pos.x-startX)/cell_size ;
             int row = (mouse_pos.y-startY)/cell_size;
             if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
-            //validation
                 board[row][col] = p1_turn ? player1.getSymbol() : player2.getSymbol();
-               //check win
-if (checkWin(player1.getSymbol())) {
-    game_over = true;
-    msg =  player1.getName() + " wins!" ;
-player1.incrementScore();
-}
-else if (checkWin(player2.getSymbol())) {
-    game_over = true;
-    msg = player2.getName() + " wins!";
-    player2.incrementScore();
-}
-                //draw
-else if (checkDraw()) {
-    game_over = true;
-    msg = "It's a draw!";
-}else {
-    p1_turn = !p1_turn;
-//p2 turn
-}
+
+                // track kamolia moves
+                if (p1_turn && player1.getName() == "kamolia") kamoliaMovesP1++;
+                if (!p1_turn && player2.getName() == "kamolia") kamoliaMovesP2++;
+
+                Player &cur = p1_turn ? player1 : player2;
+                int &kamoliaCount = p1_turn ? kamoliaMovesP1 : kamoliaMovesP2;
+
+                // easter egg
+                if (cur.getName() == "kamolia" && kamoliaCount >= 3) {
+                    game_over = true;
+                    msg = "kamolia wins! (obviously)";
+                    cur.incrementScore();
+                }
+                else if (checkWin(player1.getSymbol())) {
+                    game_over = true;
+                    msg = player1.getName() + " wins!";
+                    player1.incrementScore();
+                }
+                else if (checkWin(player2.getSymbol())) {
+                    game_over = true;
+                    msg = player2.getName() + " wins!";
+                    player2.incrementScore();
+                }
+                else if (checkDraw()) {
+                    game_over = true;
+                    msg = "It's a draw!";
+                }
+                else {
+                    p1_turn = !p1_turn;
+                }
             }
         }
         // Drawing begins
