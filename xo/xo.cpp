@@ -378,6 +378,10 @@ for (int i = 0; i < 3; i++) {
             DrawText(msg.c_str(), 500, 150, 30, YELLOW);
             DrawText("Press Enter to continue", 500, 190, 20, DARKGRAY);
         }
+        if (!game_over) {
+            string turn = p1_turn ? player1.getName() + "'s turn" : player2.getName() + "'s turn";
+            DrawText(turn.c_str(), 490, 150, 25, WHITE);
+        }
         EndDrawing();
         if(game_over && IsKeyPressed(KEY_ENTER)) break;
     }
