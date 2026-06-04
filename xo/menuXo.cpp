@@ -30,11 +30,20 @@ Rectangle exit_btn={490,450,300,60};
         ClearBackground({20,20,40,225});
  DrawText("Arcade Games",500,140,40,WHITE);
         DrawRectangleRec(pvp_btn,DARKBLUE);
-        DrawText("Play PvP",600, 265, 25, WHITE);
+        int pvpW = MeasureText("Play PvP", 25);
+        DrawText("Play PvP",
+                 pvp_btn.x + (pvp_btn.width - pvpW) / 2,
+                 pvp_btn.y + (pvp_btn.height - 25) / 2, 25, WHITE);
         DrawRectangleRec(ai_btn,DARKBLUE);
-        DrawText("Play AI",600, 365, 25, WHITE);
+        int aiW = MeasureText("Play AI", 25);
+        DrawText("Play AI",
+                 ai_btn.x + (ai_btn.width - aiW) / 2,
+                 ai_btn.y + (ai_btn.height - 25) / 2, 25, WHITE);
         DrawRectangleRec(exit_btn,DARKBLUE);
-        DrawText("Exit",600, 465, 25, WHITE);
+        int exW = MeasureText("Exit", 25);
+        DrawText("Exit",
+                 exit_btn.x + (exit_btn.width - exW) / 2,
+                 exit_btn.y + (exit_btn.height - 25) / 2, 25, WHITE);
         EndDrawing();
     }
     return 0;
@@ -60,11 +69,20 @@ int showAiMenu(){
         ClearBackground({20, 20, 40, 255});
         DrawText("Choose Difficulty", 480, 140, 40, WHITE);
         DrawRectangleRec(easy_btn, DARKBLUE);
-        DrawText("Easy", 600, 265, 25, WHITE);
+        int easyW = MeasureText("Easy", 25);
+        DrawText("Easy",
+                 easy_btn.x + (easy_btn.width - easyW) / 2,
+                 easy_btn.y + (easy_btn.height - 25) / 2, 25, WHITE);
         DrawRectangleRec(hard_btn, DARKBLUE);
-        DrawText("Hard", 600, 365, 25, WHITE);
+        int hardW = MeasureText("Hard", 25);
+        DrawText("Hard",
+                 hard_btn.x + (hard_btn.width - hardW) / 2,
+                 hard_btn.y + (hard_btn.height - 25) / 2, 25, WHITE);
         DrawRectangleRec(back_btn, DARKBLUE);
-        DrawText("exit", 600, 465, 25, WHITE);
+        int backW = MeasureText("exit", 25);
+        DrawText("exit",
+                 back_btn.x + (back_btn.width - backW) / 2,
+                 back_btn.y + (back_btn.height - 25) / 2, 25, WHITE);
         EndDrawing();
     }
     return 0;
@@ -93,9 +111,15 @@ int showPostGameMenu(Player &p1, Player &p2) {
         DrawText((p2.getName() + ": " + std::to_string(p2.getScore())).c_str(), 490, 220, 25, YELLOW);
 
         DrawRectangleRec(same_btn, DARKBLUE);
-        DrawText("Play Again", 560, 275, 25, WHITE);
-        DrawRectangleRec(main_btn, DARKBLUE);  // add this back
-        DrawText("Main Menu", 555, 355, 25, WHITE);
+        int sameW = MeasureText("Play Again", 25);
+        DrawText("Play Again",
+                 same_btn.x + (same_btn.width - sameW) / 2,
+                 same_btn.y + (same_btn.height - 25) / 2, 25, WHITE);
+        DrawRectangleRec(main_btn, DARKBLUE);
+        int mainW = MeasureText("Main Menu", 25);
+        DrawText("Main Menu",
+                 main_btn.x + (main_btn.width - mainW) / 2,
+                 main_btn.y + (main_btn.height - 25) / 2, 25, WHITE);
 
         EndDrawing();
     }
@@ -137,7 +161,10 @@ bool getPlayerName(Player &p , const std::string& prompt) {
         DrawText("Press Enter to Continue", 400, 380, 20, WHITE);
         // draw the Back button
         DrawRectangleRec(back_btn, DARKBLUE);
-        DrawText("Back", 600, 465, 25, WHITE);
+        int backW = MeasureText("Back", 25);
+        DrawText("Back",
+                 back_btn.x + (back_btn.width - backW) / 2,
+                 back_btn.y + (back_btn.height - 25) / 2, 25, WHITE);
         EndDrawing();
     }
     // window closed without confirming -> treat as cancel
@@ -174,12 +201,21 @@ return true;
         ClearBackground({20,20,40,225});
         DrawText((prompt+" Choose Your Symbol:").c_str(), 380, 220, 25, WHITE);
         DrawRectangleRec(x_btn, DARKBLUE);
-        DrawText("X", 460, 318, 30, RED);
+        int xW = MeasureText("X", 30);
+        DrawText("X",
+                 x_btn.x + (x_btn.width - xW) / 2,
+                 x_btn.y + (x_btn.height - 30) / 2, 30, RED);
         DrawRectangleRec(o_btn, DARKBLUE);
-        DrawText("O", 660, 318, 30, GREEN);
+        int oW = MeasureText("O", 30);
+        DrawText("O",
+                 o_btn.x + (o_btn.width - oW) / 2,
+                 o_btn.y + (o_btn.height - 30) / 2, 30, GREEN);
         // draw the Back button
         DrawRectangleRec(back_btn, DARKBLUE);
-        DrawText("Back", 600, 465, 25, WHITE);
+        int backW = MeasureText("Back", 25);
+        DrawText("Back",
+                 back_btn.x + (back_btn.width - backW) / 2,
+                 back_btn.y + (back_btn.height - 25) / 2, 25, WHITE);
         EndDrawing();
     }
     // window closed without choosing -> treat as cancel

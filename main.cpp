@@ -25,11 +25,20 @@ int showmenu_main() {
         ClearBackground({20, 20, 40, 255});
         DrawText("Arcade Games", 500, 140, 40, WHITE);
         DrawRectangleRec(xo_btn,   DARKBLUE);
-        DrawText("Tic-Tac-Toe", 545, 265, 25, WHITE);
+        int ttW = MeasureText("Tic-Tac-Toe", 25);
+        DrawText("Tic-Tac-Toe",
+                 xo_btn.x + (xo_btn.width - ttW) / 2,
+                 xo_btn.y + (xo_btn.height - 25) / 2, 25, WHITE);
         DrawRectangleRec(c4_btn,   DARKBLUE);
-        DrawText("Connect 4",   560, 365, 25, WHITE);
+        int c4W = MeasureText("Connect 4", 25);
+        DrawText("Connect 4",
+                 c4_btn.x + (c4_btn.width - c4W) / 2,
+                 c4_btn.y + (c4_btn.height - 25) / 2, 25, WHITE);
         DrawRectangleRec(exit_btn, DARKBLUE);
-        DrawText("Exit",        620, 465, 25, WHITE);
+        int exW = MeasureText("Exit", 25);
+        DrawText("Exit",
+                 exit_btn.x + (exit_btn.width - exW) / 2,
+                 exit_btn.y + (exit_btn.height - 25) / 2, 25, WHITE);
         EndDrawing();
     }
     return 0;
