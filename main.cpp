@@ -7,6 +7,8 @@
 #include "raylib.h"
 Font font;
 bool muted=false;
+    Rectangle mute_btn = {20, 660, 80, 40};
+Music bgm;
 int showmenu_main() {
     BeginDrawing();
     EndDrawing();
@@ -14,15 +16,8 @@ int showmenu_main() {
     Rectangle xo_btn   = {490, 250, 300, 60};
     Rectangle c4_btn   = {490, 350, 300, 60};
     Rectangle exit_btn = {490, 450, 300, 60};
-    Rectangle mute_btn = {20, 660, 80, 40};
-Music bgm = LoadMusicStream("D:/ArcadeGames/assets/sounds/main_menu.mp3");
-    SetMusicVolume(bgm,0.5f);
-    PlayMusicStream(bgm);
     while (!WindowShouldClose()) {
         UpdateMusicStream(bgm);
-
-        if (muted) PauseMusicStream(bgm);
-        else       ResumeMusicStream(bgm);
 
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
@@ -56,17 +51,24 @@ Music bgm = LoadMusicStream("D:/ArcadeGames/assets/sounds/main_menu.mp3");
 
         EndDrawing();
     }
-    UnloadMusicStream(bgm);
     return 0;
 }
 int main() {
     InitWindow(1280, 720, "Arcade Games");
     InitAudioDevice();
     SetTargetFPS(60);
+    bgm = LoadMusicStream("D:/ArcadeGames/assets/sounds/main_menu.mp3");
+    SetMusicVolume(bgm,0.5f);
+    PlayMusicStream(bgm);
     font = LoadFont("C:/Windows/Fonts/arial.ttf");
 
     while (!WindowShouldClose()) {
-        int game = showmenu_main();   // 1=XO, 2=C4, 0=exit
+        // 1=XO, 2=C4, 0=exit
+        UpdateMusicStream(bgm);
+        if (muted) PauseMusicStream(bgm);
+        else       ResumeMusicStream(bgm);
+
+        int game = showmenu_main();
         if (game == 0) break;
 
         Player p1, p2, ai;

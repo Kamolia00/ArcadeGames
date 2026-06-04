@@ -5,6 +5,9 @@
 #include "player stuff/player.h"
 #include "player stuff/valid_input.h"
 //menu
+extern bool muted;
+extern Music bgm;
+extern Rectangle mute_btn;
 int showmenu(){
     BeginDrawing();
     EndDrawing();
@@ -13,8 +16,14 @@ Rectangle pvp_btn={490,250,300,60};
 Rectangle ai_btn={490,350,300,60};
 Rectangle exit_btn={490,450,300,60};
     while(!WindowShouldClose()) {
+        UpdateMusicStream(bgm);
+        if (muted)
+            PauseMusicStream(bgm);
+        else
+            ResumeMusicStream(bgm);
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
+            if (CheckCollisionPointRec(mouse_pos, mute_btn)) muted = !muted;
             if (CheckCollisionPointRec(mouse_pos, pvp_btn)) {
                 return 1;
             }
@@ -40,10 +49,16 @@ Rectangle exit_btn={490,450,300,60};
                  ai_btn.x + (ai_btn.width - aiW) / 2,
                  ai_btn.y + (ai_btn.height - 25) / 2, 25, WHITE);
         DrawRectangleRec(exit_btn,DARKBLUE);
-        int exW = MeasureText("Exit", 25);
-        DrawText("Exit",
+        int exW = MeasureText("Back", 25);
+        DrawText("Back",
                  exit_btn.x + (exit_btn.width - exW) / 2,
                  exit_btn.y + (exit_btn.height - 25) / 2, 25, WHITE);
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
+        DrawText(muted ? "MUTE" : "SOUND",
+            mute_btn.x + (mute_btn.width - muteW) / 2,
+            mute_btn.y + (mute_btn.height - 20) / 2,
+            20, muted ? RED : GREEN);
         EndDrawing();
     }
     return 0;
@@ -57,8 +72,12 @@ int showAiMenu(){
     BeginDrawing();
     EndDrawing();
     while(!WindowShouldClose()){
-        if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
+        UpdateMusicStream(bgm);
+        if (muted) PauseMusicStream(bgm);
+        else       ResumeMusicStream(bgm);
+         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
+            if (CheckCollisionPointRec(mouse_pos, mute_btn)) muted = !muted;
             // zay ely fo8
             if(CheckCollisionPointRec(mouse_pos, easy_btn)) return 1;
             if(CheckCollisionPointRec(mouse_pos, hard_btn)) return 2;
@@ -83,6 +102,12 @@ int showAiMenu(){
         DrawText("exit",
                  back_btn.x + (back_btn.width - backW) / 2,
                  back_btn.y + (back_btn.height - 25) / 2, 25, WHITE);
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
+        DrawText(muted ? "MUTE" : "SOUND",
+            mute_btn.x + (mute_btn.width - muteW) / 2,
+            mute_btn.y + (mute_btn.height - 20) / 2,
+            20, muted ? RED : GREEN);
         EndDrawing();
     }
     return 0;
@@ -93,9 +118,15 @@ int showPostGameMenu(Player &p1, Player &p2) {
     BeginDrawing();
     EndDrawing();
     while (true) {
+        UpdateMusicStream(bgm);
+        if (muted) PauseMusicStream(bgm);
+        else       ResumeMusicStream(bgm);
+
         if(WindowShouldClose()) break;
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
+        if (CheckCollisionPointRec(mouse_pos, mute_btn)) muted = !muted;
+
             if (CheckCollisionPointRec(mouse_pos, same_btn)) {
                 return 1;
             }
@@ -120,21 +151,33 @@ int showPostGameMenu(Player &p1, Player &p2) {
         DrawText("Main Menu",
                  main_btn.x + (main_btn.width - mainW) / 2,
                  main_btn.y + (main_btn.height - 25) / 2, 25, WHITE);
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
+        DrawText(muted ? "MUTE" : "SOUND",
+            mute_btn.x + (mute_btn.width - muteW) / 2,
+            mute_btn.y + (mute_btn.height - 20) / 2,
+            20, muted ? RED : GREEN);
 
         EndDrawing();
     }
     return 0;
 }
 // user input
-// now returns bool: true = name confirmed, false = user pressed Back/ESC
 bool getPlayerName(Player &p , const std::string& prompt) {
     std::string name="";
-    // back button rectangle (added so the user can return to the main menu)
+    // back button rectangle
     Rectangle back_btn={490,450,300,60};
 
     BeginDrawing();
     EndDrawing();
     while (!WindowShouldClose()) {
+        UpdateMusicStream(bgm);
+        if (muted) PauseMusicStream(bgm);
+        else       ResumeMusicStream(bgm);
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+            Vector2 mouse_pos = GetMousePosition();
+            if (CheckCollisionPointRec(mouse_pos, mute_btn)) muted = !muted;
+        }
         int key=GetCharPressed();
         if(IsKeyPressed(KEY_ENTER) and !name.empty()){
             p.setName(name);
@@ -165,6 +208,12 @@ bool getPlayerName(Player &p , const std::string& prompt) {
         DrawText("Back",
                  back_btn.x + (back_btn.width - backW) / 2,
                  back_btn.y + (back_btn.height - 25) / 2, 25, WHITE);
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
+        DrawText(muted ? "MUTE" : "SOUND",
+            mute_btn.x + (mute_btn.width - muteW) / 2,
+            mute_btn.y + (mute_btn.height - 20) / 2,
+            20, muted ? RED : GREEN);
         EndDrawing();
     }
     // window closed without confirming -> treat as cancel
@@ -180,6 +229,13 @@ Rectangle back_btn={490,450,300,60};
     BeginDrawing();
     EndDrawing();
     while (!WindowShouldClose()) {
+        UpdateMusicStream(bgm);
+        if (muted) PauseMusicStream(bgm);
+        else       ResumeMusicStream(bgm);
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+            Vector2 mouse_pos = GetMousePosition();
+            if (CheckCollisionPointRec(mouse_pos, mute_btn)) muted = !muted;
+        }
         // ESC key cancels back to main menu
         if(IsKeyPressed(KEY_ESCAPE)) return false;
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
@@ -216,6 +272,12 @@ return true;
         DrawText("Back",
                  back_btn.x + (back_btn.width - backW) / 2,
                  back_btn.y + (back_btn.height - 25) / 2, 25, WHITE);
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
+        DrawText(muted ? "MUTE" : "SOUND",
+            mute_btn.x + (mute_btn.width - muteW) / 2,
+            mute_btn.y + (mute_btn.height - 20) / 2,
+            20, muted ? RED : GREEN);
         EndDrawing();
     }
     // window closed without choosing -> treat as cancel

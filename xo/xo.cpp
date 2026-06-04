@@ -4,6 +4,9 @@
 #include "connect 4/menuC4.h"
 #include "player stuff/player.h"
 #include "player stuff/valid_input.h"
+extern bool muted;
+extern Music bgm;
+extern Rectangle mute_btn;
 using namespace std;
 //const
 XO::XO(Player &p1, Player &p2) : player1(p1), player2(p2) {
@@ -305,6 +308,7 @@ void XO::drawBoard() {
     DrawLineEx({(float)startX, (float)(startY + cellSize*2)}, {(float)(startX + gridSize), (float)(startY + cellSize*2)}, thickness, lineColor);
 }
 void XO::playGameGUI_pvp() {
+
    const int startX = 490, startY = 210,cell_size=100;
     int kamoliaMovesP1 = 0;
     int kamoliaMovesP2 = 0;
@@ -313,6 +317,13 @@ void XO::playGameGUI_pvp() {
     bool p1_turn = (player1.getSymbol() == 'X');
     string msg=" ";
     while (!WindowShouldClose()) {
+        UpdateMusicStream(bgm);
+        if (muted) PauseMusicStream(bgm);
+        else       ResumeMusicStream(bgm);
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+            Vector2 mouse_pos = GetMousePosition();
+            if (CheckCollisionPointRec(mouse_pos, mute_btn)) muted = !muted;
+        }
         //input
         if (!game_over and IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
@@ -382,6 +393,12 @@ for (int i = 0; i < 3; i++) {
             string turn = p1_turn ? player1.getName() + "'s turn" : player2.getName() + "'s turn";
             DrawText(turn.c_str(), 490, 150, 25, WHITE);
         }
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
+        DrawText(muted ? "MUTE" : "SOUND",
+            mute_btn.x + (mute_btn.width - muteW) / 2,
+            mute_btn.y + (mute_btn.height - 20) / 2,
+            20, muted ? RED : GREEN);
         EndDrawing();
         if(game_over && IsKeyPressed(KEY_ENTER)) break;
     }
@@ -406,10 +423,13 @@ void XO::playGameGUI_ai_easy() {
     }
 
     while (!WindowShouldClose()) {
-
+        UpdateMusicStream(bgm);
+        if (muted) PauseMusicStream(bgm);
+        else       ResumeMusicStream(bgm);
         //  player input for his move
         if (!game_over && p1_turn && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
+                if (CheckCollisionPointRec(mouse_pos, mute_btn)) muted = !muted;
             int col = (mouse_pos.x - startX) / cell_size;
             int row = (mouse_pos.y - startY) / cell_size;
             if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
@@ -467,6 +487,12 @@ void XO::playGameGUI_ai_easy() {
         } else {
             DrawText(p1_turn ? "Your turn" : "AI thinking...", 500, 150, 25, WHITE);
         }
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
+        DrawText(muted ? "MUTE" : "SOUND",
+            mute_btn.x + (mute_btn.width - muteW) / 2,
+            mute_btn.y + (mute_btn.height - 20) / 2,
+            20, muted ? RED : GREEN);
         EndDrawing();
         if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }
@@ -487,10 +513,14 @@ void XO::playGameGUI_ai_hard() {
     }
 
     while (!WindowShouldClose()) {
-
+        UpdateMusicStream(bgm);
+        if (muted) PauseMusicStream(bgm);
+        else       ResumeMusicStream(bgm);
         //  player input move
-        if (!game_over && p1_turn && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            Vector2 mouse_pos = GetMousePosition();
+
+            if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+                Vector2 mouse_pos = GetMousePosition();
+                if (CheckCollisionPointRec(mouse_pos, mute_btn)) muted = !muted;
             int col = (mouse_pos.x - startX) / cell_size;
             int row = (mouse_pos.y - startY) / cell_size;
             if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
@@ -548,6 +578,12 @@ void XO::playGameGUI_ai_hard() {
         } else {
             DrawText(p1_turn ? "Your turn" : "AI thinking...", 500, 150, 25, WHITE);
         }
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
+        DrawText(muted ? "MUTE" : "SOUND",
+            mute_btn.x + (mute_btn.width - muteW) / 2,
+            mute_btn.y + (mute_btn.height - 20) / 2,
+            20, muted ? RED : GREEN);
         EndDrawing();
         if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }
