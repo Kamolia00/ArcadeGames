@@ -9,15 +9,18 @@ link_directories(${RAYLIB_DIR}/lib)
 
 add_executable(ArcadeGames
         main.cpp
-
         xo/xo.cpp         xo/xo.h
         xo/menuXo.cpp     xo/menuXo.h
-
         "connect 4/connect4.cpp"   "connect 4/connect4.h"
         "connect 4/menuC4.cpp"     "connect 4/menuC4.h"
-
         "player stuff/player.cpp"       "player stuff/player.h"
         "player stuff/valid_input.cpp"  "player stuff/valid_input.h"
 )
 
 target_link_libraries(ArcadeGames raylib winmm gdi32 opengl32)
+
+add_custom_command(TARGET ArcadeGames POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/assets
+        $<TARGET_FILE_DIR:ArcadeGames>/assets
+)

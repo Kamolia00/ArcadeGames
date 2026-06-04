@@ -6,6 +6,7 @@
 #include "player stuff/valid_input.h"
 #include "raylib.h"
 Font font;
+bool muted=false;
 int showmenu_main() {
     BeginDrawing();
     EndDrawing();
@@ -13,10 +14,19 @@ int showmenu_main() {
     Rectangle xo_btn   = {490, 250, 300, 60};
     Rectangle c4_btn   = {490, 350, 300, 60};
     Rectangle exit_btn = {490, 450, 300, 60};
-
+    Rectangle mute_btn = {20, 660, 80, 40};
+Music bgm = LoadMusicStream("D:/ArcadeGames/assets/sounds/main_menu.mp3");
+    SetMusicVolume(bgm,0.5f);
+    PlayMusicStream(bgm);
     while (!WindowShouldClose()) {
+        UpdateMusicStream(bgm);
+
+        if (muted) PauseMusicStream(bgm);
+        else       ResumeMusicStream(bgm);
+
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
+            if (CheckCollisionPointRec(mouse_pos, mute_btn)) muted = !muted;
             if (CheckCollisionPointRec(mouse_pos, xo_btn))   return 1;
             if (CheckCollisionPointRec(mouse_pos, c4_btn))   return 2;
             if (CheckCollisionPointRec(mouse_pos, exit_btn)) return 0;
@@ -39,12 +49,19 @@ int showmenu_main() {
         DrawText("Exit",
                  exit_btn.x + (exit_btn.width - exW) / 2,
                  exit_btn.y + (exit_btn.height - 25) / 2, 25, WHITE);
+        // mute button
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(muted ? "SOUND" : "MUTE", 20);
+        DrawText(muted ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, muted ? RED : GREEN);
+
         EndDrawing();
     }
+    UnloadMusicStream(bgm);
     return 0;
 }
 int main() {
     InitWindow(1280, 720, "Arcade Games");
+    InitAudioDevice();
     SetTargetFPS(60);
     font = LoadFont("C:/Windows/Fonts/arial.ttf");
 
@@ -138,7 +155,7 @@ int main() {
 
         }
     }
-
+    CloseAudioDevice();
     CloseWindow();
     return 0;
 }
