@@ -394,11 +394,8 @@ for (int i = 0; i < 3; i++) {
             DrawText(turn.c_str(), 490, 150, 25, WHITE);
         }
         DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
-        DrawText(muted ? "MUTE" : "SOUND",
-            mute_btn.x + (mute_btn.width - muteW) / 2,
-            mute_btn.y + (mute_btn.height - 20) / 2,
-            20, muted ? RED : GREEN);
+        int muteW = MeasureText(muted ? "SOUND" : "MUTE", 20);
+        DrawText(muted ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, muted ? GREEN : RED);
         EndDrawing();
         if(game_over && IsKeyPressed(KEY_ENTER)) break;
     }
@@ -488,12 +485,8 @@ void XO::playGameGUI_ai_easy() {
             DrawText(p1_turn ? "Your turn" : "AI thinking...", 500, 150, 25, WHITE);
         }
         DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
-        DrawText(muted ? "MUTE" : "SOUND",
-            mute_btn.x + (mute_btn.width - muteW) / 2,
-            mute_btn.y + (mute_btn.height - 20) / 2,
-            20, muted ? RED : GREEN);
-        EndDrawing();
+        int muteW = MeasureText(muted ? "SOUND" : "MUTE", 20);
+        DrawText(muted ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, muted ? GREEN : RED);
         if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }
 }
@@ -579,11 +572,8 @@ void XO::playGameGUI_ai_hard() {
             DrawText(p1_turn ? "Your turn" : "AI thinking...", 500, 150, 25, WHITE);
         }
         DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
-        DrawText(muted ? "MUTE" : "SOUND",
-            mute_btn.x + (mute_btn.width - muteW) / 2,
-            mute_btn.y + (mute_btn.height - 20) / 2,
-            20, muted ? RED : GREEN);
+        int muteW = MeasureText(muted ? "SOUND" : "MUTE", 20);
+        DrawText(muted ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, muted ? GREEN : RED);
         EndDrawing();
         if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }

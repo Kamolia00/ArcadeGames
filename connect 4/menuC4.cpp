@@ -58,11 +58,8 @@ int showmenu_c4(){
                  exit_btn.x + (exit_btn.width - exW) / 2,
                  exit_btn.y + (exit_btn.height - 25) / 2, 25, WHITE);
         DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
-        DrawText(muted ? "MUTE" : "SOUND",
-            mute_btn.x + (mute_btn.width - muteW) / 2,
-            mute_btn.y + (mute_btn.height - 20) / 2,
-            20, muted ? RED : GREEN);
+        int muteW = MeasureText(muted ? "SOUND" : "MUTE", 20);
+        DrawText(muted ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, muted ? GREEN : RED);
         EndDrawing();
     }
     return 0;
@@ -109,11 +106,8 @@ int showAiMenu_c4(){
                  back_btn.x + (back_btn.width - backW) / 2,
                  back_btn.y + (back_btn.height - 25) / 2, 25, WHITE);
         DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
-        DrawText(muted ? "MUTE" : "SOUND",
-            mute_btn.x + (mute_btn.width - muteW) / 2,
-            mute_btn.y + (mute_btn.height - 20) / 2,
-            20, muted ? RED : GREEN);
+        int muteW = MeasureText(muted ? "SOUND" : "MUTE", 20);
+        DrawText(muted ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, muted ? GREEN : RED);
         EndDrawing();
     }
     return 0;
@@ -163,11 +157,8 @@ int showPostGameMenu_c4(Player &p1, Player &p2) {
                  main_btn.x + (main_btn.width - mainW) / 2,
                  main_btn.y + (main_btn.height - 25) / 2, 25, WHITE);
         DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
-        DrawText(muted ? "MUTE" : "SOUND",
-            mute_btn.x + (mute_btn.width - muteW) / 2,
-            mute_btn.y + (mute_btn.height - 20) / 2,
-            20, muted ? RED : GREEN);
+        int muteW = MeasureText(muted ? "SOUND" : "MUTE", 20);
+        DrawText(muted ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, muted ? GREEN : RED);
         EndDrawing();
     }
     return 0;
@@ -219,11 +210,8 @@ bool getPlayerName_c4(Player &p , const std::string& prompt) {
              back_btn.x + (back_btn.width - backW) / 2,
              back_btn.y + (back_btn.height - 25) / 2, 25, WHITE);
         DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
-        DrawText(muted ? "MUTE" : "SOUND",
-            mute_btn.x + (mute_btn.width - muteW) / 2,
-            mute_btn.y + (mute_btn.height - 20) / 2,
-            20, muted ? RED : GREEN);
+        int muteW = MeasureText(muted ? "SOUND" : "MUTE", 20);
+        DrawText(muted ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, muted ? GREEN : RED);
     EndDrawing();
 }
 // window closed without confirming -> treat as cancel
@@ -283,11 +271,8 @@ bool getPlayerSymbol_c4(Player &p,std::string prompt){
                  back_btn.x + (back_btn.width - backW) / 2,
                  back_btn.y + (back_btn.height - 25) / 2, 25, WHITE);
         DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
-        DrawText(muted ? "MUTE" : "SOUND",
-            mute_btn.x + (mute_btn.width - muteW) / 2,
-            mute_btn.y + (mute_btn.height - 20) / 2,
-            20, muted ? RED : GREEN);
+        int muteW = MeasureText(muted ? "SOUND" : "MUTE", 20);
+        DrawText(muted ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, muted ? GREEN : RED);
         EndDrawing();
     }
     // window closed without choosing -> treat as cancel

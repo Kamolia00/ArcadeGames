@@ -297,6 +297,7 @@ else{
 }    
 }
 }
+////////////
 void connect4::draw_board(){
     // consts
     int startX = 342, startY =100;
@@ -441,11 +442,8 @@ void connect4::pvp_gui() {
             DrawText(turn.c_str(), startX, startY - 40, 25, WHITE);
         }
         DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
-        DrawText(muted ? "MUTE" : "SOUND",
-            mute_btn.x + (mute_btn.width - muteW) / 2,
-            mute_btn.y + (mute_btn.height - 20) / 2,
-            20, muted ? RED : GREEN);
+        int muteW = MeasureText(muted ? "SOUND" : "MUTE", 20);
+        DrawText(muted ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, muted ? GREEN : RED);
         EndDrawing();
         if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }
@@ -572,11 +570,8 @@ void connect4::ai_ez_gui() {
             DrawText(turn.c_str(), startX, startY - 40, 25, WHITE);
         }
         DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
-        DrawText(muted ? "MUTE" : "SOUND",
-            mute_btn.x + (mute_btn.width - muteW) / 2,
-            mute_btn.y + (mute_btn.height - 20) / 2,
-            20, muted ? RED : GREEN);
+        int muteW = MeasureText(muted ? "SOUND" : "MUTE", 20);
+        DrawText(muted ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, muted ? GREEN : RED);
         EndDrawing();
         if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }
@@ -686,11 +681,8 @@ void connect4::ai_hard_gui() {
             DrawText(turn.c_str(), startX, startY - 40, 25, WHITE);
         }
         DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
-        DrawText(muted ? "MUTE" : "SOUND",
-            mute_btn.x + (mute_btn.width - muteW) / 2,
-            mute_btn.y + (mute_btn.height - 20) / 2,
-            20, muted ? RED : GREEN);
+        int muteW = MeasureText(muted ? "SOUND" : "MUTE", 20);
+        DrawText(muted ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, muted ? GREEN : RED);
         EndDrawing();
         if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }
