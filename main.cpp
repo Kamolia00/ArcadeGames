@@ -18,6 +18,8 @@ int showmenu_main() {
     Rectangle exit_btn = {490, 450, 300, 60};
     while (!WindowShouldClose()) {
         UpdateMusicStream(bgm);
+        if (muted) PauseMusicStream(bgm);
+        else       ResumeMusicStream(bgm);
 
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
@@ -46,8 +48,8 @@ int showmenu_main() {
                  exit_btn.y + (exit_btn.height - 25) / 2, 25, WHITE);
         // mute button
         DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(muted ? "SOUND" : "MUTE", 20);
-        DrawText(muted ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, muted ? RED : GREEN);
+        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
+        DrawText(muted ? "MUTE" : "SOUND", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, muted ? RED : GREEN);
 
         EndDrawing();
     }

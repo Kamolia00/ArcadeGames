@@ -4,6 +4,10 @@
 #include "connect 4/menuC4.h"
 #include "player stuff/player.h"
 #include "player stuff/valid_input.h"
+extern bool muted;
+extern Music bgm;
+extern Rectangle mute_btn;
+
 //const
 connect4::connect4(Player &p1, Player &p2) : p1(p1), p2(p2) {
     for (int i = 0; i < 7; i++) {
@@ -354,10 +358,13 @@ void connect4::pvp_gui() {
     int kamoliaMovesP2 = 0;
 
     while (!WindowShouldClose()) {
-
+        UpdateMusicStream(bgm);
+        if (muted) PauseMusicStream(bgm);
+        else       ResumeMusicStream(bgm);
         //  input
         if (!game_over && !animating && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
+            if (CheckCollisionPointRec(mouse_pos, mute_btn)) muted = !muted;
             const int col = (mouse_pos.x - startX) / cell_size;
             if (col >= 0 && col < 7 && board[0][col] == ' ') {
                 for (int i = 6; i >= 0; i--) {
@@ -433,6 +440,12 @@ void connect4::pvp_gui() {
             string turn = p1_turn ? p1.getName() + "'s turn" : p2.getName() + "'s turn";
             DrawText(turn.c_str(), startX, startY - 40, 25, WHITE);
         }
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
+        DrawText(muted ? "MUTE" : "SOUND",
+            mute_btn.x + (mute_btn.width - muteW) / 2,
+            mute_btn.y + (mute_btn.height - 20) / 2,
+            20, muted ? RED : GREEN);
         EndDrawing();
         if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }
@@ -458,10 +471,13 @@ void connect4::ai_ez_gui() {
     double aiMoveTime = 0.0;
 
     while (!WindowShouldClose()) {
-
+        UpdateMusicStream(bgm);
+        if (muted) PauseMusicStream(bgm);
+        else       ResumeMusicStream(bgm);
         // player input move
         if (!game_over && p1_turn && !animating && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
+           if (CheckCollisionPointRec(mouse_pos, mute_btn)) muted = !muted;
             const int col = (mouse_pos.x - startX) / cell_size;
             if (col >= 0 && col < 7 && board[0][col] == ' ') {
                 for (int i = 6; i >= 0; i--) {
@@ -555,6 +571,12 @@ void connect4::ai_ez_gui() {
             string turn = p1_turn ? p1.getName() + "'s turn" : "AI thinking...";
             DrawText(turn.c_str(), startX, startY - 40, 25, WHITE);
         }
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
+        DrawText(muted ? "MUTE" : "SOUND",
+            mute_btn.x + (mute_btn.width - muteW) / 2,
+            mute_btn.y + (mute_btn.height - 20) / 2,
+            20, muted ? RED : GREEN);
         EndDrawing();
         if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }
@@ -580,10 +602,13 @@ void connect4::ai_hard_gui() {
     double aiMoveTime = 0.0;
 
     while (!WindowShouldClose()) {
-
+        UpdateMusicStream(bgm);
+        if (muted) PauseMusicStream(bgm);
+        else       ResumeMusicStream(bgm);
         // --- player input ---
         if (!game_over && p1_turn && !animating && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
+            if (CheckCollisionPointRec(mouse_pos, mute_btn)) muted = !muted;
             const int col = (mouse_pos.x - startX) / cell_size;
             if (col >= 0 && col < 7 && board[0][col] == ' ') {
                 for (int i = 6; i >= 0; i--) {
@@ -660,6 +685,12 @@ void connect4::ai_hard_gui() {
             string turn = p1_turn ? p1.getName() + "'s turn" : "AI thinking...";
             DrawText(turn.c_str(), startX, startY - 40, 25, WHITE);
         }
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
+        DrawText(muted ? "MUTE" : "SOUND",
+            mute_btn.x + (mute_btn.width - muteW) / 2,
+            mute_btn.y + (mute_btn.height - 20) / 2,
+            20, muted ? RED : GREEN);
         EndDrawing();
         if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }

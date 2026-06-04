@@ -76,8 +76,14 @@ int showAiMenu_c4(){
     BeginDrawing();
     EndDrawing();
     while(!WindowShouldClose()){
+        UpdateMusicStream(bgm);
+        if (muted)
+            PauseMusicStream(bgm);
+        else
+            ResumeMusicStream(bgm);
         if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
             Vector2 mouse_pos = GetMousePosition();
+            if (CheckCollisionPointRec(mouse_pos, mute_btn)) muted = !muted;
             // zay ely fo8
             if(CheckCollisionPointRec(mouse_pos, easy_btn)) return 1;
             if(CheckCollisionPointRec(mouse_pos, hard_btn)) return 2;
@@ -102,6 +108,12 @@ int showAiMenu_c4(){
         DrawText("exit",
                  back_btn.x + (back_btn.width - backW) / 2,
                  back_btn.y + (back_btn.height - 25) / 2, 25, WHITE);
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
+        DrawText(muted ? "MUTE" : "SOUND",
+            mute_btn.x + (mute_btn.width - muteW) / 2,
+            mute_btn.y + (mute_btn.height - 20) / 2,
+            20, muted ? RED : GREEN);
         EndDrawing();
     }
     return 0;
@@ -112,6 +124,11 @@ int showPostGameMenu_c4(Player &p1, Player &p2) {
     BeginDrawing();
     EndDrawing();
     while (true) {
+        UpdateMusicStream(bgm);
+        if (muted)
+            PauseMusicStream(bgm);
+        else
+            ResumeMusicStream(bgm);
         if (WindowShouldClose()) break;
         // Enter key -> main menu
         if (IsKeyPressed(KEY_ENTER)) {
@@ -120,6 +137,7 @@ int showPostGameMenu_c4(Player &p1, Player &p2) {
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
             // 1 = play again with same players, 0 = main menu
+            if (CheckCollisionPointRec(mouse_pos, mute_btn)) muted = !muted;
             if (CheckCollisionPointRec(mouse_pos, same_btn)) {
                 return 1;
             }
@@ -144,7 +162,12 @@ int showPostGameMenu_c4(Player &p1, Player &p2) {
         DrawText("Main Menu (Enter)",
                  main_btn.x + (main_btn.width - mainW) / 2,
                  main_btn.y + (main_btn.height - 25) / 2, 25, WHITE);
-
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
+        DrawText(muted ? "MUTE" : "SOUND",
+            mute_btn.x + (mute_btn.width - muteW) / 2,
+            mute_btn.y + (mute_btn.height - 20) / 2,
+            20, muted ? RED : GREEN);
         EndDrawing();
     }
     return 0;
@@ -156,6 +179,15 @@ bool getPlayerName_c4(Player &p , const std::string& prompt) {
     BeginDrawing();
     EndDrawing();
     while (!WindowShouldClose()) {
+        UpdateMusicStream(bgm);
+        if (muted)
+            PauseMusicStream(bgm);
+        else
+            ResumeMusicStream(bgm);
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+            Vector2 mouse_pos = GetMousePosition();
+            if (CheckCollisionPointRec(mouse_pos, mute_btn)) muted = !muted;
+        }
         int key=GetCharPressed();
         if(IsKeyPressed(KEY_ENTER) and !name.empty()){
             p.setName(name);
@@ -186,6 +218,12 @@ bool getPlayerName_c4(Player &p , const std::string& prompt) {
     DrawText("Back",
              back_btn.x + (back_btn.width - backW) / 2,
              back_btn.y + (back_btn.height - 25) / 2, 25, WHITE);
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
+        DrawText(muted ? "MUTE" : "SOUND",
+            mute_btn.x + (mute_btn.width - muteW) / 2,
+            mute_btn.y + (mute_btn.height - 20) / 2,
+            20, muted ? RED : GREEN);
     EndDrawing();
 }
 // window closed without confirming -> treat as cancel
@@ -200,10 +238,16 @@ bool getPlayerSymbol_c4(Player &p,std::string prompt){
     BeginDrawing();
     EndDrawing();
     while (!WindowShouldClose()) {
+        UpdateMusicStream(bgm);
+        if
+        (muted) PauseMusicStream(bgm);
+        else
+            ResumeMusicStream(bgm);
         // ESC key cancels back to main menu
         if(IsKeyPressed(KEY_ESCAPE)) return false;
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
+            if (CheckCollisionPointRec(mouse_pos, mute_btn)) muted = !muted;
             if (CheckCollisionPointRec(mouse_pos, red_btn)) {
                 p.setSymbol('X');
                 // signal success to caller
@@ -238,6 +282,12 @@ bool getPlayerSymbol_c4(Player &p,std::string prompt){
         DrawText("Back",
                  back_btn.x + (back_btn.width - backW) / 2,
                  back_btn.y + (back_btn.height - 25) / 2, 25, WHITE);
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(muted ? "MUTE" : "SOUND", 20);
+        DrawText(muted ? "MUTE" : "SOUND",
+            mute_btn.x + (mute_btn.width - muteW) / 2,
+            mute_btn.y + (mute_btn.height - 20) / 2,
+            20, muted ? RED : GREEN);
         EndDrawing();
     }
     // window closed without choosing -> treat as cancel
