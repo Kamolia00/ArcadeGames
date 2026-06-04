@@ -54,11 +54,11 @@ int main() {
 
                 switch (mode) {
                     case 1: {  // PvP
+                        if (!getPlayerName(p1, "Player 1"))           break;
+                        if (!getPlayerSymbol(p1, p1.getName()))       break;
+                        if (!getPlayerName(p2, "Player 2"))           break;
+                        p2.setSymbol(p1.getSymbol() == 'X' ? 'O' : 'X');
                         while (!WindowShouldClose()) {
-                            if (!getPlayerName(p1, "Player 1"))           break;
-                            if (!getPlayerSymbol(p1, p1.getName()))         break;
-                            if (!getPlayerName(p2, "Player 2"))           break;
-                            p2.setSymbol(p1.getSymbol() == 'X' ? 'O' : 'X');
                             XO game(p1, p2);
                             game.playGameGUI_pvp();
                             if (WindowShouldClose()) break;
@@ -92,11 +92,11 @@ int main() {
                 if (mode == 0) break;
                 switch (mode) {
                     case 1: {  // PvP
+                        if (!getPlayerName_c4(p1, "Player 1"))          break;
+                        if (!getPlayerSymbol_c4(p1, p1.getName()))      break;
+                        if (!getPlayerName_c4(p2, "Player 2"))          break;
+                        p2.setSymbol(p1.getSymbol() == 'X' ? 'O' : 'X');
                         while (!WindowShouldClose()) {
-                            if (!getPlayerName_c4(p1, "Player 1"))          break;
-                            if (!getPlayerSymbol_c4(p1, p1.getName()))      break;
-                            if (!getPlayerName_c4(p2, "Player 2"))          break;
-                            p2.setSymbol(p1.getSymbol() == 'X' ? 'O' : 'X');
                             connect4 game(p1, p2);
                             game.pvp_gui();
                             if (WindowShouldClose()) break;
