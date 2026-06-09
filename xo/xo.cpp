@@ -4,8 +4,12 @@
 #include "connect 4/menuC4.h"
 #include "player stuff/player.h"
 #include "player stuff/valid_input.h"
-extern bool muted;
+extern bool mutedBGm;
 extern Music bgm;
+
+bool mutedSFX = false;
+
+Rectangle sfx_btn = {110, 660, 100, 40};
 extern Rectangle mute_btn;
 using namespace std;
 //const
@@ -15,6 +19,10 @@ XO::XO(Player &p1, Player &p2) : player1(p1), player2(p2) {
             board[i][j] = ' ';
         }
     }
+    clickSfx = LoadSound("assets/sounds/xo.ogg");
+}
+XO::~XO() {
+    UnloadSound(clickSfx);
 }
 //common
 bool XO::checkWin(char symbol) {
@@ -308,21 +316,23 @@ void XO::drawBoard() {
     DrawLineEx({(float)startX, (float)(startY + cellSize*2)}, {(float)(startX + gridSize), (float)(startY + cellSize*2)}, thickness, lineColor);
 }
 void XO::playGameGUI_pvp() {
-
    const int startX = 490, startY = 210,cell_size=100;
     int kamoliaMovesP1 = 0;
     int kamoliaMovesP2 = 0;
     bool game_over = false;
-    // X always starts: p1 goes first only if p1 holds the X symbol, otherwise p2 starts
+    // X always starts:
     bool p1_turn = (player1.getSymbol() == 'X');
     string msg=" ";
     while (!WindowShouldClose()) {
         UpdateMusicStream(bgm);
-        if (muted) PauseMusicStream(bgm);
+        if (mutedBGm) PauseMusicStream(bgm);
         else       ResumeMusicStream(bgm);
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
-            if (CheckCollisionPointRec(mouse_pos, mute_btn)) muted = !muted;
+            if (CheckCollisionPointRec(mouse_pos, sfx_btn))
+                mutedSFX = !mutedSFX;
+            if (CheckCollisionPointRec(mouse_pos, mute_btn))
+                mutedBGm = !mutedBGm;
         }
         //input
         if (!game_over and IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
@@ -332,8 +342,9 @@ void XO::playGameGUI_pvp() {
             int row = (mouse_pos.y-startY)/cell_size;
             if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
                 board[row][col] = p1_turn ? player1.getSymbol() : player2.getSymbol();
+                if (!mutedSFX) PlaySound(clickSfx);
 
-                // track kamolia moves if p1 or p2
+                // track kamolia moves
                 if (p1_turn && player1.getName() == "kamolia") kamoliaMovesP1++;
                 if (!p1_turn && player2.getName() == "kamolia") kamoliaMovesP2++;
 
@@ -394,8 +405,13 @@ for (int i = 0; i < 3; i++) {
             DrawText(turn.c_str(), 490, 150, 25, WHITE);
         }
         DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(muted ? "SOUND" : "MUTE", 20);
-        DrawText(muted ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, muted ? GREEN : RED);
+        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
+        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+
+        DrawRectangleRec(sfx_btn, DARKBLUE);
+        const char *sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
+        int sfxW = MeasureText(sfxLabel, 20);
+        DrawText(sfxLabel, sfx_btn.x + (sfx_btn.width - sfxW) / 2, sfx_btn.y + (sfx_btn.height - 20) / 2, 20, mutedSFX ? GREEN : RED);
         EndDrawing();
         if(game_over && IsKeyPressed(KEY_ENTER)) break;
     }
@@ -421,16 +437,18 @@ void XO::playGameGUI_ai_easy() {
 
     while (!WindowShouldClose()) {
         UpdateMusicStream(bgm);
-        if (muted) PauseMusicStream(bgm);
+        if (mutedBGm) PauseMusicStream(bgm);
         else       ResumeMusicStream(bgm);
         //  player input for his move
         if (!game_over && p1_turn && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
-                if (CheckCollisionPointRec(mouse_pos, mute_btn)) muted = !muted;
+                if (CheckCollisionPointRec(mouse_pos, mute_btn)) mutedBGm = !mutedBGm;
+                if (CheckCollisionPointRec(mouse_pos, sfx_btn)) mutedSFX = !mutedSFX;
             int col = (mouse_pos.x - startX) / cell_size;
             int row = (mouse_pos.y - startY) / cell_size;
             if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
                 board[row][col] = player1.getSymbol();
+                if (!mutedSFX) PlaySound(clickSfx);
                 if      (checkWin(player1.getSymbol())) {
                     game_over=true; msg=player1.getName()+" wins!"; player1.incrementScore();
                 }
@@ -454,6 +472,7 @@ void XO::playGameGUI_ai_easy() {
                 int r, c;
                 do { r = rand() % 3; c = rand() % 3; } while (board[r][c] != ' ');
                 board[r][c] = player2.getSymbol();
+                if (!mutedSFX) PlaySound(clickSfx);
                 if      (checkWin(player2.getSymbol())) {
                     game_over=true; msg="AI wins!"; player2.incrementScore();
                 }
@@ -485,8 +504,14 @@ void XO::playGameGUI_ai_easy() {
             DrawText(p1_turn ? "Your turn" : "AI thinking...", 500, 150, 25, WHITE);
         }
         DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(muted ? "SOUND" : "MUTE", 20);
-        DrawText(muted ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, muted ? GREEN : RED);
+        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
+        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+
+        DrawRectangleRec(sfx_btn, DARKBLUE);
+        const char *sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
+        int sfxW = MeasureText(sfxLabel, 20);
+        DrawText(sfxLabel, sfx_btn.x + (sfx_btn.width - sfxW) / 2, sfx_btn.y + (sfx_btn.height - 20) / 2, 20, mutedSFX ? GREEN : RED);
+        EndDrawing();
         if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }
 }
@@ -507,17 +532,19 @@ void XO::playGameGUI_ai_hard() {
 
     while (!WindowShouldClose()) {
         UpdateMusicStream(bgm);
-        if (muted) PauseMusicStream(bgm);
+        if (mutedBGm) PauseMusicStream(bgm);
         else       ResumeMusicStream(bgm);
         //  player input move
 
             if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
                 Vector2 mouse_pos = GetMousePosition();
-                if (CheckCollisionPointRec(mouse_pos, mute_btn)) muted = !muted;
+                if (CheckCollisionPointRec(mouse_pos, mute_btn)) mutedBGm = !mutedBGm;
+                if (CheckCollisionPointRec(mouse_pos, sfx_btn)) mutedSFX = !mutedSFX;
             int col = (mouse_pos.x - startX) / cell_size;
             int row = (mouse_pos.y - startY) / cell_size;
             if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
                 board[row][col] = player1.getSymbol();
+                if (!mutedSFX) PlaySound(clickSfx);
                 if      (checkWin(player1.getSymbol())) {
                     game_over=true; msg=player1.getName()+" wins!"; player1.incrementScore();
                 }
@@ -539,6 +566,7 @@ void XO::playGameGUI_ai_hard() {
             if (aiWaiting && GetTime() >= aiMoveTime) {
                 aiWaiting = false;
                 bestMove();
+                if (!mutedSFX) PlaySound(clickSfx);
                 if      (checkWin(player2.getSymbol())) {
                     game_over=true; msg="AI wins!"; player2.incrementScore();
                 }
@@ -572,9 +600,13 @@ void XO::playGameGUI_ai_hard() {
             DrawText(p1_turn ? "Your turn" : "AI thinking...", 500, 150, 25, WHITE);
         }
         DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(muted ? "SOUND" : "MUTE", 20);
-        DrawText(muted ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, muted ? GREEN : RED);
-        EndDrawing();
+        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
+        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+
+        DrawRectangleRec(sfx_btn, DARKBLUE);
+        const char *sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
+        int sfxW = MeasureText(sfxLabel, 20);
+        DrawText(sfxLabel, sfx_btn.x + (sfx_btn.width - sfxW) / 2, sfx_btn.y + (sfx_btn.height - 20) / 2, 20, mutedSFX ? GREEN : RED);        EndDrawing();
         if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }
 }

@@ -6,9 +6,11 @@
 #include "connect 4/menuC4.h"
 #include "player stuff/player.h"
 #include "player stuff/valid_input.h"
+#include "raylib.h"
 using namespace std;
 class connect4{
     private:
+    Sound ClickSfx;
         Player &p1;
         Player &p2;
         bool check_win(char symbol);
@@ -19,8 +21,9 @@ class connect4{
 int minimax(int depth, bool isMax, int alpha, int beta);  // returns score
 int getBestMove(int depth);  // calls minimax, returns best column
 public:
-void draw_board();
     connect4(Player &p1, Player &p2);
+    ~connect4();
+void draw_board();
         void play_game();
         void vs_ai_easy();
     void vs_ai_hard();

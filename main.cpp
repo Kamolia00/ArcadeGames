@@ -6,7 +6,7 @@
 #include "player stuff/valid_input.h"
 #include "raylib.h"
 Font font;
-bool muted = false;
+bool mutedBGm = false;
 Rectangle mute_btn = {20, 660, 80, 40};
 Music bgm;
 
@@ -19,7 +19,7 @@ int showmenu_main() {
     Rectangle exit_btn = {490, 450, 300, 60};
     while (!WindowShouldClose()) {
         UpdateMusicStream(bgm);
-        if (muted)
+        if (mutedBGm)
             PauseMusicStream(bgm);
         else
             ResumeMusicStream(bgm);
@@ -27,7 +27,7 @@ int showmenu_main() {
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
             if (CheckCollisionPointRec(mouse_pos, mute_btn))
-                muted = !muted;
+                mutedBGm = !mutedBGm;
             if (CheckCollisionPointRec(mouse_pos, xo_btn))
                 return 1;
             if (CheckCollisionPointRec(mouse_pos, c4_btn)) return 2;
@@ -53,9 +53,9 @@ int showmenu_main() {
                  exit_btn.y + (exit_btn.height - 25) / 2, 25, WHITE);
         // mute button
         DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(muted ? "SOUND" : "MUTE", 20);
-        DrawText(muted ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2,
-                 mute_btn.y + (mute_btn.height - 20) / 2, 20, muted ? GREEN : RED);
+        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
+        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2,
+                 mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
 
         EndDrawing();
     }
@@ -74,7 +74,7 @@ int main() {
     while (!WindowShouldClose()) {
         // 1=XO, 2=C4, 0=exit
         UpdateMusicStream(bgm);
-        if (muted) PauseMusicStream(bgm);
+        if (mutedBGm) PauseMusicStream(bgm);
         else ResumeMusicStream(bgm);
 
         int game = showmenu_main();

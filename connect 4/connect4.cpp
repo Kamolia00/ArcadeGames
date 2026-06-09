@@ -4,9 +4,11 @@
 #include "connect 4/menuC4.h"
 #include "player stuff/player.h"
 #include "player stuff/valid_input.h"
-extern bool muted;
+extern bool mutedBGm;
 extern Music bgm;
 extern Rectangle mute_btn;
+extern bool mutedSFX;
+extern Rectangle sfx_btn;
 
 //const
 connect4::connect4(Player &p1, Player &p2) : p1(p1), p2(p2) {
@@ -15,6 +17,10 @@ connect4::connect4(Player &p1, Player &p2) : p1(p1), p2(p2) {
             this->board[i][j] = ' ';
         }
     }
+    ClickSfx=LoadSound("assets/sounds/c4.ogg");
+}
+connect4::~connect4(){
+UnloadSound(ClickSfx);
 }
 void connect4::display_board(){
    cout << "  1   2   3   4   5   6   7" << endl;
@@ -360,12 +366,18 @@ void connect4::pvp_gui() {
 
     while (!WindowShouldClose()) {
         UpdateMusicStream(bgm);
-        if (muted) PauseMusicStream(bgm);
+        if (mutedBGm) PauseMusicStream(bgm);
         else       ResumeMusicStream(bgm);
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            Vector2 mouse_pos = GetMousePosition();
+            if (CheckCollisionPointRec(mouse_pos, sfx_btn))
+                mutedSFX = !mutedSFX;
+            if (CheckCollisionPointRec(mouse_pos, mute_btn))
+                mutedBGm = !mutedBGm;
+        }
         //  input
         if (!game_over && !animating && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
-            if (CheckCollisionPointRec(mouse_pos, mute_btn)) muted = !muted;
             const int col = (mouse_pos.x - startX) / cell_size;
             if (col >= 0 && col < 7 && board[0][col] == ' ') {
                 for (int i = 6; i >= 0; i--) {
@@ -393,6 +405,7 @@ void connect4::pvp_gui() {
                 animY     = animTargetY;
                 animating = false;
                 board[animTargetRow][animCol] = animSymbol;
+                if (!mutedSFX) PlaySound(ClickSfx);
 
                 bool wasP1 = (animSymbol == p1.getSymbol());
                 Player &cur = wasP1 ? p1 : p2;
@@ -442,8 +455,13 @@ void connect4::pvp_gui() {
             DrawText(turn.c_str(), startX, startY - 40, 25, WHITE);
         }
         DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(muted ? "SOUND" : "MUTE", 20);
-        DrawText(muted ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, muted ? GREEN : RED);
+        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
+        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+
+        DrawRectangleRec(sfx_btn, DARKBLUE);
+        const char *sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
+        int sfxW = MeasureText(sfxLabel, 20);
+        DrawText(sfxLabel, sfx_btn.x + (sfx_btn.width - sfxW) / 2, sfx_btn.y + (sfx_btn.height - 20) / 2, 20, mutedSFX ? GREEN : RED);
         EndDrawing();
         if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }
@@ -470,12 +488,18 @@ void connect4::ai_ez_gui() {
 
     while (!WindowShouldClose()) {
         UpdateMusicStream(bgm);
-        if (muted) PauseMusicStream(bgm);
+        if (mutedBGm) PauseMusicStream(bgm);
         else       ResumeMusicStream(bgm);
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+            Vector2 mouse_pos = GetMousePosition();
+            if (CheckCollisionPointRec(mouse_pos, sfx_btn))
+                mutedSFX = !mutedSFX;
+            if (CheckCollisionPointRec(mouse_pos, mute_btn))
+                mutedBGm = !mutedBGm;
+        }
         // player input move
         if (!game_over && p1_turn && !animating && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
-           if (CheckCollisionPointRec(mouse_pos, mute_btn)) muted = !muted;
             const int col = (mouse_pos.x - startX) / cell_size;
             if (col >= 0 && col < 7 && board[0][col] == ' ') {
                 for (int i = 6; i >= 0; i--) {
@@ -521,6 +545,7 @@ void connect4::ai_ez_gui() {
                 animY     = animTargetY;
                 animating = false;
                 board[animTargetRow][animCol] = animSymbol;
+                if (!mutedSFX) PlaySound(ClickSfx);
 
                 bool wasP1 = (animSymbol == p1.getSymbol());
                 if (wasP1) {
@@ -570,8 +595,13 @@ void connect4::ai_ez_gui() {
             DrawText(turn.c_str(), startX, startY - 40, 25, WHITE);
         }
         DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(muted ? "SOUND" : "MUTE", 20);
-        DrawText(muted ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, muted ? GREEN : RED);
+        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
+        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+
+        DrawRectangleRec(sfx_btn, DARKBLUE);
+        const char *sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
+        int sfxW = MeasureText(sfxLabel, 20);
+        DrawText(sfxLabel, sfx_btn.x + (sfx_btn.width - sfxW) / 2, sfx_btn.y + (sfx_btn.height - 20) / 2, 20, mutedSFX ? GREEN : RED);
         EndDrawing();
         if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }
@@ -598,12 +628,18 @@ void connect4::ai_hard_gui() {
 
     while (!WindowShouldClose()) {
         UpdateMusicStream(bgm);
-        if (muted) PauseMusicStream(bgm);
+        if (mutedBGm) PauseMusicStream(bgm);
         else       ResumeMusicStream(bgm);
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+            Vector2 mouse_pos = GetMousePosition();
+            if (CheckCollisionPointRec(mouse_pos, sfx_btn))
+                mutedSFX = !mutedSFX;
+            if (CheckCollisionPointRec(mouse_pos, mute_btn))
+                mutedBGm = !mutedBGm;
+        }
         // --- player input ---
         if (!game_over && p1_turn && !animating && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
-            if (CheckCollisionPointRec(mouse_pos, mute_btn)) muted = !muted;
             const int col = (mouse_pos.x - startX) / cell_size;
             if (col >= 0 && col < 7 && board[0][col] == ' ') {
                 for (int i = 6; i >= 0; i--) {
@@ -617,7 +653,7 @@ void connect4::ai_hard_gui() {
             }
         }
 
-        // --- AI delay scheduling ---
+        // AI delay
         if (!game_over && !p1_turn && !animating) {
             if (!aiWaiting) {
                 aiMoveTime = GetTime() + 1.5;
@@ -644,7 +680,7 @@ void connect4::ai_hard_gui() {
                 animY     = animTargetY;
                 animating = false;
                 board[animTargetRow][animCol] = animSymbol;
-
+                if (!mutedSFX) PlaySound(ClickSfx);
                 bool wasP1 = (animSymbol == p1.getSymbol());
                 if (wasP1) {
                     if      (check_win(p1.getSymbol())) { game_over=true; msg=p1.getName()+" wins!"; p1.incrementScore(); }
@@ -681,9 +717,12 @@ void connect4::ai_hard_gui() {
             DrawText(turn.c_str(), startX, startY - 40, 25, WHITE);
         }
         DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(muted ? "SOUND" : "MUTE", 20);
-        DrawText(muted ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, muted ? GREEN : RED);
-        EndDrawing();
-        if (game_over && IsKeyPressed(KEY_ENTER)) break;
+        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
+        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+
+        DrawRectangleRec(sfx_btn, DARKBLUE);
+        const char *sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
+        int sfxW = MeasureText(sfxLabel, 20);
+        DrawText(sfxLabel, sfx_btn.x + (sfx_btn.width - sfxW) / 2, sfx_btn.y + (sfx_btn.height - 20) / 2, 20, mutedSFX ? GREEN : RED);        EndDrawing();        if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }
 }

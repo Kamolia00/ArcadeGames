@@ -10,6 +10,7 @@
 extern Font font;
 class XO{
 private:
+    Sound clickSfx;
 Player &player1;
 Player &player2;
 char board[3][3];
@@ -22,6 +23,7 @@ void bestMove();
     void drawBoard();
 public:
 XO(Player &p1, Player &p2);
+~XO();
 void playGame();
 void vsai_hard();
 void vsai_easy();
