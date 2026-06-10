@@ -462,6 +462,17 @@ void connect4::pvp_gui() {
         const char *sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
         int sfxW = MeasureText(sfxLabel, 20);
         DrawText(sfxLabel, sfx_btn.x + (sfx_btn.width - sfxW) / 2, sfx_btn.y + (sfx_btn.height - 20) / 2, 20, mutedSFX ? GREEN : RED);
+       if (game_over) {
+       char getWin=check_win(p1.getSymbol()) ? p1.getSymbol() : p2.getSymbol();
+        int cells[4][2];
+        if(getWinCells(getWin,cells)) {
+            for (int k = 0; k < 4; k++) {
+                int x = startX + cells[k][1] * cell_size;
+                int y = startY + cells[k][0] * cell_size;
+                DrawRectangle(x, y, cell_size, cell_size, {255, 215, 0, 80});
+            }
+        }
+       }
         EndDrawing();
         if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }
@@ -602,6 +613,17 @@ void connect4::ai_ez_gui() {
         const char *sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
         int sfxW = MeasureText(sfxLabel, 20);
         DrawText(sfxLabel, sfx_btn.x + (sfx_btn.width - sfxW) / 2, sfx_btn.y + (sfx_btn.height - 20) / 2, 20, mutedSFX ? GREEN : RED);
+        if (game_over) {
+            char getWin=check_win(p1.getSymbol()) ? p1.getSymbol() : p2.getSymbol();
+            int cells[4][2];
+            if(getWinCells(getWin,cells)) {
+                for (int k = 0; k < 4; k++) {
+                    int x = startX + cells[k][1] * cell_size;
+                    int y = startY + cells[k][0] * cell_size;
+                    DrawRectangle(x, y, cell_size, cell_size, {255, 215, 0, 80});
+                }
+            }
+        }
         EndDrawing();
         if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }
@@ -723,6 +745,70 @@ void connect4::ai_hard_gui() {
         DrawRectangleRec(sfx_btn, DARKBLUE);
         const char *sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
         int sfxW = MeasureText(sfxLabel, 20);
-        DrawText(sfxLabel, sfx_btn.x + (sfx_btn.width - sfxW) / 2, sfx_btn.y + (sfx_btn.height - 20) / 2, 20, mutedSFX ? GREEN : RED);        EndDrawing();        if (game_over && IsKeyPressed(KEY_ENTER)) break;
+        DrawText(sfxLabel, sfx_btn.x + (sfx_btn.width - sfxW) / 2, sfx_btn.y + (sfx_btn.height - 20) / 2, 20, mutedSFX ? GREEN : RED);
+        if (game_over) {
+            char getWin=check_win(p1.getSymbol()) ? p1.getSymbol() : p2.getSymbol();
+            int cells[4][2];
+            if(getWinCells(getWin,cells)) {
+                for (int k = 0; k < 4; k++) {
+                    int x = startX + cells[k][1] * cell_size;
+                    int y = startY + cells[k][0] * cell_size;
+                    DrawRectangle(x, y, cell_size, cell_size, {255, 215, 0, 80});
+                }
+            }
+        }
+    EndDrawing();
+    if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }
+}
+bool connect4::getWinCells(char symbol, int cells[4][2]) {
+    //row
+    for (int i = 0; i < 7; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (board[i][j] == symbol && board[i][j+1] == symbol && board[i][j+2] == symbol) {
+                cells[0][0] = i; cells[0][1] = j;
+                cells[1][0] = i; cells[1][1] = j+1;
+                cells[2][0] = i; cells[2][1] = j+2;
+                cells[3][0]=i; cells[3][1]=j+3;
+                return true;
+            }
+        }
+    }
+    //col
+    for (int i = 0; i < 7; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (board[i][j]==symbol && board[i+1][j]==symbol && board[i+2][j]==symbol && board[i+3][j]==symbol) {
+                cells[0][0]=i;   cells[0][1]=j;
+                cells[1][0]=i+1; cells[1][1]=j;
+                cells[2][0]=i+2; cells[2][1]=j;
+                cells[3][0]=i+3; cells[3][1]=j;
+                return true;
+            }
+        }
+    }
+    // diagonal top-left to bottom-right
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (board[i][j]==symbol && board[i+1][j+1]==symbol && board[i+2][j+2]==symbol && board[i+3][j+3]==symbol) {
+                cells[0][0]=i;   cells[0][1]=j;
+                cells[1][0]=i+1; cells[1][1]=j+1;
+                cells[2][0]=i+2; cells[2][1]=j+2;
+                cells[3][0]=i+3; cells[3][1]=j+3;
+                return true;
+            }
+        }
+    }
+    // diagonal top-right to bottom-left
+    for (int i = 0; i < 4; i++) {
+        for (int j = 3; j < 7; j++) {
+            if (board[i][j]==symbol && board[i+1][j-1]==symbol && board[i+2][j-2]==symbol && board[i+3][j-3]==symbol) {
+                cells[0][0]=i;   cells[0][1]=j;
+                cells[1][0]=i+1; cells[1][1]=j-1;
+                cells[2][0]=i+2; cells[2][1]=j-2;
+                cells[3][0]=i+3; cells[3][1]=j-3;
+                return true;
+            }
+        }
+    }
+    return false;
 }

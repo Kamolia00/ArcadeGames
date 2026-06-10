@@ -412,6 +412,17 @@ for (int i = 0; i < 3; i++) {
         const char *sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
         int sfxW = MeasureText(sfxLabel, 20);
         DrawText(sfxLabel, sfx_btn.x + (sfx_btn.width - sfxW) / 2, sfx_btn.y + (sfx_btn.height - 20) / 2, 20, mutedSFX ? GREEN : RED);
+       if (game_over) {
+           int cells[3][2];
+           char winSym=checkWin(player1.getSymbol()) ? player1.getSymbol() : player2.getSymbol();
+           if(GetWinCells(winSym,cells)) {
+               for (int k = 0; k < 3; k++) {
+                   int x = startX + cells[k][1] * cell_size;
+                   int y = startY + cells[k][0] * cell_size;
+                   DrawRectangle(x, y, cell_size, cell_size, {255, 215, 0, 80});
+               }
+           }
+       }
         EndDrawing();
         if(game_over && IsKeyPressed(KEY_ENTER)) break;
     }
@@ -511,6 +522,17 @@ void XO::playGameGUI_ai_easy() {
         const char *sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
         int sfxW = MeasureText(sfxLabel, 20);
         DrawText(sfxLabel, sfx_btn.x + (sfx_btn.width - sfxW) / 2, sfx_btn.y + (sfx_btn.height - 20) / 2, 20, mutedSFX ? GREEN : RED);
+        if (game_over) {
+            int cells[3][2];
+            char winSym=checkWin(player1.getSymbol()) ? player1.getSymbol() : player2.getSymbol();
+            if(GetWinCells(winSym,cells)) {
+                for (int k = 0; k < 3; k++) {
+                    int x = startX + cells[k][1] * cell_size;
+                    int y = startY + cells[k][0] * cell_size;
+                    DrawRectangle(x, y, cell_size, cell_size, {255, 215, 0, 80});
+                }
+            }
+        }
         EndDrawing();
         if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }
@@ -607,6 +629,53 @@ void XO::playGameGUI_ai_hard() {
         const char *sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
         int sfxW = MeasureText(sfxLabel, 20);
         DrawText(sfxLabel, sfx_btn.x + (sfx_btn.width - sfxW) / 2, sfx_btn.y + (sfx_btn.height - 20) / 2, 20, mutedSFX ? GREEN : RED);        EndDrawing();
+        if (game_over) {
+            int cells[3][2];
+            char winSym=checkWin(player1.getSymbol()) ? player1.getSymbol() : player2.getSymbol();
+            if(GetWinCells(winSym,cells)) {
+                for (int k = 0; k < 3; k++) {
+                    int x = startX + cells[k][1] * cell_size;
+                    int y = startY + cells[k][0] * cell_size;
+                    DrawRectangle(x, y, cell_size, cell_size, {255, 215, 0, 80});
+                }
+            }
+        }
         if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }
+}
+bool XO::GetWinCells(char Symbol,int cells[3][2]){
+    //rows
+    for (int i = 0; i < 3; i++) {
+        if (board[i][0]==Symbol && board[i][1]==Symbol && board[i][2]==Symbol) {
+            cells[0][0]=i; cells[0][1]=0;
+            cells[1][0]=i; cells[1][1]=1;
+            cells[2][0]=i; cells[2][1]=2;
+            return true;
+        }
+    }
+    //columns
+    for (int j = 0; j < 3; j++) {
+        if (board[0][j]==Symbol && board[1][j]==Symbol && board[2][j]==Symbol) {
+            cells[0][0]=0; cells[0][1]=j;
+            cells[1][0]=1; cells[1][1]=j;
+            cells[2][0]=2; cells[2][1]=j;
+            return true;
+        }
+    }
+    //diagonals
+    // main
+    if (board[0][0]==Symbol && board[1][1]==Symbol && board[2][2]==Symbol) {
+        cells[0][0]=0; cells[0][1]=0;
+        cells[1][0]=1; cells[1][1]=1;
+        cells[2][0]=2; cells[2][1]=2;
+        return true;
+    }
+    //sup
+    if (board[0][2]==Symbol && board[1][1]==Symbol && board[2][0]==Symbol) {
+        cells[0][0]=0; cells[0][1]=2;
+        cells[1][0]=1; cells[1][1]=1;
+        cells[2][0]=2; cells[2][1]=0;
+        return true;
+    }
+    return false;
 }

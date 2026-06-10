@@ -11,6 +11,7 @@ using namespace std;
 class connect4{
     private:
     Sound ClickSfx;
+    bool getWinCells(char symbol,int cells[4][2]);
         Player &p1;
         Player &p2;
         bool check_win(char symbol);

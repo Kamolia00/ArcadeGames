@@ -10,6 +10,7 @@
 extern Font font;
 class XO{
 private:
+bool GetWinCells(char Symbol,int cells[3][2]);
     Sound clickSfx;
 Player &player1;
 Player &player2;
