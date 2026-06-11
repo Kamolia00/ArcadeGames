@@ -8,7 +8,7 @@
 extern bool mutedBGm;
 extern Music bgm;
 extern Rectangle mute_btn;
-extern const int STAR_COUNT;
+extern  int STAR_COUNT;
 extern float starX[], starY[], starSpeed[], starSize[];
 extern float rocketX, rocketY, rocketSpeed;
 int showmenu(){
