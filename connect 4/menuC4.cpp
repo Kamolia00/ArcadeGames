@@ -10,6 +10,9 @@ using namespace std;
 extern bool mutedBGm;
 extern Music bgm;
 extern Rectangle mute_btn;
+extern  int STAR_COUNT;
+extern float starX[], starY[], starSpeed[], starSize[];
+extern float rocketX, rocketY, rocketSpeed;
 int showmenu_c4(){
     BeginDrawing();
     EndDrawing();
@@ -17,10 +20,17 @@ int showmenu_c4(){
     Rectangle pvp_btn={490,250,300,60};
     Rectangle ai_btn={490,350,300,60};
     Rectangle exit_btn={490,450,300,60};
+
     while(!WindowShouldClose()) {
         UpdateMusicStream(bgm);
         if (mutedBGm) PauseMusicStream(bgm);
         else       ResumeMusicStream(bgm);
+        for (int i = 0; i < STAR_COUNT; i++) {
+            starY[i] -= starSpeed[i];
+            if (starY[i] < 0) { starY[i] = 720; starX[i] = rand() % 1280; }
+        }
+        rocketX += rocketSpeed; rocketY -= rocketSpeed * 0.4f;
+        if (rocketX > 1400) { rocketX = -60; rocketY = 600; }
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
             // 1 pvp
@@ -40,6 +50,12 @@ int showmenu_c4(){
         }
         BeginDrawing();
         ClearBackground({20,20,40,225});
+        for (int i = 0; i < STAR_COUNT; i++)
+            DrawCircle(starX[i], starY[i], starSize[i], {255, 255, 255, 180});
+        DrawRectanglePro({rocketX, rocketY, 40, 20}, {20, 10}, -25.0f, DARKGRAY);
+        DrawTriangle({rocketX+28,rocketY-8},{rocketX+28,rocketY+8},{rocketX+48,rocketY}, RED);
+        DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
+        DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
         DrawText("Connect 4",520,140,40,WHITE);
         // red and yellow accents for Connect 4 disks
         DrawRectangleRec(pvp_btn,DARKBLUE);
@@ -68,7 +84,11 @@ int showAiMenu_c4(){
     Rectangle easy_btn = {490, 250, 300, 60};
     Rectangle hard_btn = {490, 350, 300, 60};
     Rectangle back_btn = {490, 450, 300, 60};
-
+    for (int i = 0; i < STAR_COUNT; i++) {
+        starX[i] = rand() % 1280; starY[i] = rand() % 720;
+        starSpeed[i] = 0.5f + (rand() % 20) / 10.0f;
+        starSize[i]  = 1.0f + (rand() % 3);
+    }
     // wait one frame to clear mouse state from previous menu to avoid skipping the menu
     BeginDrawing();
     EndDrawing();
@@ -78,6 +98,12 @@ int showAiMenu_c4(){
             PauseMusicStream(bgm);
         else
             ResumeMusicStream(bgm);
+        for (int i = 0; i < STAR_COUNT; i++) {
+            starY[i] -= starSpeed[i];
+            if (starY[i] < 0) { starY[i] = 720; starX[i] = rand() % 1280; }
+        }
+        rocketX += rocketSpeed; rocketY -= rocketSpeed * 0.4f;
+        if (rocketX > 1400) { rocketX = -60; rocketY = 600; }
         if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
             Vector2 mouse_pos = GetMousePosition();
             if (CheckCollisionPointRec(mouse_pos, mute_btn)) mutedBGm = !mutedBGm;
@@ -89,6 +115,12 @@ int showAiMenu_c4(){
 //hard=1 easy=2 back=0
         BeginDrawing();
         ClearBackground({20, 20, 40, 255});
+        for (int i = 0; i < STAR_COUNT; i++)
+            DrawCircle(starX[i], starY[i], starSize[i], {255, 255, 255, 180});
+        DrawRectanglePro({rocketX, rocketY, 40, 20}, {20, 10}, -25.0f, DARKGRAY);
+        DrawTriangle({rocketX+28,rocketY-8},{rocketX+28,rocketY+8},{rocketX+48,rocketY}, RED);
+        DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
+        DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
         DrawText("Choose Difficulty", 480, 140, 40, WHITE);
         DrawRectangleRec(easy_btn, DARKBLUE);
         int easyW = MeasureText("Easy", 25);
@@ -115,6 +147,11 @@ int showAiMenu_c4(){
 int showPostGameMenu_c4(Player &p1, Player &p2) {
     Rectangle same_btn = {490, 260, 300, 60};
     Rectangle main_btn = {490, 340, 300, 60};
+    for (int i = 0; i < STAR_COUNT; i++) {
+        starX[i] = rand() % 1280; starY[i] = rand() % 720;
+        starSpeed[i] = 0.5f + (rand() % 20) / 10.0f;
+        starSize[i]  = 1.0f + (rand() % 3);
+    }
     BeginDrawing();
     EndDrawing();
     while (true) {
@@ -123,6 +160,12 @@ int showPostGameMenu_c4(Player &p1, Player &p2) {
             PauseMusicStream(bgm);
         else
             ResumeMusicStream(bgm);
+        for (int i = 0; i < STAR_COUNT; i++) {
+            starY[i] -= starSpeed[i];
+            if (starY[i] < 0) { starY[i] = 720; starX[i] = rand() % 1280; }
+        }
+        rocketX += rocketSpeed; rocketY -= rocketSpeed * 0.4f;
+        if (rocketX > 1400) { rocketX = -60; rocketY = 600; }
         if (WindowShouldClose()) break;
         // Enter key -> main menu
         if (IsKeyPressed(KEY_ENTER)) {
@@ -141,6 +184,12 @@ int showPostGameMenu_c4(Player &p1, Player &p2) {
         }
         BeginDrawing();
         ClearBackground({20, 20, 40, 255});
+        for (int i = 0; i < STAR_COUNT; i++)
+            DrawCircle(starX[i], starY[i], starSize[i], {255, 255, 255, 180});
+        DrawRectanglePro({rocketX, rocketY, 40, 20}, {20, 10}, -25.0f, DARKGRAY);
+        DrawTriangle({rocketX+28,rocketY-8},{rocketX+28,rocketY+8},{rocketX+48,rocketY}, RED);
+        DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
+        DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
         DrawText("Game Over", 560, 140, 40, WHITE);
         // players scores
         DrawText((p1.getName() + ": " + std::to_string(p1.getScore())).c_str(), 490, 180, 25, YELLOW);
@@ -166,7 +215,11 @@ int showPostGameMenu_c4(Player &p1, Player &p2) {
 bool getPlayerName_c4(Player &p , const std::string& prompt) {
     string name="";
     Rectangle back_btn={490,450,300,60};
-
+    for (int i = 0; i < STAR_COUNT; i++) {
+        starX[i] = rand() % 1280; starY[i] = rand() % 720;
+        starSpeed[i] = 0.5f + (rand() % 20) / 10.0f;
+        starSize[i]  = 1.0f + (rand() % 3);
+    }
     BeginDrawing();
     EndDrawing();
     while (!WindowShouldClose()) {
@@ -175,6 +228,12 @@ bool getPlayerName_c4(Player &p , const std::string& prompt) {
             PauseMusicStream(bgm);
         else
             ResumeMusicStream(bgm);
+        for (int i = 0; i < STAR_COUNT; i++) {
+            starY[i] -= starSpeed[i];
+            if (starY[i] < 0) { starY[i] = 720; starX[i] = rand() % 1280; }
+        }
+        rocketX += rocketSpeed; rocketY -= rocketSpeed * 0.4f;
+        if (rocketX > 1400) { rocketX = -60; rocketY = 600; }
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
             if (CheckCollisionPointRec(mouse_pos, mute_btn)) mutedBGm = !mutedBGm;
@@ -200,6 +259,12 @@ bool getPlayerName_c4(Player &p , const std::string& prompt) {
 
     BeginDrawing();
     ClearBackground({20,20,40,225});
+        for (int i = 0; i < STAR_COUNT; i++)
+            DrawCircle(starX[i], starY[i], starSize[i], {255, 255, 255, 180});
+        DrawRectanglePro({rocketX, rocketY, 40, 20}, {20, 10}, -25.0f, DARKGRAY);
+        DrawTriangle({rocketX+28,rocketY-8},{rocketX+28,rocketY+8},{rocketX+48,rocketY}, RED);
+        DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
+        DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
     DrawText((prompt+" Enter Your Name:").c_str(), 400, 280, 25, WHITE);
     DrawText(name.c_str(), 400, 320, 25, WHITE);
     DrawText("Press Enter to Continue", 400, 380, 20, WHITE);
@@ -223,6 +288,11 @@ bool getPlayerSymbol_c4(Player &p,std::string prompt){
     Rectangle yellow_btn={600,300,150,60};
     // back button rectangle (added so the user can return to the main menu)
     Rectangle back_btn={490,450,300,60};
+    for (int i = 0; i < STAR_COUNT; i++) {
+        starX[i] = rand() % 1280; starY[i] = rand() % 720;
+        starSpeed[i] = 0.5f + (rand() % 20) / 10.0f;
+        starSize[i]  = 1.0f + (rand() % 3);
+    }
     BeginDrawing();
     EndDrawing();
     while (!WindowShouldClose()) {
@@ -231,6 +301,12 @@ bool getPlayerSymbol_c4(Player &p,std::string prompt){
         (mutedBGm) PauseMusicStream(bgm);
         else
             ResumeMusicStream(bgm);
+        for (int i = 0; i < STAR_COUNT; i++) {
+            starY[i] -= starSpeed[i];
+            if (starY[i] < 0) { starY[i] = 720; starX[i] = rand() % 1280; }
+        }
+        rocketX += rocketSpeed; rocketY -= rocketSpeed * 0.4f;
+        if (rocketX > 1400) { rocketX = -60; rocketY = 600; }
         // ESC key cancels back to main menu
         if(IsKeyPressed(KEY_ESCAPE)) return false;
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
@@ -251,6 +327,12 @@ bool getPlayerSymbol_c4(Player &p,std::string prompt){
         }
         BeginDrawing();
         ClearBackground({20,20,40,225});
+        for (int i = 0; i < STAR_COUNT; i++)
+            DrawCircle(starX[i], starY[i], starSize[i], {255, 255, 255, 180});
+        DrawRectanglePro({rocketX, rocketY, 40, 20}, {20, 10}, -25.0f, DARKGRAY);
+        DrawTriangle({rocketX+28,rocketY-8},{rocketX+28,rocketY+8},{rocketX+48,rocketY}, RED);
+        DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
+        DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
         DrawText((prompt+" Choose Your Symbol:").c_str(), 380, 220, 25, WHITE);
         DrawRectangleRec(red_btn, DARKBLUE);
         // RED

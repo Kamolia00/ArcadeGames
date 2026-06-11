@@ -790,8 +790,8 @@ bool connect4::getWinCells(char symbol, int cells[4][2]) {
         }
     }
     //col
-    for (int i = 0; i < 7; i++) {
-        for (int j = 0; j <= 3; j++) {
+    for (int j = 0; j < 7; j++) {
+        for (int i = 0; i <= 3; i++) {
             if (board[i][j]==symbol && board[i+1][j]==symbol && board[i+2][j]==symbol && board[i+3][j]==symbol) {
                 cells[0][0]=i;   cells[0][1]=j;
                 cells[1][0]=i+1; cells[1][1]=j;

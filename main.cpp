@@ -9,60 +9,122 @@ Font font;
 bool mutedBGm = false;
 Rectangle mute_btn = {20, 660, 80, 40};
 Music bgm;
-
+//starts
+     int STAR_COUNT = 80;
+    float starX[80], starY[80], starSpeed[80], starSize[80];
+    // rocket
+    float rocketX     = -60.0f;
+    float rocketY     = 600.0f;
+    float rocketSpeed = 3.0f;
 int showmenu_main() {
     BeginDrawing();
     EndDrawing();
 
-    Rectangle xo_btn = {490, 250, 300, 60};
-    Rectangle c4_btn = {490, 350, 300, 60};
+    Rectangle xo_btn   = {490, 250, 300, 60};
+    Rectangle c4_btn   = {490, 350, 300, 60};
     Rectangle exit_btn = {490, 450, 300, 60};
+
+    // stars
+
+
     while (!WindowShouldClose()) {
         UpdateMusicStream(bgm);
-        if (mutedBGm)
-            PauseMusicStream(bgm);
-        else
-            ResumeMusicStream(bgm);
+        if (mutedBGm) PauseMusicStream(bgm);
+        else          ResumeMusicStream(bgm);
+
+        // update stars
+        for (int i = 0; i < STAR_COUNT; i++) {
+            starY[i] -= starSpeed[i];
+            if (starY[i] < 0) {
+                starY[i] = 720;
+                starX[i] = rand() % 1280;
+            }
+        }
+
+        // update rocket
+        rocketX += rocketSpeed;
+        rocketY -= rocketSpeed * 0.4f;
+        if (rocketX > 1400) {
+            rocketX = -60;
+            rocketY = 600;
+        }
 
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
-            if (CheckCollisionPointRec(mouse_pos, mute_btn))
-                mutedBGm = !mutedBGm;
-            if (CheckCollisionPointRec(mouse_pos, xo_btn))
-                return 1;
-            if (CheckCollisionPointRec(mouse_pos, c4_btn)) return 2;
+            if (CheckCollisionPointRec(mouse_pos, mute_btn)) mutedBGm = !mutedBGm;
+            if (CheckCollisionPointRec(mouse_pos, xo_btn))   return 1;
+            if (CheckCollisionPointRec(mouse_pos, c4_btn))   return 2;
             if (CheckCollisionPointRec(mouse_pos, exit_btn)) return 0;
         }
+
         BeginDrawing();
         ClearBackground({20, 20, 40, 255});
-        DrawText("Arcade Games", 500, 140, 40, WHITE);
+
+        // stars
+        for (int i = 0; i < STAR_COUNT; i++)
+            DrawCircle(starX[i], starY[i], starSize[i], {255, 255, 255, 180});
+
+        // rocket body
+        DrawRectanglePro({rocketX, rocketY, 40, 20}, {20, 10}, -25.0f, DARKGRAY);
+        // nose
+        DrawTriangle(
+            {rocketX + 28, rocketY - 8},
+            {rocketX + 28, rocketY + 8},
+            {rocketX + 48, rocketY},
+            RED
+        );
+        // flame
+        DrawTriangle(
+            {rocketX - 10, rocketY - 5},
+            {rocketX - 10, rocketY + 5},
+            {rocketX - 25, rocketY},
+            ORANGE
+        );
+        // window
+        DrawCircle(rocketX + 10, rocketY, 5, SKYBLUE);
+
+        // title
+        int titleW = MeasureText("Arcade Games", 40);
+        DrawText("Arcade Games", 1280/2 - titleW/2, 140, 40, WHITE);
+
+        // buttons
         DrawRectangleRec(xo_btn, DARKBLUE);
         int ttW = MeasureText("Tic-Tac-Toe", 25);
         DrawText("Tic-Tac-Toe",
-                 xo_btn.x + (xo_btn.width - ttW) / 2,
-                 xo_btn.y + (xo_btn.height - 25) / 2, 25, WHITE);
+            xo_btn.x + (xo_btn.width - ttW) / 2,
+            xo_btn.y + (xo_btn.height - 25) / 2, 25, WHITE);
+
         DrawRectangleRec(c4_btn, DARKBLUE);
         int c4W = MeasureText("Connect 4", 25);
         DrawText("Connect 4",
-                 c4_btn.x + (c4_btn.width - c4W) / 2,
-                 c4_btn.y + (c4_btn.height - 25) / 2, 25, WHITE);
+            c4_btn.x + (c4_btn.width - c4W) / 2,
+            c4_btn.y + (c4_btn.height - 25) / 2, 25, WHITE);
+
         DrawRectangleRec(exit_btn, DARKBLUE);
         int exW = MeasureText("Exit", 25);
         DrawText("Exit",
-                 exit_btn.x + (exit_btn.width - exW) / 2,
-                 exit_btn.y + (exit_btn.height - 25) / 2, 25, WHITE);
+            exit_btn.x + (exit_btn.width - exW) / 2,
+            exit_btn.y + (exit_btn.height - 25) / 2, 25, WHITE);
+
         // mute button
         DrawRectangleRec(mute_btn, DARKBLUE);
         int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2,
-                 mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+        DrawText(mutedBGm ? "SOUND" : "MUTE",
+            mute_btn.x + (mute_btn.width - muteW) / 2,
+            mute_btn.y + (mute_btn.height - 20) / 2,
+            20, mutedBGm ? GREEN : RED);
 
         EndDrawing();
     }
     return 0;
 }
-
 int main() {
+    for (int i = 0; i < STAR_COUNT; i++) {
+        starX[i]     = rand() % 1280;
+        starY[i]     = rand() % 720;
+        starSpeed[i] = 0.5f + (rand() % 20) / 10.0f;
+        starSize[i]  = 1.0f + (rand() % 3);
+    }
     InitWindow(1280, 720, "Arcade Games");
     InitAudioDevice();
     SetTargetFPS(60);
