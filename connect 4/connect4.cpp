@@ -9,7 +9,6 @@ extern Music bgm;
 extern Rectangle mute_btn;
 extern bool mutedSFX;
 extern Rectangle sfx_btn;
-
 //const
 connect4::connect4(Player &p1, Player &p2) : p1(p1), p2(p2) {
     for (int i = 0; i < 7; i++) {
@@ -303,7 +302,7 @@ else{
 }    
 }
 }
-////////////
+///////
 void connect4::draw_board(){
     // consts
     int startX = 342, startY =100;
@@ -345,6 +344,7 @@ void connect4::draw_board(){
     }
 }
 void connect4::pvp_gui() {
+    char win=' ';
     bool game_over = false;
     bool p1_turn = (p1.getSymbol() == 'X');
     const int startX = 342, startY = 100, cell_size = 85;
@@ -416,15 +416,18 @@ void connect4::pvp_gui() {
                     game_over = true;
                     msg = "kamolia wins! (obviously)";
                     cur.incrementScore();
+                    win=cur.getSymbol();
                 }
                 else if (check_win(cur.getSymbol())) {
                     game_over = true;
                     msg = cur.getName() + " wins!";
                     cur.incrementScore();
+                    win=cur.getSymbol();
                 }
                 else if (check_draw()) {
                     game_over = true;
                     msg = "It's a draw!";
+                    win=' ';
                 }
                 else {
                     p1_turn = !p1_turn;
@@ -463,9 +466,8 @@ void connect4::pvp_gui() {
         int sfxW = MeasureText(sfxLabel, 20);
         DrawText(sfxLabel, sfx_btn.x + (sfx_btn.width - sfxW) / 2, sfx_btn.y + (sfx_btn.height - 20) / 2, 20, mutedSFX ? GREEN : RED);
        if (game_over) {
-       char getWin=check_win(p1.getSymbol()) ? p1.getSymbol() : p2.getSymbol();
         int cells[4][2];
-        if(getWinCells(getWin,cells)) {
+        if(getWinCells(win,cells)) {
             for (int k = 0; k < 4; k++) {
                 int x = startX + cells[k][1] * cell_size;
                 int y = startY + cells[k][0] * cell_size;
@@ -478,6 +480,7 @@ void connect4::pvp_gui() {
     }
 }
 void connect4::ai_ez_gui() {
+    char win=' ';
     bool game_over = false;
     bool p1_turn = p1.getSymbol() == 'X';
     const int startX = 342, startY = 100, cell_size = 85;
@@ -562,6 +565,7 @@ void connect4::ai_ez_gui() {
                 if (wasP1) {
                     if      (check_win(p1.getSymbol())) {
                         game_over=true; msg=p1.getName()+" wins!"; p1.incrementScore();
+                        win=p1.getSymbol();
                     }
                     else if (check_draw()) {
                         game_over=true; msg="It's a draw!";
@@ -572,6 +576,7 @@ void connect4::ai_ez_gui() {
                 } else {
                     if      (check_win(p2.getSymbol())) {
                         game_over=true; msg=p2.getName()+" wins!"; p2.incrementScore();
+                        win=p2.getSymbol();
                     }
                     else if (check_draw()) {
                         game_over=true; msg="It's a draw!";
@@ -614,9 +619,8 @@ void connect4::ai_ez_gui() {
         int sfxW = MeasureText(sfxLabel, 20);
         DrawText(sfxLabel, sfx_btn.x + (sfx_btn.width - sfxW) / 2, sfx_btn.y + (sfx_btn.height - 20) / 2, 20, mutedSFX ? GREEN : RED);
         if (game_over) {
-            char getWin=check_win(p1.getSymbol()) ? p1.getSymbol() : p2.getSymbol();
             int cells[4][2];
-            if(getWinCells(getWin,cells)) {
+            if(getWinCells(win,cells)) {
                 for (int k = 0; k < 4; k++) {
                     int x = startX + cells[k][1] * cell_size;
                     int y = startY + cells[k][0] * cell_size;
@@ -629,6 +633,7 @@ void connect4::ai_ez_gui() {
     }
 }
 void connect4::ai_hard_gui() {
+    char win=' ';
     bool game_over = false;
     bool p1_turn = p1.getSymbol() == 'X';
     const int startX = 342, startY = 100, cell_size = 85;
@@ -705,11 +710,22 @@ void connect4::ai_hard_gui() {
                 if (!mutedSFX) PlaySound(ClickSfx);
                 bool wasP1 = (animSymbol == p1.getSymbol());
                 if (wasP1) {
-                    if      (check_win(p1.getSymbol())) { game_over=true; msg=p1.getName()+" wins!"; p1.incrementScore(); }
-                    else if (check_draw())               { game_over=true; msg="It's a draw!"; }
+                    if      (check_win(p1.getSymbol())) {
+                        game_over=true;
+                        msg=p1.getName()+" wins!"; p1.incrementScore();
+                    win=p1.getSymbol();
+                    }
+                    else if (check_draw()) {
+                        game_over=true; msg="It's a draw!";
+                    }
                     else                                 { p1_turn=false; }
                 } else {
-                    if      (check_win(p2.getSymbol())) { game_over=true; msg=p2.getName()+" wins!"; p2.incrementScore(); }
+                    if      (check_win(p2.getSymbol())) {
+                        game_over=true;
+                        msg=p2.getName()+" wins!";
+                        p2.incrementScore();
+                        win=p2.getSymbol();
+                    }
                     else if (check_draw())               { game_over=true; msg="It's a draw!"; }
                     else                                 { p1_turn=true; }
                 }
@@ -747,9 +763,8 @@ void connect4::ai_hard_gui() {
         int sfxW = MeasureText(sfxLabel, 20);
         DrawText(sfxLabel, sfx_btn.x + (sfx_btn.width - sfxW) / 2, sfx_btn.y + (sfx_btn.height - 20) / 2, 20, mutedSFX ? GREEN : RED);
         if (game_over) {
-            char getWin=check_win(p1.getSymbol()) ? p1.getSymbol() : p2.getSymbol();
             int cells[4][2];
-            if(getWinCells(getWin,cells)) {
+            if(getWinCells(win,cells)) {
                 for (int k = 0; k < 4; k++) {
                     int x = startX + cells[k][1] * cell_size;
                     int y = startY + cells[k][0] * cell_size;
@@ -764,8 +779,8 @@ void connect4::ai_hard_gui() {
 bool connect4::getWinCells(char symbol, int cells[4][2]) {
     //row
     for (int i = 0; i < 7; i++) {
-        for (int j = 0; j < 3; j++) {
-            if (board[i][j] == symbol && board[i][j+1] == symbol && board[i][j+2] == symbol) {
+        for (int j = 0; j <= 3; j++) {
+            if (board[i][j] == symbol && board[i][j+1] == symbol && board[i][j+2] == symbol && board[i][j+3] == symbol) {
                 cells[0][0] = i; cells[0][1] = j;
                 cells[1][0] = i; cells[1][1] = j+1;
                 cells[2][0] = i; cells[2][1] = j+2;
@@ -776,7 +791,7 @@ bool connect4::getWinCells(char symbol, int cells[4][2]) {
     }
     //col
     for (int i = 0; i < 7; i++) {
-        for (int j = 0; j < 3; j++) {
+        for (int j = 0; j <= 3; j++) {
             if (board[i][j]==symbol && board[i+1][j]==symbol && board[i+2][j]==symbol && board[i+3][j]==symbol) {
                 cells[0][0]=i;   cells[0][1]=j;
                 cells[1][0]=i+1; cells[1][1]=j;
