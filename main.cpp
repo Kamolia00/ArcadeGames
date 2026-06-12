@@ -94,12 +94,12 @@ int showmenu_main() {
             xo_btn.x + (xo_btn.width - ttW) / 2,
             xo_btn.y + (xo_btn.height - 25) / 2, 25, WHITE);
 
+
         DrawRectangleRec(c4_btn, DARKBLUE);
         int c4W = MeasureText("Connect 4", 25);
         DrawText("Connect 4",
             c4_btn.x + (c4_btn.width - c4W) / 2,
             c4_btn.y + (c4_btn.height - 25) / 2, 25, WHITE);
-
         DrawRectangleRec(exit_btn, DARKBLUE);
         int exW = MeasureText("Exit", 25);
         DrawText("Exit",

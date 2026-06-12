@@ -383,8 +383,8 @@ void XO::playGameGUI_pvp() {
         // put x and o on board
 for (int i = 0; i < 3; i++) {
     for (int j = 0; j < 3; j++) {
-        int x = startX + j * cell_size + 30;
-        int y = startY + i * cell_size + 30;
+        int x = startX + j * cell_size + 35;
+        int y = startY + i * cell_size + 35;
         if (board[i][j] == 'X') {
             DrawTextEx(font, "X", {(float)x, (float)y}, 40, 0, RED);
         }
