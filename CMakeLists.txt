@@ -15,6 +15,7 @@ add_executable(ArcadeGames
         "connect 4/menuC4.cpp"     "connect 4/menuC4.h"
         "player stuff/player.cpp"       "player stuff/player.h"
         "player stuff/valid_input.cpp"  "player stuff/valid_input.h"
+        "snake_game/snake/snake.cpp"    "snake_game/snake/snake.h"
 )
 
 target_link_libraries(ArcadeGames raylib winmm gdi32 opengl32)
