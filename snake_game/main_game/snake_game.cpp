@@ -126,6 +126,7 @@ void SnakeGame::Default_mode() {
 
         DrawText("Snake", WINDOW_WIDTH/2 - 60, 20, 40, WHITE);
         DrawText(TextFormat("Score: %d", snake.getScore()), 20, 20, 20, WHITE);
+        DrawText("Press P to pause/resume", 20, 50, 20, RED);
 
         DrawRectangleLines(OFFSET_X, OFFSET_Y, GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE, SKYBLUE);
 
@@ -150,7 +151,6 @@ void SnakeGame::Default_mode() {
 
         DrawText("Snake", WINDOW_WIDTH/2 - 60, 20, 40, WHITE);
         DrawText(TextFormat("Score: %d", snake.getScore()), 20, 20, 20, WHITE);
-
         DrawRectangleLines(OFFSET_X, OFFSET_Y, GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE, SKYBLUE);
 
         snake.draw();
