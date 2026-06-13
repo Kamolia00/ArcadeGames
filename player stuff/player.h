@@ -15,9 +15,9 @@ class Player
     public:
     Player();
     Player(std::string name, char symbol);
-    std::string getName();
-    char getSymbol();
-    int getScore();
+    std::string getName() const;
+    char getSymbol() const;
+    int getScore() const;
     void incrementScore();
     void setName(std::string name);
     void setSymbol(char symbol);

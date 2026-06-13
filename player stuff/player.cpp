@@ -17,15 +17,15 @@ Player::Player(std::string name, char symbol)
     this->symbol = symbol;
     score = 0;
 }
-std::string Player::getName()
+std::string Player::getName() const
 {
     return name;
 }
-char Player::getSymbol()
+char Player::getSymbol() const
 {
     return symbol;
 }
-int Player::getScore()
+int Player::getScore() const
 {
     return score;
 }

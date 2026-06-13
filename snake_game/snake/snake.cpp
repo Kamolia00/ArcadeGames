@@ -1,4 +1,7 @@
 #include "snake.h"
+#include "constants.h"
+#include <vector>
+
 Snake::Snake()
     : Player(), isGrowing(false), direction({1, 0})
 {
@@ -42,4 +45,44 @@ void Snake::reset() {
     body.push_back({12, 10});
     direction = {1, 0};
     isGrowing = false;
+}
+
+bool Snake::checkSelfCollision() const {
+    Vector2 head = getHead();
+    for (size_t i = 0; i < body.size() - 1; ++i) {
+        if (body[i].x == head.x && body[i].y == head.y) {
+            return true;
+        }
+    }
+    return false;
+}
+Vector2 Snake::getHead() const {
+    return body.back();
+}
+
+const std::deque<Vector2> &Snake::getBody() const {
+    return body;
+}
+
+Vector2 Snake::getDirection() const {
+    return direction;
+}
+
+void Snake::draw() const { Color c;
+    switch(this->getSymbol()) {
+        case 'r': c = RED; break;
+        case 'g': c = GREEN; break;
+        case 'b': c = BLUE; break;
+        default:  c = DARKGREEN;
+    }
+
+    for (auto& seg : body) {
+        Rectangle rec = {
+            seg.x * CELL_SIZE,
+            seg.y * CELL_SIZE,
+            CELL_SIZE,
+            CELL_SIZE
+        };
+        DrawRectangleRounded(rec, 0.3f, 6, c);
+    }
 }
