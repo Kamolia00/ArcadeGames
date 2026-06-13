@@ -68,8 +68,9 @@ Vector2 Snake::getDirection() const {
     return direction;
 }
 
-void Snake::draw() const { Color c;
-    switch(this->getSymbol()) {
+void Snake::draw() const {
+    Color c;
+    switch(getSymbol()) {
         case 'r': c = RED; break;
         case 'g': c = GREEN; break;
         case 'b': c = BLUE; break;
@@ -78,8 +79,8 @@ void Snake::draw() const { Color c;
 
     for (auto& seg : body) {
         Rectangle rec = {
-            seg.x * CELL_SIZE,
-            seg.y * CELL_SIZE,
+            seg.x * CELL_SIZE + OFFSET_X,
+            seg.y * CELL_SIZE + OFFSET_Y,
             CELL_SIZE,
             CELL_SIZE
         };

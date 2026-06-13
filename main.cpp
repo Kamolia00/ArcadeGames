@@ -5,6 +5,11 @@
 #include "player stuff/player.h"
 #include "player stuff/valid_input.h"
 #include "raylib.h"
+#include "snake_game/snake/snake.h"
+#include "snake_game/main_game/snake_game.h"
+#include "snake_game/snake/constants.h"
+#include <cstdlib>
+#include <ctime>
 Font font;
 bool mutedBGm = false;
 Rectangle mute_btn = {20, 660, 80, 40};
@@ -16,6 +21,7 @@ Music bgm;
     float rocketX     = -60.0f;
     float rocketY     = 600.0f;
     float rocketSpeed = 3.0f;
+/*
 int showmenu_main() {
     BeginDrawing();
     EndDrawing();
@@ -237,6 +243,21 @@ int main() {
         }
     }
     CloseAudioDevice();
+    CloseWindow();
+    return 0;
+}
+*/
+int main() {
+    srand(time(nullptr));
+
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Snake");
+    SetExitKey(KEY_NULL);
+    SetTargetFPS(60);
+
+    Snake snake("kamolia", 'g');
+    SnakeGame game(snake);
+    game.Default_mode();
+
     CloseWindow();
     return 0;
 }
