@@ -52,6 +52,9 @@ void SnakeGame::spawnObstacles(int count) {
             }
         }
         obstacles.push_back(obstacle);
+        if (obstacles.size() > 5) {
+            obstacles.erase(obstacles.begin());
+        }
     }
 }
 
@@ -68,7 +71,7 @@ bool SnakeGame::checkObstacleCollision() const {
     }
     return false;
 }
-// snake_game.cpp — Default_mode()
+//Default_mode
 void SnakeGame::Default_mode() {
     double moveTimer = 0;
     double moveInterval = 0.15;
@@ -77,37 +80,58 @@ void SnakeGame::Default_mode() {
     bool won = false;
     bool paused = false;
 
+    // New: handle self-collision freeze so we can show where collision happened
+    bool collisionFreeze = false;
+    double collisionTimer = 0.0;
+    Vector2 collisionPos = {0, 0};
+
     while (!WindowShouldClose() && !gameOver && !won) {
         if (IsKeyPressed(KEY_P)) paused = !paused;
 
         if (!paused) {
-            if (IsKeyPressed(KEY_UP))    snake.setDirection({0, -1});
-            if (IsKeyPressed(KEY_DOWN))  snake.setDirection({0, 1});
-            if (IsKeyPressed(KEY_LEFT))  snake.setDirection({-1, 0});
-            if (IsKeyPressed(KEY_RIGHT)) snake.setDirection({1, 0});
+            // If we're in the short collision freeze, don't accept movement input or advance the snake
+            if (!collisionFreeze) {
+                if (IsKeyPressed(KEY_UP))    snake.setDirection({0, -1});
+                if (IsKeyPressed(KEY_DOWN))  snake.setDirection({0, 1});
+                if (IsKeyPressed(KEY_LEFT))  snake.setDirection({-1, 0});
+                if (IsKeyPressed(KEY_RIGHT)) snake.setDirection({1, 0});
 
-            moveTimer += GetFrameTime();
-            if (moveTimer >= moveInterval) {
-                moveTimer = 0;
-                snake.move();
+                moveTimer += GetFrameTime();
+                if (moveTimer >= moveInterval) {
+                    moveTimer = 0;
+                    snake.move();
 
-                Vector2 head = snake.getHead();
-                if (head.x == food.x && head.y == food.y) {
-                    snake.grow();
-                    snake.incrementScore();
-                    spawnFood();
+                    Vector2 head = snake.getHead();
+                    if (head.x == food.x && head.y == food.y) {
+                        snake.grow();
+                        snake.incrementScore();
+                        spawnFood();
+                    }
+
+                    int score = snake.getScore();
+                    if (score >= 10) {
+                        moveInterval = 0.10; // sped up once past 10
+                    }
+
+                    // handle collisions: wall/obstacle still end immediately, but self-collision will freeze
+                    if (checkWallCollision() || checkObstacleCollision()) {
+                        gameOver = true; // immediate end for wall/obstacle
+                    } else if (snake.checkSelfCollision()) {
+                        // start a short freeze so player can see where the collision happened
+                        collisionFreeze = true;
+                        collisionTimer = 0.0;
+                        collisionPos = snake.getHead();
+                    }
+
+                    if (score >= 200) {
+                        won = true;
+                    }
                 }
-
-                int score = snake.getScore();
-                if (score >= 10) {
-                    moveInterval = 0.10; // sped up once past 10
-                }
-
-                if (checkWallCollision() || snake.checkSelfCollision() || checkObstacleCollision()) {
+            } else {
+                // we're frozen on self-collision: count down the timer then end the game
+                collisionTimer += GetFrameTime();
+                if (collisionTimer >= 1.0) { // wait 1 second
                     gameOver = true;
-                }
-                if (score >= 200) {
-                    won = true;
                 }
             }
 
@@ -134,10 +158,20 @@ void SnakeGame::Default_mode() {
         DrawRectangle(food.x * CELL_SIZE + OFFSET_X, food.y * CELL_SIZE + OFFSET_Y, CELL_SIZE, CELL_SIZE, YELLOW);
 
         for (auto &obs : obstacles) {
-            DrawRectangle(obs.x * CELL_SIZE + OFFSET_X, obs.y * CELL_SIZE + OFFSET_Y, CELL_SIZE, CELL_SIZE, BLACK);
+            DrawRectangle(obs.x * CELL_SIZE + OFFSET_X, obs.y * CELL_SIZE + OFFSET_Y, CELL_SIZE, CELL_SIZE, WHITE);
         }
 
-        if (paused) {
+        // If we are in the self-collision freeze, highlight where it happened
+        if (collisionFreeze) {
+            int px = collisionPos.x * CELL_SIZE + OFFSET_X;
+            int py = collisionPos.y * CELL_SIZE + OFFSET_Y;
+            // draw a red box with an X to indicate collision
+            DrawRectangleLines(px, py, CELL_SIZE, CELL_SIZE, RED);
+            DrawLine(px, py, px + CELL_SIZE, py + CELL_SIZE, RED);
+            DrawLine(px + CELL_SIZE, py, px, py + CELL_SIZE, RED);
+        }
+
+        if (paused && !collisionFreeze) {
             DrawText("PAUSED", WINDOW_WIDTH/2 - 60, WINDOW_HEIGHT/2, 30, WHITE);
         }
 

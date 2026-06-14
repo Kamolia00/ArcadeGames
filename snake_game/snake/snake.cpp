@@ -86,4 +86,38 @@ void Snake::draw() const {
         };
         DrawRectangleRounded(rec, 0.3f, 6, c);
     }
+
+    // draw eyes on the head to distinguish it from the body
+    if (!body.empty()) {
+        Vector2 head = getHead();
+        Vector2 dir = getDirection();
+        float cx = head.x * CELL_SIZE + OFFSET_X + CELL_SIZE/2.0f;
+        float cy = head.y * CELL_SIZE + OFFSET_Y + CELL_SIZE/2.0f;
+
+        // r
+        float along = CELL_SIZE * 0.18f; // in front of center
+        float perp  = CELL_SIZE * 0.18f; // side offset
+
+        Vector2 e1 = {0,0}, e2 = {0,0};
+        if (dir.x > 0.5f) { // moving right
+            e1 = {cx + along, cy - perp};
+            e2 = {cx + along, cy + perp};
+        } else if (dir.x < -0.5f) { // moving left
+            e1 = {cx - along, cy - perp};
+            e2 = {cx - along, cy + perp};
+        } else if (dir.y < -0.5f) { // moving up
+            e1 = {cx - perp, cy - along};
+            e2 = {cx + perp, cy - along};
+        } else { // moving down (or default)
+            e1 = {cx - perp, cy + along};
+            e2 = {cx + perp, cy + along};
+        }
+
+        float eyeRadius = CELL_SIZE * 0.12f;
+        // white eye and small black pupil
+        DrawCircleV(e1, eyeRadius, WHITE);
+        DrawCircleV(e2, eyeRadius, WHITE);
+        DrawCircleV(e1, eyeRadius * 0.45f, BLACK);
+        DrawCircleV(e2, eyeRadius * 0.45f, BLACK);
+    }
 }
