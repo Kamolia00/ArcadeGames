@@ -150,8 +150,7 @@ void SnakeGame::Default_mode() {
 
         DrawText("Snake", WINDOW_WIDTH/2 - 60, 20, 40, WHITE);
         DrawText(TextFormat("Score: %d", snake.getScore()), 20, 20, 20, WHITE);
-        DrawText("Press P to pause/resume", 20, 50, 20, RED);
-
+        DrawText("P = pause", WINDOW_WIDTH - 120, 20, 18, GRAY);
         DrawRectangleLines(OFFSET_X, OFFSET_Y, GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE, SKYBLUE);
 
         snake.draw();
@@ -201,4 +200,178 @@ void SnakeGame::Default_mode() {
         EndDrawing();
         if (IsKeyPressed(KEY_ENTER)) break;
     }
+}
+int SnakeGame::play_gui(int level) {
+    Color bgColor;
+    //set color
+    switch (level) {
+        case 1: bgColor = {20, 20, 40, 255}; break;
+        case 2: bgColor = {20, 60, 20, 255}; break;
+        case 3: bgColor = {60, 10, 10, 255}; break;
+        default: bgColor = {20, 20, 40, 255};
+    }
+
+    double moveInterval = (level == 1) ? 0.15 : (level == 2) ? 0.10 : 0.07;
+    int scorePerFood    = 5;
+    int scoreToNext     = level * 50;
+    Color obsColor      = (level == 3) ? ORANGE : SKYBLUE;
+
+    obstacles.clear();
+    if (level == 2) spawnObstacles(5);
+    if (level == 3) spawnObstacles(8);
+
+    snake.reset();
+    snake.setScore(0);
+    spawnFood();
+// movement
+    double moveTimer      = 0;
+    double obstacleTimer  = 0;
+    bool gameOver         = false;
+    bool levelComplete    = false;
+    bool paused           = false;
+    bool collisionFreeze  = false;
+    double collisionTimer = 0;
+    Vector2 collisionPos  = {0, 0};
+
+    while (!WindowShouldClose() && !gameOver && !levelComplete) {
+        if (IsKeyPressed(KEY_P)) paused = !paused;
+
+        if (!paused) {
+            if (!collisionFreeze) {
+                if (IsKeyPressed(KEY_UP))    snake.setDirection({0, -1});
+                if (IsKeyPressed(KEY_DOWN))  snake.setDirection({0, 1});
+                if (IsKeyPressed(KEY_LEFT))  snake.setDirection({-1, 0});
+                if (IsKeyPressed(KEY_RIGHT)) snake.setDirection({1, 0});
+
+                moveTimer += GetFrameTime();
+                if (moveTimer >= moveInterval) {
+                    moveTimer = 0;
+                    snake.move();
+
+                    Vector2 head = snake.getHead();
+                    if (head.x == food.x && head.y == food.y) {
+                        snake.grow();
+                        snake.addScore(scorePerFood);
+                        spawnFood();
+                    }
+
+                    if (snake.getScore() >= scoreToNext)
+                        levelComplete = true;
+
+                    if (checkWallCollision() || checkObstacleCollision()) {
+                        gameOver = true;
+                    } else if (snake.checkSelfCollision()) {
+                        collisionFreeze = true;
+                        collisionTimer  = 0.0;
+                        collisionPos    = snake.getHead();
+                    }
+                }
+
+                if (level >= 2) {
+                    obstacleTimer += GetFrameTime();
+                    if (obstacleTimer >= 5.0) {
+                        obstacleTimer = 0;
+                        spawnObstacles(1);
+                    }
+                }
+
+            } else {
+                collisionTimer += GetFrameTime();
+                if (collisionTimer >= 1.0) gameOver = true;
+            }
+        }
+
+        BeginDrawing();
+        ClearBackground(bgColor);
+
+        int titleW = MeasureText("Snake", 40);
+        DrawText("Snake", WINDOW_WIDTH/2 - titleW/2, 20, 40, WHITE);
+        DrawText(TextFormat("Score: %d", snake.getScore()), 20, 20, 20, WHITE);
+        DrawText(TextFormat("Level: %d  |  Next: %d", level, scoreToNext), 20, 45, 18, GRAY);
+        DrawText("P = pause", WINDOW_WIDTH - 120, 20, 18, GRAY);
+
+        DrawRectangleLines(OFFSET_X, OFFSET_Y,
+            GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE, SKYBLUE);
+
+        snake.draw();
+
+        DrawRectangle(
+            food.x * CELL_SIZE + OFFSET_X,
+            food.y * CELL_SIZE + OFFSET_Y,
+            CELL_SIZE, CELL_SIZE, YELLOW);
+
+        for (auto &obs : obstacles) {
+            DrawRectangle(obs.x * CELL_SIZE + OFFSET_X,
+                obs.y * CELL_SIZE + OFFSET_Y,
+                CELL_SIZE, CELL_SIZE, obsColor);
+            DrawRectangleLines(obs.x * CELL_SIZE + OFFSET_X,
+                obs.y * CELL_SIZE + OFFSET_Y,
+                CELL_SIZE, CELL_SIZE, WHITE);
+        }
+
+        if (collisionFreeze) {
+            int px = collisionPos.x * CELL_SIZE + OFFSET_X;
+            int py = collisionPos.y * CELL_SIZE + OFFSET_Y;
+            DrawRectangle(px, py, CELL_SIZE, CELL_SIZE, {255, 0, 0, 150});
+            DrawRectangleLines(px, py, CELL_SIZE, CELL_SIZE, RED);
+            DrawLine(px, py, px+CELL_SIZE, py+CELL_SIZE, RED);
+            DrawLine(px+CELL_SIZE, py, px, py+CELL_SIZE, RED);
+            int msgW = MeasureText("SELF COLLISION!", 20);
+            DrawText("SELF COLLISION!", WINDOW_WIDTH/2 - msgW/2, OFFSET_Y - 30, 20, RED);
+        }
+
+        if (paused && !collisionFreeze) {
+            int pw = MeasureText("PAUSED", 30);
+            DrawText("PAUSED", WINDOW_WIDTH/2 - pw/2, WINDOW_HEIGHT/2, 30, WHITE);
+        }
+
+        EndDrawing();
+    }
+
+    // end screen
+    while (!WindowShouldClose()) {
+        BeginDrawing();
+        ClearBackground(bgColor);
+
+        DrawRectangleLines(OFFSET_X, OFFSET_Y,
+            GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE, SKYBLUE);
+        snake.draw();
+        DrawRectangle(
+            food.x * CELL_SIZE + OFFSET_X,
+            food.y * CELL_SIZE + OFFSET_Y,
+            CELL_SIZE, CELL_SIZE, YELLOW);
+        for (auto &obs : obstacles) {
+            DrawRectangle(obs.x * CELL_SIZE + OFFSET_X,
+                obs.y * CELL_SIZE + OFFSET_Y,
+                CELL_SIZE, CELL_SIZE, obsColor);
+        }
+
+        DrawRectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, {0, 0, 0, 180});
+
+        if (levelComplete) {
+            const char* msg = (level < 3)
+                ? TextFormat("Level %d Complete!", level)
+                : "You Beat All Levels!";
+            int msgW = MeasureText(msg, 35);
+            DrawText(msg, WINDOW_WIDTH/2 - msgW/2, WINDOW_HEIGHT/2 - 60, 35, GOLD);
+            const char* next = (level < 3)
+                ? TextFormat("Press ENTER for Level %d", level + 1)
+                : "Press ENTER to finish";
+            int nextW = MeasureText(next, 22);
+            DrawText(next, WINDOW_WIDTH/2 - nextW/2, WINDOW_HEIGHT/2, 22, WHITE);
+        } else {
+            int goW = MeasureText("Game Over", 40);
+            DrawText("Game Over", WINDOW_WIDTH/2 - goW/2, WINDOW_HEIGHT/2 - 60, 40, RED);
+            int exitW = MeasureText("Press ENTER to exit", 22);
+            DrawText("Press ENTER to exit", WINDOW_WIDTH/2 - exitW/2, WINDOW_HEIGHT/2, 22, WHITE);
+        }
+
+        DrawText(TextFormat("Score: %d", snake.getScore()),
+            WINDOW_WIDTH/2 - 60, WINDOW_HEIGHT/2 + 50, 25, WHITE);
+
+        EndDrawing();
+        if (IsKeyPressed(KEY_ENTER)) break;
+    }
+
+    return levelComplete ? 1 : 0;
 }

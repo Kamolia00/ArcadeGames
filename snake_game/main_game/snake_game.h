@@ -15,5 +15,6 @@ private:
 public:
     SnakeGame(Snake &snake);
     void Default_mode();
+    int play_gui(int level);
 };
 #endif

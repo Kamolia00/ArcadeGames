@@ -256,7 +256,10 @@ int main() {
 
     Snake snake("kamolia", 'g');
     SnakeGame game(snake);
-    game.Default_mode();
+
+    int result = game.play_gui(1);
+    if (result == 1) result = game.play_gui(2);
+    if (result == 1) game.play_gui(3);
 
     CloseWindow();
     return 0;

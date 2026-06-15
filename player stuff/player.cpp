@@ -47,3 +47,5 @@ void Player::validateSymbol()
     setSymbol(s);
   }     
 }
+void Player::setScore(int s) { score = s; }
+void Player::addScore(int points) { score += points; }

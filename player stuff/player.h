@@ -19,5 +19,7 @@ class Player
     void setName(std::string name);
     void setSymbol(char symbol);
     void validateSymbol();
+    void setScore(int s);
+    void addScore(int points);
  };
 #endif 
