@@ -99,6 +99,25 @@ void SnakeGame::Default_mode() {
                 moveTimer += GetFrameTime();
                 if (moveTimer >= moveInterval) {
                     moveTimer = 0;
+
+                    // compute where the head will be BEFORE moving so we can detect
+                    // collisions with the current body (including the tail that may be
+                    // removed by move()). This ensures running into the tail is
+                    // treated as a collision and we can show where it happened.
+                    Vector2 predictedHead = snake.getHead();
+                    Vector2 dir = snake.getDirection();
+                    predictedHead.x += dir.x;
+                    predictedHead.y += dir.y;
+
+                    bool selfCollBeforeMove = false;
+                    for (const auto &seg : snake.getBody()) {
+                        if (seg.x == predictedHead.x && seg.y == predictedHead.y) {
+                            selfCollBeforeMove = true;
+                            break;
+                        }
+                    }
+
+                    // perform the move (this may pop the tail)
                     snake.move();
 
                     Vector2 head = snake.getHead();
@@ -113,14 +132,15 @@ void SnakeGame::Default_mode() {
                         moveInterval = 0.10; // sped up once past 10
                     }
 
-                    // handle collisions: wall/obstacle still end immediately, but self-collision will freeze
+                    // handle collisions: wall/obstacle still end immediately, but
+                    // self-collision (including running into the tail) will freeze
                     if (checkWallCollision() || checkObstacleCollision()) {
                         gameOver = true; // immediate end for wall/obstacle
-                    } else if (snake.checkSelfCollision()) {
+                    } else if (selfCollBeforeMove || snake.checkSelfCollision()) {
                         // start a short freeze so player can see where the collision happened
                         collisionFreeze = true;
                         collisionTimer = 0.0;
-                        collisionPos = snake.getHead();
+                        collisionPos = predictedHead; // show the position where we hit
                     }
 
                     if (score >= 200) {
@@ -153,7 +173,7 @@ void SnakeGame::Default_mode() {
         DrawText("P = pause", WINDOW_WIDTH - 120, 20, 18, GRAY);
         DrawRectangleLines(OFFSET_X, OFFSET_Y, GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE, SKYBLUE);
 
-        snake.draw();
+        snake.draw(collisionFreeze, collisionPos);
         DrawRectangle(food.x * CELL_SIZE + OFFSET_X, food.y * CELL_SIZE + OFFSET_Y, CELL_SIZE, CELL_SIZE, YELLOW);
 
         for (auto &obs : obstacles) {
@@ -186,7 +206,9 @@ void SnakeGame::Default_mode() {
         DrawText(TextFormat("Score: %d", snake.getScore()), 20, 20, 20, WHITE);
         DrawRectangleLines(OFFSET_X, OFFSET_Y, GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE, SKYBLUE);
 
-        snake.draw();
+        // If we ended due to a wall/obstacle collision there may be no collisionFreeze
+        Vector2 finalDeathPos = collisionFreeze ? collisionPos : snake.getHead();
+        snake.draw(gameOver && !won, finalDeathPos);
         DrawRectangle(food.x * CELL_SIZE + OFFSET_X, food.y * CELL_SIZE + OFFSET_Y, CELL_SIZE, CELL_SIZE, YELLOW);
         for (auto &obs : obstacles) {
             DrawRectangle(obs.x * CELL_SIZE + OFFSET_X, obs.y * CELL_SIZE + OFFSET_Y, CELL_SIZE, CELL_SIZE, BLACK);
@@ -246,6 +268,23 @@ int SnakeGame::play_gui(int level) {
                 moveTimer += GetFrameTime();
                 if (moveTimer >= moveInterval) {
                     moveTimer = 0;
+
+                    // predict next head position to detect self-collision against
+                    // the current body (including tail), so collisions into the
+                    // tail are captured and can be highlighted.
+                    Vector2 predictedHead = snake.getHead();
+                    Vector2 dir = snake.getDirection();
+                    predictedHead.x += dir.x;
+                    predictedHead.y += dir.y;
+
+                    bool selfCollBeforeMove = false;
+                    for (const auto &seg : snake.getBody()) {
+                        if (seg.x == predictedHead.x && seg.y == predictedHead.y) {
+                            selfCollBeforeMove = true;
+                            break;
+                        }
+                    }
+
                     snake.move();
 
                     Vector2 head = snake.getHead();
@@ -260,10 +299,10 @@ int SnakeGame::play_gui(int level) {
 
                     if (checkWallCollision() || checkObstacleCollision()) {
                         gameOver = true;
-                    } else if (snake.checkSelfCollision()) {
+                    } else if (selfCollBeforeMove || snake.checkSelfCollision()) {
                         collisionFreeze = true;
                         collisionTimer  = 0.0;
-                        collisionPos    = snake.getHead();
+                        collisionPos    = predictedHead;
                     }
                 }
 
@@ -293,7 +332,7 @@ int SnakeGame::play_gui(int level) {
         DrawRectangleLines(OFFSET_X, OFFSET_Y,
             GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE, SKYBLUE);
 
-        snake.draw();
+        snake.draw(collisionFreeze, collisionPos);
 
         DrawRectangle(
             food.x * CELL_SIZE + OFFSET_X,
@@ -335,7 +374,8 @@ int SnakeGame::play_gui(int level) {
 
         DrawRectangleLines(OFFSET_X, OFFSET_Y,
             GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE, SKYBLUE);
-        snake.draw();
+        Vector2 finalDeathPos2 = collisionFreeze ? collisionPos : snake.getHead();
+        snake.draw(gameOver && !levelComplete, finalDeathPos2);
         DrawRectangle(
             food.x * CELL_SIZE + OFFSET_X,
             food.y * CELL_SIZE + OFFSET_Y,

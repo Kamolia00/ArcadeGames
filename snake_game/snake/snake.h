@@ -24,6 +24,7 @@ public:
     const std::deque<Vector2>& getBody() const;
     Vector2 getDirection() const;
 
-    void draw() const;
+    // draw the snake; if `dead` is true, draw X-eyes at `deathPos` on the head
+    void draw(bool dead = false, Vector2 deathPos = {0, 0}) const;
 };
 #endif

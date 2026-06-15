@@ -68,7 +68,7 @@ Vector2 Snake::getDirection() const {
     return direction;
 }
 
-void Snake::draw() const {
+void Snake::draw(bool dead, Vector2 deathPos) const {
     Color c;
     switch(getSymbol()) {
         case 'r': c = RED; break;
@@ -91,6 +91,10 @@ void Snake::draw() const {
     if (!body.empty()) {
         Vector2 head = getHead();
         Vector2 dir = getDirection();
+        // if death animation requested, use provided deathPos as head
+        if (dead) {
+            head = deathPos;
+        }
         float cx = head.x * CELL_SIZE + OFFSET_X + CELL_SIZE/2.0f;
         float cy = head.y * CELL_SIZE + OFFSET_Y + CELL_SIZE/2.0f;
 
@@ -114,10 +118,21 @@ void Snake::draw() const {
         }
 
         float eyeRadius = CELL_SIZE * 0.12f;
-        // white eye and small black pupil
-        DrawCircleV(e1, eyeRadius, WHITE);
-        DrawCircleV(e2, eyeRadius, WHITE);
-        DrawCircleV(e1, eyeRadius * 0.45f, BLACK);
-        DrawCircleV(e2, eyeRadius * 0.45f, BLACK);
+        if (!dead) {
+            // white eye and small black pupil
+            DrawCircleV(e1, eyeRadius, WHITE);
+            DrawCircleV(e2, eyeRadius, WHITE);
+            DrawCircleV(e1, eyeRadius * 0.45f, BLACK);
+            DrawCircleV(e2, eyeRadius * 0.45f, BLACK);
+        } else {
+            // draw X for dead eyes
+            float xr = eyeRadius;
+            // left eye X
+            DrawLineV({e1.x - xr, e1.y - xr}, {e1.x + xr, e1.y + xr}, RED);
+            DrawLineV({e1.x - xr, e1.y + xr}, {e1.x + xr, e1.y - xr}, RED);
+            // right eye X
+            DrawLineV({e2.x - xr, e2.y - xr}, {e2.x + xr, e2.y + xr}, RED);
+            DrawLineV({e2.x - xr, e2.y + xr}, {e2.x + xr, e2.y - xr}, RED);
+        }
     }
 }
