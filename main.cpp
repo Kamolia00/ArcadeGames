@@ -10,6 +10,7 @@
 #include "snake_game/snake/constants.h"
 #include <cstdlib>
 #include <ctime>
+#include <snake_game/main_game/menu_snake.h>
 Font font;
 bool mutedBGm = false;
 Rectangle mute_btn = {20, 660, 80, 40};
@@ -248,19 +249,36 @@ int main() {
 }
 */
 int main() {
-    srand(time(nullptr));
+     srand(time(nullptr));
+     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Snake");
+     SetExitKey(KEY_NULL);
+     SetTargetFPS(60);
 
-    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Snake");
-    SetExitKey(KEY_NULL);
-    SetTargetFPS(60);
+     while (!WindowShouldClose()) {
+         int choice = showmenu_snake();
+         if (choice == 0) {
+             // Exit button pressed
+             break;
+         }
 
-    Snake snake("kamolia", 'g');
-    SnakeGame game(snake);
+         Snake s1;
+         SnakeGame game(s1);
 
-    int result = game.play_gui(1);
-    if (result == 1) result = game.play_gui(2);
-    if (result == 1) game.play_gui(3);
+         if (choice == 1) {
+             // Free for all mode
+              if (!getPlayerName_snake(s1, "")) continue; // Back button pressed, return to menu
+              if (!getPlayerColor_snake(s1, "")) continue; // Back/ESC from color chooser -> back to menu
+              game.Default_mode();
+         } else if (choice == 2) {
+             // Level based mode
+              if (!getPlayerName_snake(s1, "")) continue; // Back button pressed, return to menu
+              if (!getPlayerColor_snake(s1, "")) continue; // Back/ESC from color chooser -> back to menu
+              int result = game.play_gui(1);
+             if (result == 1) result = game.play_gui(2);
+             if (result == 1) game.play_gui(3);
+         }
+     }
 
-    CloseWindow();
-    return 0;
-}
+     CloseWindow();
+     return 0;
+ }

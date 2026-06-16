@@ -45,8 +45,8 @@ Rectangle exit_btn={490,450,300,60};
                 return 2;
             }
             if (CheckCollisionPointRec(mouse_pos, exit_btn)) {
-                // no button is pressed or left
-                return 0;
+                // user clicked Back -> signal "go back to main menu"
+                return -1;
             }
         }
         BeginDrawing();

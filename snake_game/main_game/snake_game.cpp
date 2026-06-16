@@ -87,6 +87,8 @@ void SnakeGame::Default_mode() {
 
     while (!WindowShouldClose() && !gameOver && !won) {
         if (IsKeyPressed(KEY_P)) paused = !paused;
+        if (IsKeyPressed(KEY_ENTER)) return; // Enter closes the game
+        if (IsKeyPressed(KEY_ESCAPE)) return; // ESC also exits
 
         if (!paused) {
             // If we're in the short collision freeze, don't accept movement input or advance the snake
@@ -169,9 +171,9 @@ void SnakeGame::Default_mode() {
         ClearBackground({20, 20, 40, 255});
 
         DrawText("Snake", WINDOW_WIDTH/2 - 60, 20, 40, WHITE);
-        DrawText(TextFormat("Score: %d", snake.getScore()), 20, 20, 20, WHITE);
-        DrawText("P = pause", WINDOW_WIDTH - 120, 20, 18, GRAY);
-        DrawRectangleLines(OFFSET_X, OFFSET_Y, GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE, SKYBLUE);
+         DrawText(TextFormat("Score: %d", snake.getScore()), 20, 20, 20, WHITE);
+         DrawText("P = pause", WINDOW_WIDTH - 120, 20, 18, GRAY);
+         DrawRectangleLines(OFFSET_X, OFFSET_Y, GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE, SKYBLUE);
 
         snake.draw(collisionFreeze, collisionPos);
         DrawRectangle(food.x * CELL_SIZE + OFFSET_X, food.y * CELL_SIZE + OFFSET_Y, CELL_SIZE, CELL_SIZE, YELLOW);
@@ -257,6 +259,8 @@ int SnakeGame::play_gui(int level) {
 
     while (!WindowShouldClose() && !gameOver && !levelComplete) {
         if (IsKeyPressed(KEY_P)) paused = !paused;
+        if (IsKeyPressed(KEY_ENTER)) return 0; // Enter closes the game
+        if (IsKeyPressed(KEY_ESCAPE)) return 0; // ESC also exits
 
         if (!paused) {
             if (!collisionFreeze) {
@@ -324,10 +328,10 @@ int SnakeGame::play_gui(int level) {
         ClearBackground(bgColor);
 
         int titleW = MeasureText("Snake", 40);
-        DrawText("Snake", WINDOW_WIDTH/2 - titleW/2, 20, 40, WHITE);
-        DrawText(TextFormat("Score: %d", snake.getScore()), 20, 20, 20, WHITE);
-        DrawText(TextFormat("Level: %d  |  Next: %d", level, scoreToNext), 20, 45, 18, GRAY);
-        DrawText("P = pause", WINDOW_WIDTH - 120, 20, 18, GRAY);
+         DrawText("Snake", WINDOW_WIDTH/2 - titleW/2, 20, 40, WHITE);
+         DrawText(TextFormat("Score: %d", snake.getScore()), 20, 20, 20, WHITE);
+         DrawText(TextFormat("Level: %d  |  Next: %d", level, scoreToNext), 20, 45, 18, GRAY);
+         DrawText("P = pause", WINDOW_WIDTH - 120, 20, 18, GRAY);
 
         DrawRectangleLines(OFFSET_X, OFFSET_Y,
             GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE, SKYBLUE);

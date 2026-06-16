@@ -1,0 +1,200 @@
+#include <snake_game/main_game/menu_snake.h>
+#include <string>
+
+int showmenu_snake() {
+    Rectangle defualt_btn={490,250,300,60};
+    Rectangle lvl_btn={490,350,300,60};
+    Rectangle exit_btn={490,450,300,60};
+    while (!WindowShouldClose()) {
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+            Vector2 mousePos = GetMousePosition();
+            if (CheckCollisionPointRec(mousePos,defualt_btn))
+                return 1;
+            if (CheckCollisionPointRec(mousePos,lvl_btn))
+                return 2;
+            if (CheckCollisionPointRec(mousePos,exit_btn))
+                return 0;
+        }
+
+        BeginDrawing();
+         ClearBackground({20,20,40,225});
+         DrawText("Snake Game",520,140,40,WHITE);
+         DrawRectangleRec(defualt_btn,DARKBLUE);
+         int pvpW = MeasureText("Free for all mode", 25);
+         //DrawText("Free for all mode", 520 + (300 - pvpW) / 2, 260, 25, WHITE);
+         DrawText("Free for all mode",
+                      defualt_btn.x + (defualt_btn.width - pvpW) / 2,
+                      defualt_btn.y + (defualt_btn.height - 25) / 2, 25, WHITE);
+         DrawRectangleRec(lvl_btn,DARKBLUE);
+         int lvlW = MeasureText("Level based mode", 25);
+         DrawText("Level based mode",
+                      lvl_btn.x + (lvl_btn.width - lvlW) / 2,
+                      lvl_btn.y + (lvl_btn.height - 25) / 2, 25, WHITE);
+         DrawRectangleRec(exit_btn,DARKBLUE);
+         int exW = MeasureText("Exit", 25);
+         DrawText("Exit",
+                      exit_btn.x + (exit_btn.width - exW) / 2,
+                      exit_btn.y + (exit_btn.height - 25) / 2, 25, WHITE);
+         EndDrawing();
+    }
+    return 0;
+}
+bool getPlayerName_snake(Snake &snake, const std::string& prompt) {
+    std::string name="";
+    Rectangle back_btn={490,450,300,60};
+    BeginDrawing();
+    EndDrawing();
+    while (!WindowShouldClose()) {
+        int key=GetCharPressed();
+        if(IsKeyPressed(KEY_ENTER) and !name.empty()){
+            snake.setName(name);
+            // signal success to caller
+            return true;
+        }
+        if(IsKeyPressed(KEY_ESCAPE)) return false;
+        if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
+            Vector2 mouse_pos = GetMousePosition();
+            if(CheckCollisionPointRec(mouse_pos, back_btn)) {
+                // consume the input for one frame so the main menu does not
+                // immediately receive the same mouse release (which shares
+                // the same button/position) and inadvertently act on it.
+                BeginDrawing(); EndDrawing();
+                return false;
+            }
+        }
+        if(IsKeyPressed(KEY_BACKSPACE) and !name.empty()){
+            name.pop_back();
+        }
+        if(key >= 32 && key <= 125) name += (char)key;
+         BeginDrawing();
+         ClearBackground({20,20,40,225});    DrawText((prompt+" Enter Your Name:").c_str(), 400, 280, 25, WHITE);
+         DrawText(name.c_str(), 400, 320, 25, WHITE);
+         DrawText("Press Enter to Continue", 400, 380, 20, WHITE);
+         // draw the Back button
+         DrawRectangleRec(back_btn, DARKBLUE);
+         int backW = MeasureText("Back", 25);
+         DrawText("Back",
+                  back_btn.x + (back_btn.width - backW) / 2,
+                  back_btn.y + (back_btn.height - 25) / 2, 25, WHITE);
+         EndDrawing();
+    }
+    // window closed without confirming -> treat as cancel
+    return false;
+
+    }
+bool getPlayerColor_snake(Snake &snake, std::string prompt) {
+    // four color option buttons and a Back button
+    Rectangle green_btn = {260, 300, 150, 60};
+    Rectangle red_btn   = {440, 300, 150, 60};
+    Rectangle blue_btn  = {620, 300, 150, 60};
+    Rectangle dark_btn  = {800, 300, 150, 60};
+    Rectangle back_btn  = {490, 450, 300, 60};
+
+    int selected = -1; // no color initially selected
+
+    // wait one frame to clear previous input state
+    BeginDrawing();
+    EndDrawing();
+
+    while (!WindowShouldClose()) {
+        // handle keyboard input
+        if (IsKeyPressed(KEY_ESCAPE)) {
+            return false; // ESC -> return to main menu
+        }
+
+        // number keys 1-4 to select colors
+        if (IsKeyPressed(KEY_ONE)) {
+            snake.setSymbol('g');
+            return true;
+        }
+        if (IsKeyPressed(KEY_TWO)) {
+            snake.setSymbol('r');
+            return true;
+        }
+        if (IsKeyPressed(KEY_THREE)) {
+            snake.setSymbol('b');
+            return true;
+        }
+        if (IsKeyPressed(KEY_FOUR)) {
+            snake.setSymbol('d');
+            return true;
+        }
+
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+            Vector2 mouse_pos = GetMousePosition();
+            if (CheckCollisionPointRec(mouse_pos, green_btn)) {
+                snake.setSymbol('g');
+                BeginDrawing(); EndDrawing();
+                return true;
+            }
+            if (CheckCollisionPointRec(mouse_pos, red_btn)) {
+                snake.setSymbol('r');
+                BeginDrawing(); EndDrawing();
+                return true;
+            }
+            if (CheckCollisionPointRec(mouse_pos, blue_btn)) {
+                snake.setSymbol('b');
+                BeginDrawing(); EndDrawing();
+                return true;
+            }
+            if (CheckCollisionPointRec(mouse_pos, dark_btn)) {
+                // use a symbol that isn't 'r','g' or 'b' so draw() falls back to DARKGREEN
+                snake.setSymbol('d');
+                BeginDrawing(); EndDrawing();
+                return true;
+            }
+            if (CheckCollisionPointRec(mouse_pos, back_btn)) {
+                BeginDrawing(); EndDrawing();
+                return false;
+            }
+        }
+
+        // track which button mouse is over for visual feedback
+        Vector2 mouse_pos = GetMousePosition();
+        selected = -1;
+        if (CheckCollisionPointRec(mouse_pos, green_btn)) selected = 0;
+        else if (CheckCollisionPointRec(mouse_pos, red_btn)) selected = 1;
+        else if (CheckCollisionPointRec(mouse_pos, blue_btn)) selected = 2;
+        else if (CheckCollisionPointRec(mouse_pos, dark_btn)) selected = 3;
+
+        BeginDrawing();
+        ClearBackground({20,20,40,225});
+        DrawText((prompt + " Choose Your Color:").c_str(), 420, 220, 25, WHITE);
+        DrawText("(or press 1-4, or ESC to go back)", 420, 250, 18, GRAY);
+
+        DrawRectangleRec(green_btn, selected == 0 ? Color{50, 150, 200, 255} : DARKBLUE);
+        int gW = MeasureText("GREEN", 30);
+        DrawText("GREEN",
+                 green_btn.x + (green_btn.width - gW) / 2,
+                 green_btn.y + (green_btn.height - 30) / 2, 30, GREEN);
+
+        DrawRectangleRec(red_btn, selected == 1 ? Color{50, 150, 200, 255} : DARKBLUE);
+        int rW = MeasureText("RED", 30);
+        DrawText("RED",
+                 red_btn.x + (red_btn.width - rW) / 2,
+                 red_btn.y + (red_btn.height - 30) / 2, 30, RED);
+
+        DrawRectangleRec(blue_btn, selected == 2 ? Color{50, 150, 200, 255} : DARKBLUE);
+        int bW = MeasureText("BLUE", 30);
+        DrawText("BLUE",
+                 blue_btn.x + (blue_btn.width - bW) / 2,
+                 blue_btn.y + (blue_btn.height - 30) / 2, 30, BLUE);
+
+        DrawRectangleRec(dark_btn, selected == 3 ? Color{50, 150, 200, 255} : DARKBLUE);
+        int dW = MeasureText("DARKGREEN", 24);
+        DrawText("DARKGREEN",
+                 dark_btn.x + (dark_btn.width - dW) / 2,
+                 dark_btn.y + (dark_btn.height - 24) / 2, 24, DARKGREEN);
+
+        // Back button
+        DrawRectangleRec(back_btn, DARKBLUE);
+        int backW = MeasureText("Back", 25);
+        DrawText("Back",
+                 back_btn.x + (back_btn.width - backW) / 2,
+                 back_btn.y + (back_btn.height - 25) / 2, 25, WHITE);
+
+        EndDrawing();
+    }
+    // window closed without choosing -> treat as cancel
+    return false;
+}
