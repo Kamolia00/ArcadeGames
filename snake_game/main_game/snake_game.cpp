@@ -1,12 +1,36 @@
 #include "snake_game/main_game/snake_game.h"
 #include "snake_game/snake/constants.h"
-
+#include <algorithm>
 #include "raylib.h"
+#include "snake_game/main_game/menu_snake.h"
 using namespace std;
+std::map<std::string, int> SnakeGame::leaderboard_default;
+std::map<std::string, int> SnakeGame::leaderboard_levels;
 SnakeGame::SnakeGame(Snake &snake) : snake(snake),food({0, 0}) {
     spawnFood();
 }
+void SnakeGame::drawLeaderboard(const std::map<std::string, int>& board, int x, int y) {
+    // sort by score descending
+    std::vector<std::pair<std::string, int>> entries(board.begin(), board.end());
+    std::sort(entries.begin(), entries.end(),
+        [](const std::pair<std::string,int>& a, const std::pair<std::string,int>& b) {
+            return b.second < a.second;
+        });
 
+    DrawText("Leaderboard", x, y, 22, GOLD);
+    int top = std::min((int)entries.size(), 5);
+    for (int i = 0; i < top; i++) {
+        const char* line = TextFormat("%d. %s - %d",
+            i+1, entries[i].first.c_str(), entries[i].second);
+        DrawText(line, x, y + 30 + i * 28, 20, WHITE);
+    }
+}
+const std::map<std::string, int>& SnakeGame::getLeaderboard_default() const {
+    return leaderboard_default;
+}
+const std::map<std::string, int>& SnakeGame::getLeaderboard_levels() const {
+    return leaderboard_levels;
+}
 void SnakeGame::spawnFood() {
     bool spawned = false;
     while (!spawned) {
@@ -71,8 +95,18 @@ bool SnakeGame::checkObstacleCollision() const {
     }
     return false;
 }
+void SnakeGame::updateLeaderboard(std::map<std::string, int>& board,
+                                   const std::string& name, int score) {
+    if (board.find(name) == board.end() || score > board[name]) {
+        board[name] = score;
+    }
+}
 //Default_mode
-void SnakeGame::Default_mode() {
+int SnakeGame::Default_mode() {
+    snake.reset();
+    snake.setScore(0);
+    obstacles.clear();
+    spawnFood();
     double moveTimer = 0;
     double moveInterval = 0.15;
     double obstacleTimer = 0;
@@ -87,8 +121,6 @@ void SnakeGame::Default_mode() {
 
     while (!WindowShouldClose() && !gameOver && !won) {
         if (IsKeyPressed(KEY_P)) paused = !paused;
-        if (IsKeyPressed(KEY_ENTER)) return; // Enter closes the game
-        if (IsKeyPressed(KEY_ESCAPE)) return; // ESC also exits
 
         if (!paused) {
             // If we're in the short collision freeze, don't accept movement input or advance the snake
@@ -199,31 +231,10 @@ void SnakeGame::Default_mode() {
         EndDrawing();
     }
 
-    // post-game: freeze final state, overlay message
-    while (!WindowShouldClose()) {
-        BeginDrawing();
-        ClearBackground({20, 20, 40, 255});
-
-        DrawText("Snake", WINDOW_WIDTH/2 - 60, 20, 40, WHITE);
-        DrawText(TextFormat("Score: %d", snake.getScore()), 20, 20, 20, WHITE);
-        DrawRectangleLines(OFFSET_X, OFFSET_Y, GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE, SKYBLUE);
-
-        // If we ended due to a wall/obstacle collision there may be no collisionFreeze
-        Vector2 finalDeathPos = collisionFreeze ? collisionPos : snake.getHead();
-        snake.draw(gameOver && !won, finalDeathPos);
-        DrawRectangle(food.x * CELL_SIZE + OFFSET_X, food.y * CELL_SIZE + OFFSET_Y, CELL_SIZE, CELL_SIZE, YELLOW);
-        for (auto &obs : obstacles) {
-            DrawRectangle(obs.x * CELL_SIZE + OFFSET_X, obs.y * CELL_SIZE + OFFSET_Y, CELL_SIZE, CELL_SIZE, BLACK);
-        }
-
-        // overlay
-        DrawRectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, {0, 0, 0, 150}); // semi-transparent dim
-        DrawText(won ? "You Win!" : "Game Over", WINDOW_WIDTH/2 - 100, WINDOW_HEIGHT/2 - 40, 40, won ? GOLD : RED);
-        DrawText("Press ENTER to continue", WINDOW_WIDTH/2 - 130, WINDOW_HEIGHT/2 + 20, 20, WHITE);
-
-        EndDrawing();
-        if (IsKeyPressed(KEY_ENTER)) break;
-    }
+    // post-game overlay message
+    updateLeaderboard(leaderboard_default, snake.getName(), snake.getScore());
+    int choice = showPostGame_menu(won, false, 0, leaderboard_default);
+    return choice;
 }
 int SnakeGame::play_gui(int level) {
     Color bgColor;
@@ -234,7 +245,6 @@ int SnakeGame::play_gui(int level) {
         case 3: bgColor = {60, 10, 10, 255}; break;
         default: bgColor = {20, 20, 40, 255};
     }
-
     double moveInterval = (level == 1) ? 0.15 : (level == 2) ? 0.10 : 0.07;
     int scorePerFood    = 5;
     int scoreToNext     = level * 50;
@@ -259,8 +269,6 @@ int SnakeGame::play_gui(int level) {
 
     while (!WindowShouldClose() && !gameOver && !levelComplete) {
         if (IsKeyPressed(KEY_P)) paused = !paused;
-        if (IsKeyPressed(KEY_ENTER)) return 0; // Enter closes the game
-        if (IsKeyPressed(KEY_ESCAPE)) return 0; // ESC also exits
 
         if (!paused) {
             if (!collisionFreeze) {
@@ -372,50 +380,8 @@ int SnakeGame::play_gui(int level) {
     }
 
     // end screen
-    while (!WindowShouldClose()) {
-        BeginDrawing();
-        ClearBackground(bgColor);
-
-        DrawRectangleLines(OFFSET_X, OFFSET_Y,
-            GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE, SKYBLUE);
-        Vector2 finalDeathPos2 = collisionFreeze ? collisionPos : snake.getHead();
-        snake.draw(gameOver && !levelComplete, finalDeathPos2);
-        DrawRectangle(
-            food.x * CELL_SIZE + OFFSET_X,
-            food.y * CELL_SIZE + OFFSET_Y,
-            CELL_SIZE, CELL_SIZE, YELLOW);
-        for (auto &obs : obstacles) {
-            DrawRectangle(obs.x * CELL_SIZE + OFFSET_X,
-                obs.y * CELL_SIZE + OFFSET_Y,
-                CELL_SIZE, CELL_SIZE, obsColor);
-        }
-
-        DrawRectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, {0, 0, 0, 180});
-
-        if (levelComplete) {
-            const char* msg = (level < 3)
-                ? TextFormat("Level %d Complete!", level)
-                : "You Beat All Levels!";
-            int msgW = MeasureText(msg, 35);
-            DrawText(msg, WINDOW_WIDTH/2 - msgW/2, WINDOW_HEIGHT/2 - 60, 35, GOLD);
-            const char* next = (level < 3)
-                ? TextFormat("Press ENTER for Level %d", level + 1)
-                : "Press ENTER to finish";
-            int nextW = MeasureText(next, 22);
-            DrawText(next, WINDOW_WIDTH/2 - nextW/2, WINDOW_HEIGHT/2, 22, WHITE);
-        } else {
-            int goW = MeasureText("Game Over", 40);
-            DrawText("Game Over", WINDOW_WIDTH/2 - goW/2, WINDOW_HEIGHT/2 - 60, 40, RED);
-            int exitW = MeasureText("Press ENTER to exit", 22);
-            DrawText("Press ENTER to exit", WINDOW_WIDTH/2 - exitW/2, WINDOW_HEIGHT/2, 22, WHITE);
-        }
-
-        DrawText(TextFormat("Score: %d", snake.getScore()),
-            WINDOW_WIDTH/2 - 60, WINDOW_HEIGHT/2 + 50, 25, WHITE);
-
-        EndDrawing();
-        if (IsKeyPressed(KEY_ENTER)) break;
-    }
-
-    return levelComplete ? 1 : 0;
+    updateLeaderboard(leaderboard_levels, snake.getName(), snake.getScore());
+    int choice = showPostGame_menu(false, levelComplete, level, leaderboard_levels);
+    if (levelComplete && level < 3 && choice == 1) return 1;
+    return choice == 1 ? -1 : 0;
 }

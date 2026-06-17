@@ -2,6 +2,7 @@
 #include <string>
 
 int showmenu_snake() {
+    BeginDrawing(); EndDrawing();
     Rectangle defualt_btn={490,250,300,60};
     Rectangle lvl_btn={490,350,300,60};
     Rectangle exit_btn={490,450,300,60};
@@ -197,4 +198,71 @@ bool getPlayerColor_snake(Snake &snake, std::string prompt) {
     }
     // window closed without choosing -> treat as cancel
     return false;
+}
+int showPostGame_menu(bool won, bool levelComplete, int level,const std::map<std::string, int>& board) {
+
+    Rectangle play_btn = {WINDOW_WIDTH/2 - 160, WINDOW_HEIGHT/2 + 120, 140, 50};
+    Rectangle menu_btn = {WINDOW_WIDTH/2 + 20,  WINDOW_HEIGHT/2 + 120, 140, 50};
+
+    // sort leaderboard descending
+    std::vector<std::pair<std::string, int>> entries(board.begin(), board.end());
+    std::sort(entries.begin(), entries.end(),
+        [](const std::pair<std::string,int>& a, const std::pair<std::string,int>& b) {
+            return b.second < a.second;
+        });
+
+    BeginDrawing(); EndDrawing(); // consume one frame
+
+    while (!WindowShouldClose()) {
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+            Vector2 m = GetMousePosition();
+            if (CheckCollisionPointRec(m, play_btn)) return 1; // play again
+            if (CheckCollisionPointRec(m, menu_btn)) return 0; // main menu
+        }
+
+        BeginDrawing();
+        ClearBackground({20, 20, 40, 255});
+
+        // result
+        if (levelComplete && level == 3) {
+            int w = MeasureText("You Beat All Levels!", 35);
+            DrawText("You Beat All Levels!", WINDOW_WIDTH/2 - w/2, 80, 35, GOLD);
+        } else if (levelComplete) {
+            const char* msg = TextFormat("Level %d Complete!", level);
+            int w = MeasureText(msg, 35);
+            DrawText(msg, WINDOW_WIDTH/2 - w/2, 80, 35, GOLD);
+        } else if (won) {
+            int w = MeasureText("You Win!", 40);
+            DrawText("You Win!", WINDOW_WIDTH/2 - w/2, 80, 40, GOLD);
+        } else {
+            int w = MeasureText("Game Over", 40);
+            DrawText("Game Over", WINDOW_WIDTH/2 - w/2, 80, 40, RED);
+        }
+
+        // leaderboard
+        DrawText("Leaderboard", WINDOW_WIDTH/2 - 80, 160, 25, GOLD);
+        int top = std::min((int)entries.size(), 5);
+        for (int i = 0; i < top; i++) {
+            const char* line = TextFormat("%d. %s - %d",
+                i+1, entries[i].first.c_str(), entries[i].second);
+            int lw = MeasureText(line, 20);
+            DrawText(line, WINDOW_WIDTH/2 - lw/2, 200 + i * 30, 20, WHITE);
+        }
+
+        // buttons
+        DrawRectangleRec(play_btn, DARKBLUE);
+        int pwW = MeasureText("Play Again", 20);
+        DrawText("Play Again",
+            play_btn.x + (play_btn.width - pwW)/2,
+            play_btn.y + (play_btn.height - 20)/2, 20, WHITE);
+
+        DrawRectangleRec(menu_btn, DARKBLUE);
+        int mmW = MeasureText("Main Menu", 20);
+        DrawText("Main Menu",
+            menu_btn.x + (menu_btn.width - mmW)/2,
+            menu_btn.y + (menu_btn.height - 20)/2, 20, WHITE);
+
+        EndDrawing();
+    }
+    return 0;
 }

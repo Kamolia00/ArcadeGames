@@ -249,36 +249,50 @@ int main() {
 }
 */
 int main() {
-     srand(time(nullptr));
-     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Snake");
-     SetExitKey(KEY_NULL);
-     SetTargetFPS(60);
+    srand(time(nullptr));
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Snake");
+    SetExitKey(KEY_NULL);
+    SetTargetFPS(60);
 
-     while (!WindowShouldClose()) {
-         int choice = showmenu_snake();
-         if (choice == 0) {
-             // Exit button pressed
-             break;
-         }
+    while (!WindowShouldClose()) {
+        int choice = showmenu_snake();
+        if (choice == 0) break;
 
-         Snake s1;
-         SnakeGame game(s1);
+        Snake s1;
+        SnakeGame game(s1);
 
-         if (choice == 1) {
-             // Free for all mode
-              if (!getPlayerName_snake(s1, "")) continue; // Back button pressed, return to menu
-              if (!getPlayerColor_snake(s1, "")) continue; // Back/ESC from color chooser -> back to menu
-              game.Default_mode();
-         } else if (choice == 2) {
-             // Level based mode
-              if (!getPlayerName_snake(s1, "")) continue; // Back button pressed, return to menu
-              if (!getPlayerColor_snake(s1, "")) continue; // Back/ESC from color chooser -> back to menu
-              int result = game.play_gui(1);
-             if (result == 1) result = game.play_gui(2);
-             if (result == 1) game.play_gui(3);
-         }
-     }
+        if (!getPlayerName_snake(s1, "")) continue;
+        if (!getPlayerColor_snake(s1, "")) continue;
 
-     CloseWindow();
-     return 0;
- }
+        if (choice == 1) {
+            // free for all mode
+            while (!WindowShouldClose()) {
+                int r = game.Default_mode();
+                if (r == 0) break; // main menu
+                // r == 1: play again
+            }
+        } else if (choice == 2) {
+            // levels mode
+            while (!WindowShouldClose()) {
+                int r1 = game.play_gui(1);
+                if (r1 == 0) break;           // main menu
+                if (r1 == -1) continue;        // play again level 1
+
+                int r2 = game.play_gui(2);
+                if (r2 == 0) break;
+                if (r2 == -1) {
+                    game.play_gui(1);
+                    continue;
+                }
+
+                int r3 = game.play_gui(3);
+                if (r3 == 0) break;
+                // finished all levels → back to menu
+                break;
+            }
+        }
+    }
+
+    CloseWindow();
+    return 0;
+}
