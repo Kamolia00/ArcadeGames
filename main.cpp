@@ -22,14 +22,15 @@ Music bgm;
     float rocketX     = -60.0f;
     float rocketY     = 600.0f;
     float rocketSpeed = 3.0f;
-/*
+
 int showmenu_main() {
     BeginDrawing();
     EndDrawing();
 
     Rectangle xo_btn   = {490, 250, 300, 60};
     Rectangle c4_btn   = {490, 350, 300, 60};
-    Rectangle exit_btn = {490, 450, 300, 60};
+    Rectangle Snake_btn = {490, 450, 300, 60};
+    Rectangle exit_btn = {490, 550, 300, 60};
 
     // stars
 
@@ -61,6 +62,7 @@ int showmenu_main() {
             if (CheckCollisionPointRec(mouse_pos, mute_btn)) mutedBGm = !mutedBGm;
             if (CheckCollisionPointRec(mouse_pos, xo_btn))   return 1;
             if (CheckCollisionPointRec(mouse_pos, c4_btn))   return 2;
+            if (CheckCollisionPointRec(mouse_pos, Snake_btn)) return 3;
             if (CheckCollisionPointRec(mouse_pos, exit_btn)) return 0;
         }
 
@@ -107,6 +109,12 @@ int showmenu_main() {
         DrawText("Connect 4",
             c4_btn.x + (c4_btn.width - c4W) / 2,
             c4_btn.y + (c4_btn.height - 25) / 2, 25, WHITE);
+        DrawRectangleRec(Snake_btn, DARKBLUE);
+
+        int snW = MeasureText("Snake_game", 25);
+        DrawText("Snake_game",
+            Snake_btn.x + (Snake_btn.width - snW) / 2,
+            Snake_btn.y + (Snake_btn.height - 25) / 2, 25, WHITE);
         DrawRectangleRec(exit_btn, DARKBLUE);
         int exW = MeasureText("Exit", 25);
         DrawText("Exit",
@@ -239,6 +247,44 @@ int main() {
                 }
                 break;
             }
+                // snake game
+                case 3: {
+                int mode = showmenu_snake();
+                // 0 break , 1 default , 2 lvl
+                if (mode == 0) break;
+                        Snake s1;
+                        if (!getPlayerName_snake(s1, "")) break;
+                        if (!getPlayerColor_snake(s1, "")) break;
+                SnakeGame s_game(s1);
+                switch (mode) {
+                    case 1: {
+                        while (!WindowShouldClose()) {
+                            int r = s_game.Default_mode();
+                            if (r == 0) break; // main menu
+                            // r == 1: play again → loop
+                        }
+                        break;
+                    }
+                    case 2: {
+                        while (!WindowShouldClose()) {
+                            int r1 = s_game.play_gui(1);
+                            if (r1 == 0) break;
+                            if (r1 == -1) continue; // play again level 1
+
+                            int r2 = s_game.play_gui(2);
+                            if (r2 == 0) break;
+                            if (r2 == -1) continue; // play again from level 1
+
+                            int r3 = s_game.play_gui(3);
+                            if (r3 == 0) break;
+                            break; // all levels done → back to main menu
+                        }
+                        break;
+                    }
+                }
+                BeginDrawing(); EndDrawing();
+                break;
+            }
 
                 // case 3: new game here
         }
@@ -247,7 +293,8 @@ int main() {
     CloseWindow();
     return 0;
 }
-*/
+
+/*
 int main() {
     srand(time(nullptr));
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Snake");
@@ -296,3 +343,4 @@ int main() {
     CloseWindow();
     return 0;
 }
+*/

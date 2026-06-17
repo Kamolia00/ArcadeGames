@@ -135,8 +135,8 @@ int SnakeGame::Default_mode() {
                     moveTimer = 0;
 
                     // compute where the head will be BEFORE moving so we can detect
-                    // collisions with the current body (including the tail that may be
-                    // removed by move()). This ensures running into the tail is
+                    // collisions with the current body including the tail that may be
+                    // removed by move. This ensures running into the tail is
                     // treated as a collision and we can show where it happened.
                     Vector2 predictedHead = snake.getHead();
                     Vector2 dir = snake.getDirection();
@@ -157,10 +157,18 @@ int SnakeGame::Default_mode() {
                     Vector2 head = snake.getHead();
                     if (head.x == food.x && head.y == food.y) {
                         snake.grow();
-                        snake.incrementScore();
+                        // apply multiplier for special player name "kamolia"
+                        std::string pname = snake.getName();
+                        std::transform(pname.begin(), pname.end(), pname.begin(), ::tolower);
+                        int mult = (pname == "kamolia") ? 5 : 1;
+                        if (mult == 1) {
+                            snake.incrementScore();
+                        } else {
+                            // add the multiplied points (replace default +1 with +mult)
+                            snake.addScore(mult);
+                        }
                         spawnFood();
                     }
-
                     int score = snake.getScore();
                     if (score >= 10) {
                         moveInterval = 0.10; // sped up once past 10
@@ -302,7 +310,11 @@ int SnakeGame::play_gui(int level) {
                     Vector2 head = snake.getHead();
                     if (head.x == food.x && head.y == food.y) {
                         snake.grow();
-                        snake.addScore(scorePerFood);
+                        // apply multiplier for special player name "kamolia"
+                        std::string pname = snake.getName();
+                        std::transform(pname.begin(), pname.end(), pname.begin(), ::tolower);
+                        int mult = (pname == "kamolia") ? 5 : 1;
+                        snake.addScore(scorePerFood * mult);
                         spawnFood();
                     }
 
