@@ -4,10 +4,23 @@
 #include "raylib.h"
 #include "snake_game/main_game/menu_snake.h"
 using namespace std;
+extern bool mutedBGm;
+extern Music bgm;
+extern Rectangle mute_btn;
+
+extern Rectangle sfx_btn;
 std::map<std::string, int> SnakeGame::leaderboard_default;
 std::map<std::string, int> SnakeGame::leaderboard_levels;
 SnakeGame::SnakeGame(Snake &snake) : snake(snake),food({0, 0}) {
     spawnFood();
+    sfx_food=LoadSound("assets/Sounds/eat.mp3");
+    sfx_collision=LoadSound("assets/Sounds/Collision.mp3");
+    sfx_move=LoadSound("assets/Sounds/move.wav");
+}
+SnakeGame::~SnakeGame() {
+    UnloadSound(sfx_food);
+    UnloadSound(sfx_collision);
+    UnloadSound(sfx_move);
 }
 void SnakeGame::drawLeaderboard(const std::map<std::string, int>& board, int x, int y) {
     // sort by score descending
@@ -113,8 +126,6 @@ int SnakeGame::Default_mode() {
     bool gameOver = false;
     bool won = false;
     bool paused = false;
-
-    // New: handle self-collision freeze so we can show where collision happened
     bool collisionFreeze = false;
     double collisionTimer = 0.0;
     Vector2 collisionPos = {0, 0};
@@ -122,22 +133,29 @@ int SnakeGame::Default_mode() {
     while (!WindowShouldClose() && !gameOver && !won) {
         if (IsKeyPressed(KEY_P)) paused = !paused;
 
+        UpdateMusicStream(bgm);
+        if (mutedBGm) PauseMusicStream(bgm);
+        else ResumeMusicStream(bgm);
+
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            Vector2 m = GetMousePosition();
+            if (CheckCollisionPointRec(m, sfx_btn))  muted_sfx = !muted_sfx;
+            if (CheckCollisionPointRec(m, mute_btn)) mutedBGm  = !mutedBGm;
+        }
+
         if (!paused) {
-            // If we're in the short collision freeze, don't accept movement input or advance the snake
             if (!collisionFreeze) {
-                if (IsKeyPressed(KEY_UP))    snake.setDirection({0, -1});
-                if (IsKeyPressed(KEY_DOWN))  snake.setDirection({0, 1});
-                if (IsKeyPressed(KEY_LEFT))  snake.setDirection({-1, 0});
-                if (IsKeyPressed(KEY_RIGHT)) snake.setDirection({1, 0});
+                bool moved = false;
+                if (IsKeyPressed(KEY_UP))    { snake.setDirection({0, -1}); moved = true; }
+                if (IsKeyPressed(KEY_DOWN))  { snake.setDirection({0,  1}); moved = true; }
+                if (IsKeyPressed(KEY_LEFT))  { snake.setDirection({-1, 0}); moved = true; }
+                if (IsKeyPressed(KEY_RIGHT)) { snake.setDirection({1,  0}); moved = true; }
+                if (moved && !muted_sfx) PlaySound(sfx_move);
 
                 moveTimer += GetFrameTime();
                 if (moveTimer >= moveInterval) {
                     moveTimer = 0;
 
-                    // compute where the head will be BEFORE moving so we can detect
-                    // collisions with the current body including the tail that may be
-                    // removed by move. This ensures running into the tail is
-                    // treated as a collision and we can show where it happened.
                     Vector2 predictedHead = snake.getHead();
                     Vector2 dir = snake.getDirection();
                     predictedHead.x += dir.x;
@@ -151,95 +169,92 @@ int SnakeGame::Default_mode() {
                         }
                     }
 
-                    // perform the move (this may pop the tail)
                     snake.move();
 
                     Vector2 head = snake.getHead();
                     if (head.x == food.x && head.y == food.y) {
+                        if (!muted_sfx) PlaySound(sfx_food);
                         snake.grow();
-                        // apply multiplier for special player name "kamolia"
                         std::string pname = snake.getName();
                         std::transform(pname.begin(), pname.end(), pname.begin(), ::tolower);
                         int mult = (pname == "kamolia") ? 5 : 1;
-                        if (mult == 1) {
-                            snake.incrementScore();
-                        } else {
-                            // add the multiplied points (replace default +1 with +mult)
-                            snake.addScore(mult);
-                        }
+                        if (mult == 1) snake.incrementScore();
+                        else snake.addScore(mult);
                         spawnFood();
                     }
-                    int score = snake.getScore();
-                    if (score >= 10) {
-                        moveInterval = 0.10; // sped up once past 10
-                    }
 
-                    // handle collisions: wall/obstacle still end immediately, but
-                    // self-collision (including running into the tail) will freeze
+                    int score = snake.getScore();
+                    if (score >= 10) moveInterval = 0.10;
+
                     if (checkWallCollision() || checkObstacleCollision()) {
-                        gameOver = true; // immediate end for wall/obstacle
-                    } else if (selfCollBeforeMove || snake.checkSelfCollision()) {
-                        // start a short freeze so player can see where the collision happened
+                        if (!muted_sfx) PlaySound(sfx_collision);
                         collisionFreeze = true;
                         collisionTimer = 0.0;
-                        collisionPos = predictedHead; // show the position where we hit
+                        collisionPos = predictedHead;
+                    } else if (selfCollBeforeMove || snake.checkSelfCollision()) {
+                        if (!muted_sfx) PlaySound(sfx_collision);
+                        collisionFreeze = true;
+                        collisionTimer = 0.0;
+                        collisionPos = predictedHead;
                     }
 
-                    if (score >= 200) {
-                        won = true;
+                    if (score >= 200) won = true;
+                }
+
+                if (snake.getScore() >= 10) {
+                    obstacleTimer += GetFrameTime();
+                    if (obstacleTimer >= 3.0) {
+                        obstacleTimer = 0;
+                        spawnObstacles(1);
                     }
                 }
+
             } else {
-                // we're frozen on self-collision: count down the timer then end the game
                 collisionTimer += GetFrameTime();
-                if (collisionTimer >= 1.0) { // wait 1 second
-                    gameOver = true;
-                }
-            }
-
-            // continuous obstacle spawning after score 10
-            if (snake.getScore() >= 10) {
-                obstacleTimer += GetFrameTime();
-                if (obstacleTimer >= 3.0) { // every 3 seconds
-                    obstacleTimer = 0;
-                    spawnObstacles(1);
-                }
+                if (collisionTimer >= 2.0) gameOver = true;
             }
         }
 
         BeginDrawing();
         ClearBackground({20, 20, 40, 255});
-
         DrawText("Snake", WINDOW_WIDTH/2 - 60, 20, 40, WHITE);
-         DrawText(TextFormat("Score: %d", snake.getScore()), 20, 20, 20, WHITE);
-         DrawText("P = pause", WINDOW_WIDTH - 120, 20, 18, GRAY);
-         DrawRectangleLines(OFFSET_X, OFFSET_Y, GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE, SKYBLUE);
+        DrawText(TextFormat("Score: %d", snake.getScore()), 20, 20, 20, WHITE);
+        DrawText("P = pause", WINDOW_WIDTH - 120, 20, 18, GRAY);
 
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
+        DrawText(mutedBGm ? "SOUND" : "MUTE",
+            mute_btn.x + (mute_btn.width - muteW)/2,
+            mute_btn.y + (mute_btn.height - 20)/2, 20,
+            mutedBGm ? GREEN : RED);
+
+        DrawRectangleRec(sfx_btn, DARKBLUE);
+        const char* sfxLabel = muted_sfx ? "SFX ON" : "SFX OFF";
+        int sfxW = MeasureText(sfxLabel, 20);
+        DrawText(sfxLabel,
+            sfx_btn.x + (sfx_btn.width - sfxW)/2,
+            sfx_btn.y + (sfx_btn.height - 20)/2, 20,
+            muted_sfx ? GREEN : RED);
+        DrawRectangleLines(OFFSET_X, OFFSET_Y, GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE, SKYBLUE);
         snake.draw(collisionFreeze, collisionPos);
         DrawRectangle(food.x * CELL_SIZE + OFFSET_X, food.y * CELL_SIZE + OFFSET_Y, CELL_SIZE, CELL_SIZE, YELLOW);
-
         for (auto &obs : obstacles) {
             DrawRectangle(obs.x * CELL_SIZE + OFFSET_X, obs.y * CELL_SIZE + OFFSET_Y, CELL_SIZE, CELL_SIZE, WHITE);
         }
-
-        // If we are in the self-collision freeze, highlight where it happened
         if (collisionFreeze) {
             int px = collisionPos.x * CELL_SIZE + OFFSET_X;
             int py = collisionPos.y * CELL_SIZE + OFFSET_Y;
-            // draw a red box with an X to indicate collision
             DrawRectangleLines(px, py, CELL_SIZE, CELL_SIZE, RED);
             DrawLine(px, py, px + CELL_SIZE, py + CELL_SIZE, RED);
             DrawLine(px + CELL_SIZE, py, px, py + CELL_SIZE, RED);
         }
-
         if (paused && !collisionFreeze) {
             DrawText("PAUSED", WINDOW_WIDTH/2 - 60, WINDOW_HEIGHT/2, 30, WHITE);
         }
-
         EndDrawing();
     }
 
-    // post-game overlay message
+    if (WindowShouldClose()) return 0;
     updateLeaderboard(leaderboard_default, snake.getName(), snake.getScore());
     int choice = showPostGame_menu(won, false, 0, leaderboard_default);
     return choice;
@@ -277,14 +292,22 @@ int SnakeGame::play_gui(int level) {
 
     while (!WindowShouldClose() && !gameOver && !levelComplete) {
         if (IsKeyPressed(KEY_P)) paused = !paused;
-
+        UpdateMusicStream(bgm);
+        if (mutedBGm) PauseMusicStream(bgm);
+        else ResumeMusicStream(bgm);
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            Vector2 m = GetMousePosition();
+            if (CheckCollisionPointRec(m, sfx_btn))  muted_sfx = !muted_sfx;
+            if (CheckCollisionPointRec(m, mute_btn)) mutedBGm  = !mutedBGm;
+        }
         if (!paused) {
             if (!collisionFreeze) {
-                if (IsKeyPressed(KEY_UP))    snake.setDirection({0, -1});
-                if (IsKeyPressed(KEY_DOWN))  snake.setDirection({0, 1});
-                if (IsKeyPressed(KEY_LEFT))  snake.setDirection({-1, 0});
-                if (IsKeyPressed(KEY_RIGHT)) snake.setDirection({1, 0});
-
+                bool moved = false;
+                if (IsKeyPressed(KEY_UP))    { snake.setDirection({0, -1}); moved = true; }
+                if (IsKeyPressed(KEY_DOWN))  { snake.setDirection({0,  1}); moved = true; }
+                if (IsKeyPressed(KEY_LEFT))  { snake.setDirection({-1, 0}); moved = true; }
+                if (IsKeyPressed(KEY_RIGHT)) { snake.setDirection({1,  0}); moved = true; }
+                if (moved && !muted_sfx) PlaySound(sfx_move);
                 moveTimer += GetFrameTime();
                 if (moveTimer >= moveInterval) {
                     moveTimer = 0;
@@ -310,6 +333,7 @@ int SnakeGame::play_gui(int level) {
                     Vector2 head = snake.getHead();
                     if (head.x == food.x && head.y == food.y) {
                         snake.grow();
+                        if (!muted_sfx) PlaySound(sfx_food);
                         // apply multiplier for special player name "kamolia"
                         std::string pname = snake.getName();
                         std::transform(pname.begin(), pname.end(), pname.begin(), ::tolower);
@@ -322,11 +346,15 @@ int SnakeGame::play_gui(int level) {
                         levelComplete = true;
 
                     if (checkWallCollision() || checkObstacleCollision()) {
-                        gameOver = true;
-                    } else if (selfCollBeforeMove || snake.checkSelfCollision()) {
+                        if (!muted_sfx) PlaySound(sfx_collision);
                         collisionFreeze = true;
-                        collisionTimer  = 0.0;
-                        collisionPos    = predictedHead;
+                        collisionTimer = 0.0;
+                        collisionPos = predictedHead;
+                    } else if (selfCollBeforeMove || snake.checkSelfCollision()) {
+                        if (!muted_sfx) PlaySound(sfx_collision);
+                        collisionFreeze = true;
+                        collisionTimer = 0.0;
+                        collisionPos = predictedHead;
                     }
                 }
 
@@ -340,7 +368,7 @@ int SnakeGame::play_gui(int level) {
 
             } else {
                 collisionTimer += GetFrameTime();
-                if (collisionTimer >= 1.0) gameOver = true;
+                if (collisionTimer >= 2.0) gameOver = true;
             }
         }
 
@@ -352,6 +380,20 @@ int SnakeGame::play_gui(int level) {
          DrawText(TextFormat("Score: %d", snake.getScore()), 20, 20, 20, WHITE);
          DrawText(TextFormat("Level: %d  |  Next: %d", level, scoreToNext), 20, 45, 18, GRAY);
          DrawText("P = pause", WINDOW_WIDTH - 120, 20, 18, GRAY);
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
+        DrawText(mutedBGm ? "SOUND" : "MUTE",
+            mute_btn.x + (mute_btn.width - muteW)/2,
+            mute_btn.y + (mute_btn.height - 20)/2, 20,
+            mutedBGm ? GREEN : RED);
+
+        DrawRectangleRec(sfx_btn, DARKBLUE);
+        const char* sfxLabel = muted_sfx ? "SFX ON" : "SFX OFF";
+        int sfxW = MeasureText(sfxLabel, 20);
+        DrawText(sfxLabel,
+            sfx_btn.x + (sfx_btn.width - sfxW)/2,
+            sfx_btn.y + (sfx_btn.height - 20)/2, 20,
+            muted_sfx ? GREEN : RED);
 
         DrawRectangleLines(OFFSET_X, OFFSET_Y,
             GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE, SKYBLUE);
@@ -390,6 +432,9 @@ int SnakeGame::play_gui(int level) {
 
         EndDrawing();
     }
+
+    // If window was closed during gameplay, exit immediately
+    if (WindowShouldClose()) return 0;
 
     // end screen
     updateLeaderboard(leaderboard_levels, snake.getName(), snake.getScore());

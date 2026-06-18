@@ -151,21 +151,20 @@ int showPostGameMenu_c4(Player &p1, Player &p2) {
         starSpeed[i] = 0.5f + (rand() % 20) / 10.0f;
         starSize[i]  = 1.0f + (rand() % 3);
     }
-    BeginDrawing();
-    EndDrawing();
-    while (true) {
-        UpdateMusicStream(bgm);
-        if (mutedBGm)
-            PauseMusicStream(bgm);
-        else
-            ResumeMusicStream(bgm);
-        for (int i = 0; i < STAR_COUNT; i++) {
-            starY[i] -= starSpeed[i];
-            if (starY[i] < 0) { starY[i] = 720; starX[i] = rand() % 1280; }
-        }
-        rocketX += rocketSpeed; rocketY -= rocketSpeed * 0.4f;
-        if (rocketX > 1400) { rocketX = -60; rocketY = 600; }
-        if (WindowShouldClose()) break;
+     BeginDrawing();
+     EndDrawing();
+     while (!WindowShouldClose()) {
+         UpdateMusicStream(bgm);
+         if (mutedBGm)
+             PauseMusicStream(bgm);
+         else
+             ResumeMusicStream(bgm);
+         for (int i = 0; i < STAR_COUNT; i++) {
+             starY[i] -= starSpeed[i];
+             if (starY[i] < 0) { starY[i] = 720; starX[i] = rand() % 1280; }
+         }
+         rocketX += rocketSpeed; rocketY -= rocketSpeed * 0.4f;
+         if (rocketX > 1400) { rocketX = -60; rocketY = 600; }
         // Enter key -> main menu
         if (IsKeyPressed(KEY_ENTER)) {
             return 0;

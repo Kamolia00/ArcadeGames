@@ -170,8 +170,11 @@ int main() {
                     case 1: {
                         // PvP
                         if (!getPlayerName(p1, "Player 1")) break;
+                        if (WindowShouldClose()) break;
                         if (!getPlayerSymbol(p1, p1.getName())) break;
+                        if (WindowShouldClose()) break;
                         if (!getPlayerName(p2, "Player 2")) break;
+                        if (WindowShouldClose()) break;
                         p2.setSymbol(p1.getSymbol() == 'X' ? 'O' : 'X');
                         while (!WindowShouldClose()) {
                             XO game(p1, p2);
@@ -184,10 +187,13 @@ int main() {
                     case 2: {
                         // vs AI
                         if (!getPlayerName(p1, "Player 1")) break;
+                        if (WindowShouldClose()) break;
                         if (!getPlayerSymbol(p1, p1.getName())) break;
+                        if (WindowShouldClose()) break;
                         ai.setSymbol(p1.getSymbol() == 'X' ? 'O' : 'X');
                         int diff = showAiMenu(); // 1=easy, 2=hard, 0=back
                         if (diff == 0) break;
+                        if (WindowShouldClose()) break;
                         while (!WindowShouldClose()) {
                             XO game(p1, ai);
                             switch (diff) {
@@ -213,8 +219,11 @@ int main() {
                     case 1: {
                         // PvP
                         if (!getPlayerName_c4(p1, "Player 1")) break;
+                        if (WindowShouldClose()) break;
                         if (!getPlayerSymbol_c4(p1, p1.getName())) break;
+                        if (WindowShouldClose()) break;
                         if (!getPlayerName_c4(p2, "Player 2")) break;
+                        if (WindowShouldClose()) break;
                         p2.setSymbol(p1.getSymbol() == 'X' ? 'O' : 'X');
                         while (!WindowShouldClose()) {
                             connect4 game(p1, p2);
@@ -227,10 +236,13 @@ int main() {
                     case 2: {
                         // vs AI
                         if (!getPlayerName_c4(p1, "Player 1")) break;
+                        if (WindowShouldClose()) break;
                         if (!getPlayerSymbol_c4(p1, p1.getName())) break;
+                        if (WindowShouldClose()) break;
                         ai.setSymbol(p1.getSymbol() == 'X' ? 'O' : 'X');
                         int diff = showAiMenu_c4(); // 1=easy, 2=hard, 0=back
                         if (diff == 0) break;
+                        if (WindowShouldClose()) break;
                         while (!WindowShouldClose()) {
                             connect4 game(p1, ai);
                             switch (diff) {
@@ -252,9 +264,12 @@ int main() {
                 int mode = showmenu_snake();
                 // 0 break , 1 default , 2 lvl
                 if (mode == 0) break;
+                if (WindowShouldClose()) break;
                         Snake s1;
                         if (!getPlayerName_snake(s1, "")) break;
+                        if (WindowShouldClose()) break;
                         if (!getPlayerColor_snake(s1, "")) break;
+                        if (WindowShouldClose()) break;
                 SnakeGame s_game(s1);
                 switch (mode) {
                     case 1: {

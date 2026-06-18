@@ -7,6 +7,11 @@
 class SnakeGame {
 private:
 static std::map<std::string, int> leaderboard_default;
+    bool muted_sfx = false;
+ Rectangle sfx_btn = {130, 655, 100, 45};
+    Sound sfx_food;
+    Sound sfx_collision;
+    Sound sfx_move;
     static std::map<std::string, int> leaderboard_levels;
     Snake &snake;
     Vector2 food;
@@ -21,6 +26,7 @@ const std::map<std::string, int>& getLeaderboard_default() const;
     void updateLeaderboard(std::map<std::string, int>& board,
                        const std::string& name, int score);
 public:
+    ~SnakeGame();
     SnakeGame(Snake &snake);
  int Default_mode();
     int play_gui(int level);
