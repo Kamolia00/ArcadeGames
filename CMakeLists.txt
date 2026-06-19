@@ -20,6 +20,10 @@ add_executable(ArcadeGames
         "snake_game/main_game/snake_game.cpp" "snake_game/main_game/snake_game.h"
         snake_game/main_game/menu_snake.cpp
         snake_game/main_game/menu_snake.h
+        pong/pong.cpp
+        pong/pong.h
+        pong/ball.cpp
+        pong/ball.h
 
 )
 
