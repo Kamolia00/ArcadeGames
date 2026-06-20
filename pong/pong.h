@@ -9,8 +9,9 @@ class Pong {
     Player p2;
     Player ai;
     int threshold{};
-    int gamesP1,gamesP2;
-    int aiWins;
+    int gamesP1=0;
+    int gamesP2=0;
+    int aiWins=0;
     Rectangle paddle1Rect{};
     Rectangle paddle2Rect{};
     Rectangle aiRect{};

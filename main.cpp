@@ -363,11 +363,11 @@ Music bgm;
 #include "pong/pong.h"
 int main() {
     Player p1, p2;
-    p1.setName("Player 1");
+    p1.setName("kamal");
     p1.setSymbol('r');
-    p2.setName("Player 2");
+    p2.setName("ibrahim gay");
     p2.setSymbol('O');
     Pong game(p1, p2, Ball(0, 0, 0, 0, 0), 3);
-   game.setThreshold(4);
-    game.playGame_ai();
+   game.setThreshold(1);
+    game.playGame_pvp();
 }
