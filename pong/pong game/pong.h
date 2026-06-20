@@ -1,6 +1,6 @@
 #ifndef PONG_H
 #define PONG_H
-#include "pong/ball.h"
+#include "pong/pong game/ball.h"
 #include "player stuff/player.h"
 #include "raylib.h"
 class Pong {
@@ -19,8 +19,10 @@ class Pong {
     void movePaddel1();
     void movePaddel2();
     void moveAi();
-    void resetRound();
 public:
+    int getGamesP1() const;
+    int getGamesP2() const;
+    int getAiWins() const;
         void setThreshold(int n);
         Pong(const Player &p1, const Player &p2, const Ball &ball, const int threshold);
         void playGame_pvp();

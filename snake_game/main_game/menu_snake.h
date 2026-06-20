@@ -9,7 +9,7 @@
 #include <algorithm>
 
 int showPostGame_menu(bool won, bool levelComplete, int level,
-    const std::map<std::string, int>& board);
+const std::map<std::string, int>& board);
 int showmenu_snake();
 bool getPlayerName_snake(Snake &snake, const std::string& prompt);
 bool getPlayerColor_snake(Snake &snake, std::string prompt);

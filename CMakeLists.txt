@@ -18,15 +18,12 @@ add_executable(ArcadeGames
         "snake_game/snake/snake.cpp"    "snake_game/snake/snake.h"
         snake_game/snake/constants.h
         "snake_game/main_game/snake_game.cpp" "snake_game/main_game/snake_game.h"
-        snake_game/main_game/menu_snake.cpp
-        snake_game/main_game/menu_snake.h
-        pong/pong.cpp
-        pong/pong.h
-        pong/ball.cpp
-        pong/ball.h
-
+        "snake_game/main_game/menu_snake.cpp" "snake_game/main_game/menu_snake.h"
+        "pong/pong game/ball.cpp" "pong/pong game/ball.h"
+        "pong/pong game/pong.cpp" "pong/pong game/pong.h"
+        pong/menus/menu_pong.h
+        pong/menus/menu_pong.cpp
 )
-
 
 target_link_libraries(ArcadeGames raylib winmm gdi32 opengl32)
 

@@ -360,7 +360,8 @@ Music bgm;
 //     return 0;
 // }
 // */
-#include "pong/pong.h"
+#include "pong/pong game/pong.h"
+#include "pong/pong game/ball.h"
 int main() {
     Player p1, p2;
     p1.setName("kamal");
@@ -370,4 +371,7 @@ int main() {
     Pong game(p1, p2, Ball(0, 0, 0, 0, 0), 3);
    game.setThreshold(1);
     game.playGame_pvp();
+    game.playGame_pvp();
+    std::cout << "Player 1 wins: " << game.getGamesP1() << std::endl;
+std:: cout << "Player 2 wins: " << game.getGamesP2() << std::endl;
 }

@@ -1,10 +1,11 @@
-#include "pong.h"
-#include"pong/ball.h"
+#include "pong/pong game/pong.h"
+#include"pong/pong game/ball.h"
 Pong::Pong(const Player &p1,const Player &p2, const Ball &ball, const int threshold) : p1(p1), p2(p2), ball(ball) {
     setThreshold(threshold);
     ai.setName("AI");
     gamesP1 = 0;
     gamesP2 = 0;
+    aiWins=0;
     this->ball.setPosition(0.0, 0.0);
     this->ball.setSpeed(0, 0);
     this->ball.setRadius(0);
@@ -12,6 +13,17 @@ Pong::Pong(const Player &p1,const Player &p2, const Ball &ball, const int thresh
     paddle2Rect = {1245,300,25,120};
     aiRect = {1245,300,25,120};
     // resetRound();
+}
+
+int Pong::getAiWins() const {
+
+    return aiWins;
+}
+int Pong::getGamesP1() const {
+    return gamesP1;
+}
+int Pong::getGamesP2() const {
+    return gamesP2;
 }
 void Pong::moveAi() {
     float paddleSpeed=7.0f;
@@ -86,7 +98,12 @@ void Pong::playGame_pvp() {
             ball.setPosition(640, 360);
             ball.setSpeed(-7, 7);
         }
-        if (p1.getScore() >= threshold || p2.getScore() >= threshold) {
+        if (p1.getScore() >= threshold ) {
+            gamesP1++;
+            break;
+        }
+        if (p2.getScore() >= threshold) {
+            gamesP2++;
             break;
         }
         // check for collisions
@@ -208,8 +225,13 @@ ball.setPosition(640,360);
             ball.setPosition(640, 360);
             ball.setSpeed(-7, 7);
         }
-        if (p1.getScore() >= threshold || ai.getScore() >= threshold)
+        if (p1.getScore() >= threshold )
         {
+            gamesP1++;
+            break;
+        }
+        if (ai.getScore() >= threshold) {
+            gamesP2++;
             break;
         }
         // check for collisions
