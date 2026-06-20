@@ -363,6 +363,7 @@ Music bgm;
 #include "pong/pong game/pong.h"
 #include "pong/pong game/ball.h"
 int main() {
+    
     Player p1, p2;
     p1.setName("kamal");
     p1.setSymbol('r');
