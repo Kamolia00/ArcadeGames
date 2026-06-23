@@ -5,8 +5,8 @@
 #include "raylib.h"
 class Pong {
     private:
-    Player p1;
-    Player p2;
+    Player &p1;
+    Player &p2;
     Player ai;
     int threshold{};
     int gamesP1=0;
@@ -24,8 +24,9 @@ public:
     int getGamesP2() const;
     int getAiWins() const;
         void setThreshold(int n);
-        Pong(const Player &p1, const Player &p2, const Ball &ball, const int threshold);
-        void playGame_pvp();
+
+    Pong(Player &p1, Player &p2, const Ball &ball, int threshold);
+    void playGame_pvp();
         void playGame_ai();
 };
 #endif

@@ -362,17 +362,35 @@ Music bgm;
 // */
 #include "pong/pong game/pong.h"
 #include "pong/pong game/ball.h"
+#include"pong/menus/menu_pong.h"
 int main() {
-    
     Player p1, p2;
-    p1.setName("kamal");
     p1.setSymbol('r');
-    p2.setName("ibrahim gay");
     p2.setSymbol('O');
     Pong game(p1, p2, Ball(0, 0, 0, 0, 0), 3);
-   game.setThreshold(1);
-    game.playGame_pvp();
-    game.playGame_pvp();
-    std::cout << "Player 1 wins: " << game.getGamesP1() << std::endl;
-std:: cout << "Player 2 wins: " << game.getGamesP2() << std::endl;
+   game.setThreshold(3);
+    srand(time(nullptr));
+    InitWindow(1280, 720, "PONG");
+    SetExitKey(KEY_NULL);
+    SetTargetFPS(60);
+
+   while (!WindowShouldClose()) {
+       int mode = showmenu_pong();
+       if (mode == 0) break;
+       switch (mode) {
+           case 1: {
+              if (!getPlayerName_pong(p2))
+                  break;
+               if (!getPlayerName_pong(p1))
+                   break;
+               game.playGame_pvp();
+           }
+               break;
+           case 2: game.playGame_ai();
+               break;
+           case 0: break;
+       }
+   }
+    CloseWindow();
+    return 0;
 }

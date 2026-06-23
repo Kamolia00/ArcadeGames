@@ -1,6 +1,6 @@
 #include "pong/pong game/pong.h"
 #include"pong/pong game/ball.h"
-Pong::Pong(const Player &p1,const Player &p2, const Ball &ball, const int threshold) : p1(p1), p2(p2), ball(ball) {
+Pong::Pong( Player &p1, Player &p2, const Ball &ball, int threshold) : p1(p1), p2(p2), ball(ball) {
     setThreshold(threshold);
     ai.setName("AI");
     gamesP1 = 0;
@@ -26,7 +26,7 @@ int Pong::getGamesP2() const {
     return gamesP2;
 }
 void Pong::moveAi() {
-    float paddleSpeed=7.0f;
+    float paddleSpeed=8.0f;
    if (ball.getY() < aiRect.y+aiRect.height/2) {
        aiRect.y-=paddleSpeed;
    }  if (ball.getY() >= aiRect.y+aiRect.height/2) {
@@ -36,7 +36,7 @@ void Pong::moveAi() {
     if (aiRect.y+aiRect.height >= GetScreenHeight()) aiRect.y = GetScreenHeight()-aiRect.height;
 }
 void Pong::movePaddel1() {
-        float paddleSpeed=7.0f;
+        float paddleSpeed=8.0f;
     if (IsKeyDown(KEY_UP)) {
         paddle1Rect.y-=paddleSpeed;
     }
@@ -47,7 +47,7 @@ void Pong::movePaddel1() {
     if (paddle1Rect.y+paddle1Rect.height >= GetScreenHeight()) paddle1Rect.y = GetScreenHeight()-paddle1Rect.height;
 }
 void  Pong::movePaddel2() {
-    float paddleSpeed=7.0f;
+    float paddleSpeed=8.0f;
     if (IsKeyDown(KEY_W)) {
         paddle2Rect.y-=paddleSpeed;
     }
@@ -71,10 +71,8 @@ void Pong::playGame_pvp() {
         case 'b': c2 = BLUE; break;
         default:  c2 = WHITE;
     }
-    InitWindow(1280, 720, "pong");
-    SetTargetFPS(60);
     ball.setPosition(640,360);
-    ball.setSpeed(10,10);
+    ball.setSpeed(12,12);
     ball.setRadius(20);
     bool paused = false;
     while (!WindowShouldClose()) {
@@ -90,13 +88,13 @@ void Pong::playGame_pvp() {
         {
             p2.incrementScore();
             ball.setPosition(640, 360);
-            ball.setSpeed(7, 7);
+            ball.setSpeed(-12, 12);
         }
         //p1 scores
         if (ball.getX() + ball.getRadius() >= GetScreenWidth()) {
             p1.incrementScore();
             ball.setPosition(640, 360);
-            ball.setSpeed(-7, 7);
+            ball.setSpeed(-10, 10);
         }
         if (p1.getScore() >= threshold ) {
             gamesP1++;
@@ -195,10 +193,8 @@ void Pong::playGame_ai() {
     }
 
     bool paused = false;
-    InitWindow(1280, 720, "pong");
-    SetTargetFPS(60);
 ball.setPosition(640,360);
-    ball.setSpeed(10,10);
+    ball.setSpeed(11,11);
     ball.setRadius(20);
 
     while (!WindowShouldClose()) {
@@ -214,7 +210,7 @@ ball.setPosition(640,360);
             ai.incrementScore();
 
             ball.setPosition(640, 360);
-            ball.setSpeed(7, 7);
+            ball.setSpeed(11, 11);
         }
 
         // Player scores
@@ -223,7 +219,7 @@ ball.setPosition(640,360);
             p1.incrementScore();
 
             ball.setPosition(640, 360);
-            ball.setSpeed(-7, 7);
+            ball.setSpeed(-11, 11);
         }
         if (p1.getScore() >= threshold )
         {
