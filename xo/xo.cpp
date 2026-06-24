@@ -12,6 +12,14 @@ bool mutedSFX = false;
 Rectangle sfx_btn = {110, 660, 100, 40};
 extern Rectangle mute_btn;
 using namespace std;
+namespace {
+constexpr double kAiTurnDelaySeconds = 1.0;
+
+void startAiTurnDelay(bool &aiWaiting, double &aiMoveTime) {
+    aiMoveTime = GetTime() + kAiTurnDelaySeconds;
+    aiWaiting = true;
+}
+}
 //const
 XO::XO(Player &p1, Player &p2) : player1(p1), player2(p2) {
     for (int i = 0; i < 3; i++) {
@@ -434,27 +442,44 @@ void XO::playGameGUI_ai_easy() {
     string msg = " ";
     srand(time(nullptr));
 
+    bool openingDelayActive = true;
+    double openingMoveTime = GetTime() + kAiTurnDelaySeconds;
+
     // AI delay
     bool   aiWaiting  = false;
     double aiMoveTime = 0.0;
 
-    // AI goes first if player is O
-    if (!p1_turn) {
-        int r, c;
-        do { r = rand() % 3; c = rand() % 3; } while (board[r][c] != ' ');
-        board[r][c] = player2.getSymbol();
-        p1_turn = true;
-    }
+    BeginDrawing();
+    EndDrawing();
 
     while (!WindowShouldClose()) {
         UpdateMusicStream(bgm);
         if (mutedBGm) PauseMusicStream(bgm);
         else       ResumeMusicStream(bgm);
+        if (openingDelayActive && GetTime() >= openingMoveTime) {
+            if (!p1_turn) {
+                int r, c;
+                do { r = rand() % 3; c = rand() % 3; } while (board[r][c] != ' ');
+                board[r][c] = player2.getSymbol();
+                if (!mutedSFX) PlaySound(clickSfx);
+                if      (checkWin(player2.getSymbol())) {
+                    game_over=true; msg="AI wins!"; player2.incrementScore();
+                }
+                else if (checkDraw()) {
+                    game_over=true; msg="It's a draw!";
+                }
+                else {
+                    p1_turn=true;
+                }
+            }
+            openingDelayActive = false;
+        }
+
         //  player input for his move
-        if (!game_over && p1_turn && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        if (!openingDelayActive && !game_over && p1_turn && IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse_pos = GetMousePosition();
-                if (CheckCollisionPointRec(mouse_pos, mute_btn)) mutedBGm = !mutedBGm;
-                if (CheckCollisionPointRec(mouse_pos, sfx_btn)) mutedSFX = !mutedSFX;
+            if (CheckCollisionPointRec(mouse_pos, mute_btn)) mutedBGm = !mutedBGm;
+            if (CheckCollisionPointRec(mouse_pos, sfx_btn)) mutedSFX = !mutedSFX;
             int col = (mouse_pos.x - startX) / cell_size;
             int row = (mouse_pos.y - startY) / cell_size;
             if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
@@ -473,10 +498,9 @@ void XO::playGameGUI_ai_easy() {
         }
 
         // AI delay
-        if (!game_over && !p1_turn) {
+        if (!openingDelayActive && !game_over && !p1_turn) {
             if (!aiWaiting) {
-                aiMoveTime = GetTime() + 1;
-                aiWaiting  = true;
+                startAiTurnDelay(aiWaiting, aiMoveTime);
             }
             if (aiWaiting && GetTime() >= aiMoveTime) {
                 aiWaiting = false;
@@ -543,25 +567,39 @@ void XO::playGameGUI_ai_hard() {
     bool p1_turn = (player1.getSymbol() == 'X');
     string msg = " ";
 
+    bool openingDelayActive = true;
+    double openingMoveTime = GetTime() + kAiTurnDelaySeconds;
+
     // AI delay
     bool   aiWaiting  = false;
     double aiMoveTime = 0.0;
-
-    if (!p1_turn) {
-        bestMove();
-        p1_turn = true;
-    }
 
     while (!WindowShouldClose()) {
         UpdateMusicStream(bgm);
         if (mutedBGm) PauseMusicStream(bgm);
         else       ResumeMusicStream(bgm);
-        //  player input move
+        if (openingDelayActive && GetTime() >= openingMoveTime) {
+            if (!p1_turn) {
+                bestMove();
+                if (!mutedSFX) PlaySound(clickSfx);
+                if      (checkWin(player2.getSymbol())) {
+                    game_over=true; msg="AI wins!"; player2.incrementScore();
+                }
+                else if (checkDraw()) {
+                    game_over=true; msg="It's a draw!";
+                }
+                else {
+                    p1_turn=true;
+                }
+            }
+            openingDelayActive = false;
+        }
 
-            if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
-                Vector2 mouse_pos = GetMousePosition();
-                if (CheckCollisionPointRec(mouse_pos, mute_btn)) mutedBGm = !mutedBGm;
-                if (CheckCollisionPointRec(mouse_pos, sfx_btn)) mutedSFX = !mutedSFX;
+        //  player input move
+        if (!openingDelayActive && !game_over && p1_turn && IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+            Vector2 mouse_pos = GetMousePosition();
+            if (CheckCollisionPointRec(mouse_pos, mute_btn)) mutedBGm = !mutedBGm;
+            if (CheckCollisionPointRec(mouse_pos, sfx_btn)) mutedSFX = !mutedSFX;
             int col = (mouse_pos.x - startX) / cell_size;
             int row = (mouse_pos.y - startY) / cell_size;
             if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
@@ -580,10 +618,9 @@ void XO::playGameGUI_ai_hard() {
         }
 
         // AI delay
-        if (!game_over && !p1_turn) {
+        if (!openingDelayActive && !game_over && !p1_turn) {
             if (!aiWaiting) {
-                aiMoveTime = GetTime() + 1.5;
-                aiWaiting  = true;
+                startAiTurnDelay(aiWaiting, aiMoveTime);
             }
             if (aiWaiting && GetTime() >= aiMoveTime) {
                 aiWaiting = false;
