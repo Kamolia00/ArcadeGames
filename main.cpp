@@ -368,7 +368,7 @@ int main() {
     p1.setSymbol('r');
     p2.setSymbol('O');
     Pong game(p1, p2, Ball(0, 0, 0, 0, 0), 3);
-   game.setThreshold(3);
+   game.setThreshold(7);
     srand(time(nullptr));
     InitWindow(1280, 720, "PONG");
     SetExitKey(KEY_NULL);
