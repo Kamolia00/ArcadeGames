@@ -379,9 +379,9 @@ int main() {
        if (mode == 0) break;
        switch (mode) {
            case 1: {
-              if (!getPlayerName_pong(p2))
-                  break;
                if (!getPlayerName_pong(p1))
+                  break;
+              if (!getPlayerName_pong(p2))
                    break;
                game.playGame_pvp();
            }

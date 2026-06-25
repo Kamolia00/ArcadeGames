@@ -37,10 +37,10 @@ void Pong::moveAi() {
 }
 void Pong::movePaddel1() {
         float paddleSpeed=8.0f;
-    if (IsKeyDown(KEY_UP)) {
+    if (IsKeyDown(KEY_W)) {
         paddle1Rect.y-=paddleSpeed;
     }
-    if (IsKeyDown(KEY_DOWN)) {
+    if (IsKeyDown(KEY_S)) {
         paddle1Rect.y+=paddleSpeed;
     }
     if (paddle1Rect.y < 0) paddle1Rect.y = 0;
@@ -48,10 +48,10 @@ void Pong::movePaddel1() {
 }
 void  Pong::movePaddel2() {
     float paddleSpeed=8.0f;
-    if (IsKeyDown(KEY_W)) {
+    if (IsKeyDown(KEY_UP)) {
         paddle2Rect.y-=paddleSpeed;
     }
-    if (IsKeyDown(KEY_S)) {
+    if (IsKeyDown(KEY_DOWN)) {
         paddle2Rect.y+=paddleSpeed;
 }
     if (paddle2Rect.y < 0) paddle2Rect.y = 0;
@@ -71,6 +71,10 @@ void Pong::playGame_pvp() {
         case 'b': c2 = BLUE; break;
         default:  c2 = WHITE;
     }
+    p1.setScore(0);
+    p2.setScore(0);
+    paddle1Rect = {10,300,25,120};
+    paddle2Rect = {1245,300,25,120};
     ball.setPosition(640,360);
     ball.setSpeed(12,12);
     ball.setRadius(20);
@@ -94,7 +98,7 @@ void Pong::playGame_pvp() {
         if (ball.getX() + ball.getRadius() >= GetScreenWidth()) {
             p1.incrementScore();
             ball.setPosition(640, 360);
-            ball.setSpeed(-10, 10);
+            ball.setSpeed(12, 12);
         }
         if (p1.getScore() >= threshold ) {
             gamesP1++;
@@ -193,8 +197,12 @@ void Pong::playGame_ai() {
     }
 
     bool paused = false;
+    p1.setScore(0);
+    ai.setScore(0);
+    paddle1Rect = {10,300,25,120};
+    aiRect = {1245,300,25,120};
 ball.setPosition(640,360);
-    ball.setSpeed(11,11);
+    ball.setSpeed(12,12);
     ball.setRadius(20);
 
     while (!WindowShouldClose()) {
@@ -210,7 +218,7 @@ ball.setPosition(640,360);
             ai.incrementScore();
 
             ball.setPosition(640, 360);
-            ball.setSpeed(11, 11);
+            ball.setSpeed(-12, 12);
         }
 
         // Player scores
@@ -219,7 +227,7 @@ ball.setPosition(640,360);
             p1.incrementScore();
 
             ball.setPosition(640, 360);
-            ball.setSpeed(-11, 11);
+            ball.setSpeed(12, 12);
         }
         if (p1.getScore() >= threshold )
         {
