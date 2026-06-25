@@ -365,32 +365,51 @@ Music bgm;
 #include"pong/menus/menu_pong.h"
 int main() {
     Player p1, p2;
-    p1.setSymbol('r');
-    p2.setSymbol('O');
-    Pong game(p1, p2, Ball(0, 0, 0, 0, 0), 3);
-   game.setThreshold(7);
+    Ball b(0, 0, 0, 0, 0);
+
     srand(time(nullptr));
     InitWindow(1280, 720, "PONG");
     SetExitKey(KEY_NULL);
     SetTargetFPS(60);
 
-   while (!WindowShouldClose()) {
-       int mode = showmenu_pong();
-       if (mode == 0) break;
-       switch (mode) {
-           case 1: {
-               if (!getPlayerName_pong(p1))
-                  break;
-              if (!getPlayerName_pong(p2))
-                   break;
-               game.playGame_pvp();
-           }
-               break;
-           case 2: game.playGame_ai();
-               break;
-           case 0: break;
-       }
-   }
+    while (!WindowShouldClose()) {
+        int mode = showmenu_pong();
+        if (mode == 0) break;
+
+        switch (mode) {
+            case 1: {
+                if (!getPlayerName_pong(p1, "Player 1 - Controls: W / S")) break;
+                if (!getPlayerColor_pong(p1)) break;
+                if (!getPlayerName_pong(p2, "Player 2 - Controls: UP / DOWN")) break;
+                if (!getPlayerColor_pong(p2)) break;
+                int t = setThreshold_pong();
+                if (t == -1) break;
+                Pong game(p1, p2, b, t);
+                while (!WindowShouldClose()) {
+                    game.playGame_pvp();
+                    int r = showPostGame_menu_pong(p1, p2, game.getGamesP1(), game.getGamesP2());
+                    if (r == 1) break;
+                }
+                BeginDrawing(); EndDrawing();
+                break;
+            }
+            case 2: {
+                if (!getPlayerName_pong(p1, "Player - Controls: UP / DOWN")) break;
+                if (!getPlayerColor_pong(p1)) break;
+                int t = setThreshold_pong();
+                if (t == -1) break;
+                Pong game(p1, p2, b, t);
+                while (!WindowShouldClose()) {
+                    game.playGame_ai();
+                    int r = showPostGame_menu_pong(p1, p2, game.getGamesP1(), game.getAiWins());
+                    if (r == 1) break;
+                }
+                BeginDrawing(); EndDrawing();
+                break;
+            }
+        }
+    }
+
     CloseWindow();
     return 0;
 }
