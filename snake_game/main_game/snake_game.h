@@ -8,7 +8,6 @@ class SnakeGame {
 private:
 static std::map<std::string, int> leaderboard_default;
     bool muted_sfx = false;
- Rectangle sfx_btn = {130, 655, 100, 45};
     Sound sfx_food;
     Sound sfx_collision;
     Sound sfx_move;

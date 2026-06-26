@@ -9,7 +9,7 @@ extern Music bgm;
 
 bool mutedSFX = false;
 
-Rectangle sfx_btn = {110, 660, 100, 40};
+extern Rectangle sfx_btn;
 extern Rectangle mute_btn;
 using namespace std;
 namespace {
