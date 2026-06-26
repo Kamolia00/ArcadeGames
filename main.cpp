@@ -17,8 +17,8 @@
 
 Font font;
 bool mutedBGm = false;
-Rectangle mute_btn = {20, 660, 80, 40};
-Rectangle sfx_btn  = {110, 660, 80, 40};
+Rectangle mute_btn = {20, 660, 100, 40};
+Rectangle sfx_btn  = {140, 660, 120, 40};
 Music bgm;
 int STAR_COUNT = 80;
 float starX[80], starY[80], starSpeed[80], starSize[80];
