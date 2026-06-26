@@ -1,5 +1,12 @@
 #include "pong/pong game/pong.h"
 #include"pong/pong game/ball.h"
+extern bool mutedBGm;
+extern Music bgm;
+extern Rectangle mute_btn;
+extern  int STAR_COUNT;
+extern float starX[], starY[], starSpeed[], starSize[];
+extern float rocketX, rocketY, rocketSpeed;
+
 Pong::Pong( Player &p1, Player &p2, const Ball &ball, int threshold) : p1(p1), p2(p2), ball(ball) {
     setThreshold(threshold);
     ai.setName("AI");
@@ -80,6 +87,13 @@ void Pong::playGame_pvp() {
     ball.setRadius(20);
     bool paused = false;
     while (!WindowShouldClose()) {
+        UpdateMusicStream(bgm);
+        if (mutedBGm) PauseMusicStream(bgm);
+        else ResumeMusicStream(bgm);
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            Vector2 m = GetMousePosition();
+            if (CheckCollisionPointRec(m, mute_btn)) mutedBGm  = !mutedBGm;
+        }
         BeginDrawing();
         if (IsKeyPressed(KEY_P)) paused = !paused;
         if (!paused) {
@@ -116,6 +130,13 @@ void Pong::playGame_pvp() {
             ball.setSpeed(-ball.getSpeedX(),ball.getSpeedY());
         }
         ClearBackground({20, 20, 40, 255});
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
+        DrawText(mutedBGm ? "SOUND" : "MUTE",
+            mute_btn.x + (mute_btn.width - muteW)/2,
+            mute_btn.y + (mute_btn.height - 20)/2, 20,
+            mutedBGm ? GREEN : RED);
+
         //drawing
         DrawLine(640,0,640,720,WHITE);
         ball.draw();
@@ -206,6 +227,15 @@ ball.setPosition(640,360);
     ball.setRadius(20);
 
     while (!WindowShouldClose()) {
+        UpdateMusicStream(bgm);
+        if (mutedBGm) PauseMusicStream(bgm);
+        else ResumeMusicStream(bgm);
+
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            Vector2 m = GetMousePosition();
+            if (CheckCollisionPointRec(m, mute_btn)) mutedBGm  = !mutedBGm;
+        }
+
         if (IsKeyPressed(KEY_P)) paused = !paused;
         if (!paused) {
             ball.update();
@@ -247,6 +277,13 @@ ball.setPosition(640,360);
         }
         ClearBackground({20, 20, 40, 255});
         //drawing
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
+        DrawText(mutedBGm ? "SOUND" : "MUTE",
+            mute_btn.x + (mute_btn.width - muteW)/2,
+            mute_btn.y + (mute_btn.height - 20)/2, 20,
+            mutedBGm ? GREEN : RED);
+
         DrawLine(640,0,640,720,WHITE);
         ball.draw();
     Color c2,r=RED;

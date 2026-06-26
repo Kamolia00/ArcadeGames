@@ -1,12 +1,31 @@
 #include"pong/menus/menu_pong.h"
+extern bool mutedBGm;
+extern Music bgm;
+extern Rectangle mute_btn;
+extern  int STAR_COUNT;
+extern float starX[], starY[], starSpeed[], starSize[];
+extern float rocketX, rocketY, rocketSpeed;
+
 int showmenu_pong() {
     BeginDrawing(); EndDrawing();
     Rectangle pvp={490,250,300,60};
     Rectangle ai={490,350,300,60};
     Rectangle exit={490,450,300,60};
     while (!WindowShouldClose()) {
+        UpdateMusicStream(bgm);
+        if (mutedBGm) PauseMusicStream(bgm);
+        else       ResumeMusicStream(bgm);
+        for (int i = 0; i < STAR_COUNT; i++) {
+            starY[i] -= starSpeed[i];
+            if (starY[i] < 0) { starY[i] = 720; starX[i] = rand() % 1280; }
+        }
+        rocketX += rocketSpeed; rocketY -= rocketSpeed * 0.4f;
+        if (rocketX > 1400) { rocketX = -60; rocketY = 600; }
+
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
             Vector2 mousePos = GetMousePosition();
+            if (CheckCollisionPointRec(mousePos, mute_btn))
+                mutedBGm = !mutedBGm;
             if (CheckCollisionPointRec(mousePos,pvp))
                 return 1;
             if (CheckCollisionPointRec(mousePos,ai))
@@ -14,8 +33,15 @@ int showmenu_pong() {
             if (CheckCollisionPointRec(mousePos,exit))
                 return 0;
         }
+
         BeginDrawing();
-         ClearBackground({20,20,40,225});
+        ClearBackground({20,20,40,225});
+        for (int i = 0; i < STAR_COUNT; i++)
+            DrawCircle(starX[i], starY[i], starSize[i], {255, 255, 255, 180});
+        DrawRectanglePro({rocketX, rocketY, 40, 20}, {20, 10}, -25.0f, DARKGRAY);
+        DrawTriangle({rocketX+28,rocketY-8},{rocketX+28,rocketY+8},{rocketX+48,rocketY}, RED);
+        DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
+        DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
         DrawText("Pong Game",520,140,40,WHITE);
          DrawRectangleRec(pvp,DARKBLUE);
          int pvpW = MeasureText("Player vs Player", 25);
@@ -32,6 +58,10 @@ int showmenu_pong() {
         DrawText("Exit",
                       exit.x + (exit.width - exW) / 2,
                       exit.y + (exit.height - 25) / 2, 25, WHITE);
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
+        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+
         EndDrawing();
     }
     return 0;
@@ -42,6 +72,19 @@ bool getPlayerName_pong(Player &p, const std::string prompt) {
     BeginDrawing(); EndDrawing();
 
     while (!WindowShouldClose()) {
+        UpdateMusicStream(bgm);
+        if (mutedBGm) PauseMusicStream(bgm);
+        else       ResumeMusicStream(bgm);
+            for (int i = 0; i < STAR_COUNT; i++) {
+                starY[i] -= starSpeed[i];
+                if (starY[i] < 0) {
+                    starY[i] = 720; starX[i] = rand() % 1280;
+                }
+            }
+            rocketX += rocketSpeed; rocketY -= rocketSpeed * 0.4f;
+            if (rocketX > 1400) {
+                rocketX = -60; rocketY = 600;
+            }
         if (IsKeyPressed(KEY_ENTER) && !name.empty()) {
             p.setName(name);
             return true;
@@ -50,6 +93,8 @@ bool getPlayerName_pong(Player &p, const std::string prompt) {
         int key = GetCharPressed();
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
             Vector2 m = GetMousePosition();
+            if (CheckCollisionPointRec(m, mute_btn))
+                mutedBGm = !mutedBGm;
             if (CheckCollisionPointRec(m, back_btn)) {
                 BeginDrawing(); EndDrawing();
                 return false;
@@ -60,6 +105,12 @@ bool getPlayerName_pong(Player &p, const std::string prompt) {
 
         BeginDrawing();
         ClearBackground({20, 20, 40, 255});
+        for (int i = 0; i < STAR_COUNT; i++)
+            DrawCircle(starX[i], starY[i], starSize[i], {255, 255, 255, 180});
+        DrawRectanglePro({rocketX, rocketY, 40, 20}, {20, 10}, -25.0f, DARKGRAY);
+        DrawTriangle({rocketX+28,rocketY-8},{rocketX+28,rocketY+8},{rocketX+48,rocketY}, RED);
+        DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
+        DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
         DrawText(prompt.c_str(), 400, 220, 25, SKYBLUE);
         DrawText("Enter Your Name:", 400, 280, 25, WHITE);
         DrawText(name.c_str(), 400, 320, 25, YELLOW);
@@ -69,6 +120,9 @@ bool getPlayerName_pong(Player &p, const std::string prompt) {
         DrawText("Back",
             back_btn.x + (back_btn.width - backW)/2,
             back_btn.y + (back_btn.height - 25)/2, 25, WHITE);
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
+        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
         EndDrawing();
     }
     return false;
@@ -79,8 +133,18 @@ int showPostGame_menu_pong(Player p1,Player p2, int g1,int g2) {
 BeginDrawing();
 EndDrawing();
 while (!WindowShouldClose()) {
+    UpdateMusicStream(bgm);
+    if (mutedBGm) PauseMusicStream(bgm);
+    else       ResumeMusicStream(bgm);
+    for (int i = 0; i < STAR_COUNT; i++) {
+        starY[i] -= starSpeed[i];
+        if (starY[i] < 0) { starY[i] = 720; starX[i] = rand() % 1280; }
+    }
+    rocketX += rocketSpeed; rocketY -= rocketSpeed * 0.4f;
+    if (rocketX > 1400) { rocketX = -60; rocketY = 600; }
     if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
         Vector2 mousePos = GetMousePosition();
+        if (CheckCollisionPointRec(mousePos, mute_btn)) mutedBGm = !mutedBGm;
         if (CheckCollisionPointRec(mousePos, again_btn))
             return 2;
         if (CheckCollisionPointRec(mousePos, back_btn))
@@ -88,6 +152,12 @@ while (!WindowShouldClose()) {
     }
 BeginDrawing();
     ClearBackground({20, 20, 40, 255});
+    for (int i = 0; i < STAR_COUNT; i++)
+        DrawCircle(starX[i], starY[i], starSize[i], {255, 255, 255, 180});
+    DrawRectanglePro({rocketX, rocketY, 40, 20}, {20, 10}, -25.0f, DARKGRAY);
+    DrawTriangle({rocketX+28,rocketY-8},{rocketX+28,rocketY+8},{rocketX+48,rocketY}, RED);
+    DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
+    DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
     DrawText("Game Over", 560, 140, 40, WHITE);
         DrawText((p1.getName() + ": " + std::to_string(g1)).c_str(), 490, 180, 25, YELLOW);
         DrawText((p2.getName() + ": " + std::to_string(g2)).c_str(), 490, 220, 25, YELLOW);
@@ -101,7 +171,11 @@ BeginDrawing();
     DrawText("Main Menu ",
              back_btn.x + (back_btn.width - backW) / 2,
              back_btn.y + (back_btn.height - 25) / 2, 25, WHITE);
-EndDrawing();
+    DrawRectangleRec(mute_btn, DARKBLUE);
+    int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
+    DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+
+    EndDrawing();
 }
     return 0;
 }
@@ -133,7 +207,18 @@ bool getPlayerColor_pong(Player &p) {
             p.setSymbol('w');
             return true;
         }
+        UpdateMusicStream(bgm);
+        if (mutedBGm) PauseMusicStream(bgm);
+        else       ResumeMusicStream(bgm);
+        for (int i = 0; i < STAR_COUNT; i++) {
+            starY[i] -= starSpeed[i];
+            if (starY[i] < 0) { starY[i] = 720; starX[i] = rand() % 1280; }
+        }
+        rocketX += rocketSpeed; rocketY -= rocketSpeed * 0.4f;
+        if (rocketX > 1400) { rocketX = -60; rocketY = 600; }
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+            Vector2 mousePos = GetMousePosition();
+            if (CheckCollisionPointRec(mousePos, mute_btn)) mutedBGm = !mutedBGm;
             Vector2 mouse_pos = GetMousePosition();
             if (CheckCollisionPointRec(mouse_pos, green_btn)) {
                 p.setSymbol('g');
@@ -168,6 +253,12 @@ bool getPlayerColor_pong(Player &p) {
         else if (CheckCollisionPointRec(mouse_pos, white)) selected = 3;
         BeginDrawing();
         ClearBackground({20,20,40,225});
+        for (int i = 0; i < STAR_COUNT; i++)
+            DrawCircle(starX[i], starY[i], starSize[i], {255, 255, 255, 180});
+        DrawRectanglePro({rocketX, rocketY, 40, 20}, {20, 10}, -25.0f, DARKGRAY);
+        DrawTriangle({rocketX+28,rocketY-8},{rocketX+28,rocketY+8},{rocketX+48,rocketY}, RED);
+        DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
+        DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
         DrawText((p.getName() + " Choose Your Color:").c_str(), 420, 220, 25, WHITE);
         DrawText("(or press 1-4, or ESC to go back)", 420, 250, 18, GRAY);
 
@@ -202,6 +293,10 @@ bool getPlayerColor_pong(Player &p) {
                  back_btn.x + (back_btn.width - backW) / 2,
                  back_btn.y + (back_btn.height - 25) / 2, 25, WHITE);
 
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
+        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+
         EndDrawing();
     }
     // window closed without choosing -> treat as cancel
@@ -215,6 +310,17 @@ int setThreshold_pong() {
     BeginDrawing(); EndDrawing();
 
     while (!WindowShouldClose()) {
+        UpdateMusicStream(bgm);
+        if (mutedBGm) PauseMusicStream(bgm);
+        else ResumeMusicStream(bgm);
+
+        for (int i = 0; i < STAR_COUNT; i++) {
+            starY[i] -= starSpeed[i];
+            if (starY[i] < 0) { starY[i] = 720; starX[i] = rand() % 1280; }
+        }
+        rocketX += rocketSpeed; rocketY -= rocketSpeed * 0.4f;
+        if (rocketX > 1400) { rocketX = -60; rocketY = 600; }
+
         int key = GetCharPressed();
 
         if (IsKeyPressed(KEY_ENTER)) {
@@ -240,25 +346,37 @@ int setThreshold_pong() {
         }
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
             Vector2 m = GetMousePosition();
+            if (CheckCollisionPointRec(m, mute_btn)) mutedBGm = !mutedBGm;
             if (CheckCollisionPointRec(m, back_btn)) {
                 BeginDrawing(); EndDrawing();
-                return -1; // cancelled
+                return -1;
             }
         }
 
         BeginDrawing();
         ClearBackground({20, 20, 40, 255});
+        for (int i = 0; i < STAR_COUNT; i++)
+            DrawCircle(starX[i], starY[i], starSize[i], {255, 255, 255, 180});
+        DrawRectanglePro({rocketX, rocketY, 40, 20}, {20, 10}, -25.0f, DARKGRAY);
+        DrawTriangle({rocketX+28,rocketY-8},{rocketX+28,rocketY+8},{rocketX+48,rocketY}, RED);
+        DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
+        DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
         DrawText("Set Score Limit", 490, 140, 35, WHITE);
         DrawText("Enter max score (1-8):", 490, 220, 25, WHITE);
         DrawText(input.c_str(), 490, 270, 40, YELLOW);
-        if (!error.empty()) {
+        if (!error.empty())
             DrawText(error.c_str(), 490, 330, 20, RED);
-        }
         DrawRectangleRec(back_btn, DARKBLUE);
         int backW = MeasureText("Back", 25);
         DrawText("Back",
             back_btn.x + (back_btn.width - backW)/2,
             back_btn.y + (back_btn.height - 25)/2, 25, WHITE);
+        DrawRectangleRec(mute_btn, DARKBLUE);
+        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
+        DrawText(mutedBGm ? "SOUND" : "MUTE",
+            mute_btn.x + (mute_btn.width - muteW)/2,
+            mute_btn.y + (mute_btn.height - 20)/2, 20,
+            mutedBGm ? GREEN : RED);
         EndDrawing();
     }
     return -1;
