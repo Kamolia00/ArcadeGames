@@ -1,11 +1,35 @@
 #include "pong/pong game/pong.h"
 #include"pong/pong game/ball.h"
+#include <cmath>
 extern bool mutedBGm;
 extern Music bgm;
 extern Rectangle mute_btn;
 extern  int STAR_COUNT;
 extern float starX[], starY[], starSpeed[], starSize[];
 extern float rocketX, rocketY, rocketSpeed;
+
+namespace {
+constexpr float kCenterX = 640.0f;
+constexpr float kCenterY = 360.0f;
+constexpr int kServeSpeedX = 12;
+constexpr int kServeSpeedY = 12;
+constexpr double kRoundCountdownSeconds = 3.0;
+
+int GetCountdownSecondsLeft(double countdownEnd) {
+    double remaining = countdownEnd - GetTime();
+    if (remaining <= 0.0) {
+        return 0;
+    }
+    return static_cast<int>(std::ceil(remaining));
+}
+
+void StartRoundCountdown(Ball &ball, bool &countdownActive, double &countdownEnd) {
+    ball.setPosition(kCenterX, kCenterY);
+    ball.setSpeed(0, 0);
+    countdownActive = true;
+    countdownEnd = GetTime() + kRoundCountdownSeconds;
+}
+}
 
 Pong::Pong( Player &p1, Player &p2, const Ball &ball, int threshold) : p1(p1), p2(p2), ball(ball) {
     setThreshold(threshold);
@@ -82,10 +106,14 @@ void Pong::playGame_pvp() {
     p2.setScore(0);
     paddle1Rect = {10,300,25,120};
     paddle2Rect = {1245,300,25,120};
-    ball.setPosition(640,360);
-    ball.setSpeed(12,12);
+    ball.setPosition(kCenterX,kCenterY);
+    ball.setSpeed(0,0);
     ball.setRadius(20);
+    bool countdownActive = false;
+    double countdownEnd = 0.0;
+    int serveSpeedX = kServeSpeedX;
     bool paused = false;
+    StartRoundCountdown(ball, countdownActive, countdownEnd);
     while (!WindowShouldClose()) {
         UpdateMusicStream(bgm);
         if (mutedBGm) PauseMusicStream(bgm);
@@ -94,25 +122,29 @@ void Pong::playGame_pvp() {
             Vector2 m = GetMousePosition();
             if (CheckCollisionPointRec(m, mute_btn)) mutedBGm  = !mutedBGm;
         }
+        if (countdownActive && GetCountdownSecondsLeft(countdownEnd) == 0) {
+            countdownActive = false;
+            ball.setSpeed(serveSpeedX, kServeSpeedY);
+        }
         BeginDrawing();
         if (IsKeyPressed(KEY_P)) paused = !paused;
-        if (!paused) {
+        if (!paused && !countdownActive) {
             ball.update();
             movePaddel1();
             movePaddel2();
         }
         //p2 scores
-        if (ball.getX() - ball.getRadius() <= 0)
+        if (!countdownActive && ball.getX() - ball.getRadius() <= 0)
         {
             p2.incrementScore();
-            ball.setPosition(640, 360);
-            ball.setSpeed(-12, 12);
+            serveSpeedX = -kServeSpeedX;
+            StartRoundCountdown(ball, countdownActive, countdownEnd);
         }
         //p1 scores
-        if (ball.getX() + ball.getRadius() >= GetScreenWidth()) {
+        if (!countdownActive && ball.getX() + ball.getRadius() >= GetScreenWidth()) {
             p1.incrementScore();
-            ball.setPosition(640, 360);
-            ball.setSpeed(12, 12);
+            serveSpeedX = kServeSpeedX;
+            StartRoundCountdown(ball, countdownActive, countdownEnd);
         }
         if (p1.getScore() >= threshold ) {
             gamesP1++;
@@ -144,6 +176,20 @@ void Pong::playGame_pvp() {
         DrawRectangleRec(paddle2Rect, c2);
         DrawText(TextFormat("%d", p1.getScore()), 600, 20, 40, WHITE);
         DrawText(TextFormat("%d", p2.getScore()), 680, 20, 40, WHITE);
+        if (countdownActive) {
+            int countdown = GetCountdownSecondsLeft(countdownEnd);
+            if (countdown > 0) {
+                const char *countdownText = TextFormat("%d", countdown);
+                int countdownSize = 90;
+                DrawText(
+                    countdownText,
+                    GetScreenWidth()/2 - MeasureText(countdownText, countdownSize)/2,
+                    GetScreenHeight()/2 - countdownSize/2,
+                    countdownSize,
+                    WHITE
+                );
+            }
+        }
         if (paused)
         {
             DrawText(
@@ -222,9 +268,13 @@ void Pong::playGame_ai() {
     ai.setScore(0);
     paddle1Rect = {10,300,25,120};
     aiRect = {1245,300,25,120};
-ball.setPosition(640,360);
-    ball.setSpeed(12,12);
+ball.setPosition(kCenterX,kCenterY);
+    ball.setSpeed(0,0);
     ball.setRadius(20);
+    bool countdownActive = false;
+    double countdownEnd = 0.0;
+    int serveSpeedX = kServeSpeedX;
+    StartRoundCountdown(ball, countdownActive, countdownEnd);
 
     while (!WindowShouldClose()) {
         UpdateMusicStream(bgm);
@@ -236,28 +286,31 @@ ball.setPosition(640,360);
             if (CheckCollisionPointRec(m, mute_btn)) mutedBGm  = !mutedBGm;
         }
 
+        if (countdownActive && GetCountdownSecondsLeft(countdownEnd) == 0) {
+            countdownActive = false;
+            ball.setSpeed(serveSpeedX, kServeSpeedY);
+        }
+
         if (IsKeyPressed(KEY_P)) paused = !paused;
-        if (!paused) {
+        if (!paused && !countdownActive) {
             ball.update();
         movePaddel1();
         moveAi();
         }
         // AI scores
-        if (ball.getX() - ball.getRadius() <= 0)
+        if (!countdownActive && ball.getX() - ball.getRadius() <= 0)
         {
             ai.incrementScore();
-
-            ball.setPosition(640, 360);
-            ball.setSpeed(-12, 12);
+            serveSpeedX = -kServeSpeedX;
+            StartRoundCountdown(ball, countdownActive, countdownEnd);
         }
 
         // Player scores
-        if (ball.getX() + ball.getRadius() >= GetScreenWidth())
+        if (!countdownActive && ball.getX() + ball.getRadius() >= GetScreenWidth())
         {
             p1.incrementScore();
-
-            ball.setPosition(640, 360);
-            ball.setSpeed(12, 12);
+            serveSpeedX = kServeSpeedX;
+            StartRoundCountdown(ball, countdownActive, countdownEnd);
         }
         if (p1.getScore() >= threshold )
         {
@@ -302,6 +355,20 @@ ball.setPosition(640,360);
         DrawRectangleRec(aiRect, c2);
         DrawText(TextFormat("%d", p1.getScore()), 600, 20, 40, WHITE);
         DrawText(TextFormat("%d", ai.getScore()), 680, 20, 40, RED);
+        if (countdownActive) {
+            int countdown = GetCountdownSecondsLeft(countdownEnd);
+            if (countdown > 0) {
+                const char *countdownText = TextFormat("%d", countdown);
+                int countdownSize = 90;
+                DrawText(
+                    countdownText,
+                    GetScreenWidth()/2 - MeasureText(countdownText, countdownSize)/2,
+                    GetScreenHeight()/2 - countdownSize/2,
+                    countdownSize,
+                    WHITE
+                );
+            }
+        }
         if (paused)
         {
             DrawText(
