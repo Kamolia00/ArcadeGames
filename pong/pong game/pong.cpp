@@ -130,6 +130,8 @@ void Pong::playGame_pvp() {
         if (IsKeyPressed(KEY_P)) paused = !paused;
         if (!paused && !countdownActive) {
             ball.update();
+        }
+        if (!paused) {
             movePaddel1();
             movePaddel2();
         }
@@ -294,6 +296,8 @@ ball.setPosition(kCenterX,kCenterY);
         if (IsKeyPressed(KEY_P)) paused = !paused;
         if (!paused && !countdownActive) {
             ball.update();
+        }
+        if (!paused) {
         movePaddel1();
         moveAi();
         }
