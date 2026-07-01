@@ -256,7 +256,7 @@ int main() {
                         break;
                     }
                     case 2: {
-                        if (!getPlayerName_pong(p1, "Player - Controls: UP / DOWN")) break;
+                        if (!getPlayerName_pong(p1, "Player - Controls: W / S")) break;
                         if (!getPlayerColor_pong(p1)) break;
                         int t = setThreshold_pong();
                         if (t == -1) break;
