@@ -123,7 +123,7 @@ int main() {
 
         Player p1, p2, ai;
         ai.setName("AI");
-
+//1 xo ,c4,snake,pong
         switch (game) {
             case 1: {
                 int mode = showmenu();
