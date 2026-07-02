@@ -28,11 +28,10 @@ float rocketSpeed = 3.0f;
 
 int showmenu_main() {
     BeginDrawing(); EndDrawing();
-    Rectangle xo_btn    = {490, 200, 300, 60};
-    Rectangle c4_btn    = {490, 280, 300, 60};
-    Rectangle snake_btn = {490, 360, 300, 60};
-    Rectangle pong_btn  = {490, 440, 300, 60};
-    Rectangle exit_btn  = {490, 520, 300, 60};
+    Rectangle xo_btn    = {490, 250, 300, 60};
+    Rectangle c4_btn    = {490, 320, 300, 60};
+    Rectangle snake_btn = {490, 390, 300, 60};
+    Rectangle pong_btn  = {490, 460, 300, 60};
 
     while (!WindowShouldClose()) {
         UpdateMusicStream(bgm);
@@ -53,7 +52,6 @@ int showmenu_main() {
             if (CheckCollisionPointRec(m, c4_btn))    return 2;
             if (CheckCollisionPointRec(m, snake_btn)) return 3;
             if (CheckCollisionPointRec(m, pong_btn))  return 4;
-            if (CheckCollisionPointRec(m, exit_btn))  return 0;
         }
 
         BeginDrawing();
@@ -84,9 +82,6 @@ int showmenu_main() {
         int pgW = MeasureText("Pong", 25);
         DrawText("Pong", pong_btn.x+(pong_btn.width-pgW)/2, pong_btn.y+(pong_btn.height-25)/2, 25, WHITE);
 
-        DrawRectangleRec(exit_btn, DARKBLUE);
-        int exW = MeasureText("Exit", 25);
-        DrawText("Exit", exit_btn.x+(exit_btn.width-exW)/2, exit_btn.y+(exit_btn.height-25)/2, 25, WHITE);
 
         DrawRectangleRec(mute_btn, DARKBLUE);
         int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
