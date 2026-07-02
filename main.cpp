@@ -99,8 +99,8 @@ int main() {
         starSpeed[i] = 0.5f + (rand() % 20) / 10.0f;
         starSize[i]  = 1.0f + (rand() % 3);
     }
-    InitWindow(1280, 720, "Arcade Games");
-    SetExitKey(KEY_NULL);
+    SetConfigFlags(FLAG_FULLSCREEN_MODE);
+    InitWindow(1280,720,"Arcade");    SetExitKey(KEY_NULL);
     InitAudioDevice();
     SetTargetFPS(60);
     bgm = LoadMusicStream("assets/sounds/main_menu.mp3");
