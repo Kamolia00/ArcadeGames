@@ -34,7 +34,7 @@ main.cpp ^
 --shell-file shell.html ^
 C:/raylib/raylib/src/libraylib.web.a ^
 -DPLATFORM_WEB ^
--s EXPORTED_FUNCTIONS="[_free,_malloc,_main]" ^
+-sEXPORTED_FUNCTIONS=_free,_malloc,_main ^
 -s EXPORTED_RUNTIME_METHODS=ccall
 
 if %ERRORLEVEL% neq 0 (

@@ -3,6 +3,7 @@
 #include "connect 4/menuC4.h"
 #include "player stuff/player.h"
 #include "player stuff/valid_input.h"
+#include "ui/button_helpers.h"
 #include <string>
 using namespace std;
 //menu
@@ -18,7 +19,7 @@ int showmenu_c4(){
     //buttons
     Rectangle pvp_btn={490,250,300,60};
     Rectangle ai_btn={490,350,300,60};
-    Rectangle exit_btn={490,450,300,60};
+    Rectangle back_btn={490,450,300,60};
 
     while(!WindowShouldClose()) {
         UpdateMusicStream(bgm);
@@ -42,7 +43,7 @@ int showmenu_c4(){
             if (CheckCollisionPointRec(mouse_pos, ai_btn)) {
                 return 2;
             }
-            if (CheckCollisionPointRec(mouse_pos, exit_btn)) {
+            if (CheckCollisionPointRec(mouse_pos, back_btn)) {
                 // no button is pressed or left
                 return 0;
             }
@@ -57,24 +58,10 @@ int showmenu_c4(){
         DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
         DrawText("Connect 4",520,140,40,WHITE);
         // red and yellow accents for Connect 4 disks
-        DrawRectangleRec(pvp_btn,DARKBLUE);
-        int pvpW = MeasureText("Play PvP", 25);
-        DrawText("Play PvP",
-                 pvp_btn.x + (pvp_btn.width - pvpW) / 2,
-                 pvp_btn.y + (pvp_btn.height - 25) / 2, 25, WHITE);
-        DrawRectangleRec(ai_btn,DARKBLUE);
-        int aiW = MeasureText("Play AI", 25);
-        DrawText("Play AI",
-                 ai_btn.x + (ai_btn.width - aiW) / 2,
-                 ai_btn.y + (ai_btn.height - 25) / 2, 25, WHITE);
-        DrawRectangleRec(exit_btn,DARKBLUE);
-        int exW = MeasureText("Back", 25);
-        DrawText("Back",
-                 exit_btn.x + (exit_btn.width - exW) / 2,
-                 exit_btn.y + (exit_btn.height - 25) / 2, 25, WHITE);
-        DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+        menu_ui::DrawMenuButton(pvp_btn, "Play PvP", 25);
+        menu_ui::DrawMenuButton(ai_btn, "Play AI", 25);
+        menu_ui::DrawMenuButton(back_btn, "Back", 25);
+        menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
         EndDrawing();
     }
     return 0;
@@ -121,24 +108,10 @@ int showAiMenu_c4(){
         DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
         DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
         DrawText("Choose Difficulty", 480, 140, 40, WHITE);
-        DrawRectangleRec(easy_btn, DARKBLUE);
-        int easyW = MeasureText("Easy", 25);
-        DrawText("Easy",
-                 easy_btn.x + (easy_btn.width - easyW) / 2,
-                 easy_btn.y + (easy_btn.height - 25) / 2, 25, WHITE);
-        DrawRectangleRec(hard_btn, DARKBLUE);
-        int hardW = MeasureText("Hard", 25);
-        DrawText("Hard",
-                 hard_btn.x + (hard_btn.width - hardW) / 2,
-                 hard_btn.y + (hard_btn.height - 25) / 2, 25, WHITE);
-        DrawRectangleRec(back_btn, DARKBLUE);
-        int backW = MeasureText("exit", 25);
-        DrawText("exit",
-                 back_btn.x + (back_btn.width - backW) / 2,
-                 back_btn.y + (back_btn.height - 25) / 2, 25, WHITE);
-        DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+        menu_ui::DrawMenuButton(easy_btn, "Easy", 25);
+        menu_ui::DrawMenuButton(hard_btn, "Hard", 25);
+        menu_ui::DrawMenuButton(back_btn, "Back", 25);
+        menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
         EndDrawing();
     }
     return 0;
@@ -193,19 +166,9 @@ int showPostGameMenu_c4(Player &p1, Player &p2) {
         DrawText((p1.getName() + ": " + std::to_string(p1.getScore())).c_str(), 490, 180, 25, YELLOW);
         DrawText((p2.getName() + ": " + std::to_string(p2.getScore())).c_str(), 490, 220, 25, YELLOW);
 
-        DrawRectangleRec(same_btn, DARKBLUE);
-        int sameW = MeasureText("Play Again", 25);
-        DrawText("Play Again",
-                 same_btn.x + (same_btn.width - sameW) / 2,
-                 same_btn.y + (same_btn.height - 25) / 2, 25, WHITE);
-        DrawRectangleRec(main_btn, DARKBLUE);
-        int mainW = MeasureText("Main Menu (Enter)", 25);
-        DrawText("Main Menu (Enter)",
-                 main_btn.x + (main_btn.width - mainW) / 2,
-                 main_btn.y + (main_btn.height - 25) / 2, 25, WHITE);
-        DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+        menu_ui::DrawMenuButton(same_btn, "Play Again", 25);
+        menu_ui::DrawMenuButton(main_btn, "Main Menu (Enter)", 25);
+        menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
         EndDrawing();
     }
     return 0;
@@ -267,14 +230,8 @@ bool getPlayerName_c4(Player &p , const std::string& prompt) {
     DrawText(name.c_str(), 400, 320, 25, WHITE);
     DrawText("Press Enter to Continue", 400, 380, 20, WHITE);
     // draw the Back button
-    DrawRectangleRec(back_btn, DARKBLUE);
-    int backW = MeasureText("Back", 25);
-    DrawText("Back",
-             back_btn.x + (back_btn.width - backW) / 2,
-             back_btn.y + (back_btn.height - 25) / 2, 25, WHITE);
-        DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+    menu_ui::DrawMenuButton(back_btn, "Back", 25);
+    menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
     EndDrawing();
 }
 // window closed without confirming -> treat as cancel
@@ -332,27 +289,12 @@ bool getPlayerSymbol_c4(Player &p,std::string prompt){
         DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
         DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
         DrawText((prompt+" Choose Your Symbol:").c_str(), 380, 220, 25, WHITE);
-        DrawRectangleRec(red_btn, DARKBLUE);
-        // RED
-        int redW = MeasureText("RED", 30);
-        DrawText("RED",
-            red_btn.x + (red_btn.width - redW) / 2,red_btn.y + (red_btn.height - 30) / 2,30, RED);
+        menu_ui::DrawMenuButton(red_btn, "RED", 30, RED);
 
         // YELLOW
-        DrawRectangleRec(yellow_btn, DARKBLUE);
-        int yellowW = MeasureText("YELLOW", 30);
-        DrawText("YELLOW",
-            yellow_btn.x + (yellow_btn.width - yellowW) / 2,
-            yellow_btn.y + (yellow_btn.height - 30) / 2,
-            30, {255, 200, 0, 255});
-        DrawRectangleRec(back_btn, DARKBLUE);
-        int backW = MeasureText("Back", 25);
-        DrawText("Back",
-                 back_btn.x + (back_btn.width - backW) / 2,
-                 back_btn.y + (back_btn.height - 25) / 2, 25, WHITE);
-        DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+        menu_ui::DrawMenuButton(yellow_btn, "YELLOW", 30, {255, 200, 0, 255});
+        menu_ui::DrawMenuButton(back_btn, "Back", 25);
+        menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
         EndDrawing();
     }
     // window closed without choosing -> treat as cancel

@@ -1,5 +1,6 @@
 #include <snake_game/main_game/menu_snake.h>
 #include <string>
+#include "ui/button_helpers.h"
 extern bool mutedBGm;
 extern Music bgm;
 extern Rectangle mute_btn;
@@ -10,7 +11,7 @@ int showmenu_snake() {
     BeginDrawing(); EndDrawing();
     Rectangle defualt_btn={490,250,300,60};
     Rectangle lvl_btn={490,350,300,60};
-    Rectangle exit_btn={490,450,300,60};
+    Rectangle back_btn={490,450,300,60};
     while (!WindowShouldClose()) {
         UpdateMusicStream(bgm);
         if (mutedBGm) PauseMusicStream(bgm);
@@ -28,7 +29,7 @@ int showmenu_snake() {
                 return 1;
             if (CheckCollisionPointRec(mousePos,lvl_btn))
                 return 2;
-            if (CheckCollisionPointRec(mousePos,exit_btn))
+            if (CheckCollisionPointRec(mousePos,back_btn))
                 return 0;
         }
 
@@ -41,25 +42,10 @@ int showmenu_snake() {
         DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
         DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
          DrawText("Snake Game",520,140,40,WHITE);
-         DrawRectangleRec(defualt_btn,DARKBLUE);
-         int pvpW = MeasureText("Free for all mode", 25);
-         //DrawText("Free for all mode", 520 + (300 - pvpW) / 2, 260, 25, WHITE);
-         DrawText("Free for all mode",
-                      defualt_btn.x + (defualt_btn.width - pvpW) / 2,
-                      defualt_btn.y + (defualt_btn.height - 25) / 2, 25, WHITE);
-         DrawRectangleRec(lvl_btn,DARKBLUE);
-         int lvlW = MeasureText("Level based mode", 25);
-         DrawText("Level based mode",
-                      lvl_btn.x + (lvl_btn.width - lvlW) / 2,
-                      lvl_btn.y + (lvl_btn.height - 25) / 2, 25, WHITE);
-         DrawRectangleRec(exit_btn,DARKBLUE);
-         int exW = MeasureText("Exit", 25);
-         DrawText("Exit",
-                      exit_btn.x + (exit_btn.width - exW) / 2,
-                      exit_btn.y + (exit_btn.height - 25) / 2, 25, WHITE);
-        DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+         menu_ui::DrawMenuButton(defualt_btn, "Free for all mode", 25);
+         menu_ui::DrawMenuButton(lvl_btn, "Level based mode", 25);
+         menu_ui::DrawMenuButton(back_btn, "Back", 25);
+         menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
 
         EndDrawing();
     }
@@ -114,14 +100,8 @@ bool getPlayerName_snake(Snake &snake, const std::string& prompt) {
          DrawText(name.c_str(), 400, 320, 25, WHITE);
          DrawText("Press Enter to Continue", 400, 380, 20, WHITE);
          // draw the Back button
-         DrawRectangleRec(back_btn, DARKBLUE);
-         int backW = MeasureText("Back", 25);
-         DrawText("Back",
-                  back_btn.x + (back_btn.width - backW) / 2,
-                  back_btn.y + (back_btn.height - 25) / 2, 25, WHITE);
-        DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+         menu_ui::DrawMenuButton(back_btn, "Back", 25);
+         menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
 
         EndDrawing();
     }
@@ -250,14 +230,8 @@ bool getPlayerColor_snake(Snake &snake, std::string prompt) {
                  dark_btn.y + (dark_btn.height - 24) / 2, 24, DARKGREEN);
 
         // Back button
-        DrawRectangleRec(back_btn, DARKBLUE);
-        int backW = MeasureText("Back", 25);
-        DrawText("Back",
-                 back_btn.x + (back_btn.width - backW) / 2,
-                 back_btn.y + (back_btn.height - 25) / 2, 25, WHITE);
-        DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+        menu_ui::DrawMenuButton(back_btn, "Back", 25);
+        menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
 
         EndDrawing();
     }
@@ -320,11 +294,7 @@ int showPostGame_menu(bool won, bool levelComplete, int level,const std::map<std
             }
 
             // only show Main Menu button for level 3 completion
-            DrawRectangleRec(menu_btn, DARKBLUE);
-            int mmW = MeasureText("Main Menu", 20);
-            DrawText("Main Menu",
-                menu_btn.x + (menu_btn.width - mmW)/2,
-                menu_btn.y + (menu_btn.height - 20)/2, 20, WHITE);
+            menu_ui::DrawMenuButton(menu_btn, "Main Menu", 20);
         } else if (levelComplete) {
             // Level complete but not final level
             int w = MeasureText("Level Complete!", 40);
@@ -341,17 +311,8 @@ int showPostGame_menu(bool won, bool levelComplete, int level,const std::map<std
             }
 
             // buttons
-            DrawRectangleRec(play_btn, DARKBLUE);
-            int pwW = MeasureText("Next Level", 20);
-            DrawText("Next Level",
-                play_btn.x + (play_btn.width - pwW)/2,
-                play_btn.y + (play_btn.height - 20)/2, 20, WHITE);
-
-            DrawRectangleRec(menu_btn, DARKBLUE);
-            int mmW = MeasureText("Main Menu", 20);
-            DrawText("Main Menu",
-                menu_btn.x + (menu_btn.width - mmW)/2,
-                menu_btn.y + (menu_btn.height - 20)/2, 20, WHITE);
+            menu_ui::DrawMenuButton(play_btn, "Next Level", 20);
+            menu_ui::DrawMenuButton(menu_btn, "Main Menu", 20);
         } else if (won) {
             int w = MeasureText("You Win!", 40);
             DrawText("You Win!", WINDOW_WIDTH/2 - w/2, 80, 40, GOLD);
@@ -367,17 +328,8 @@ int showPostGame_menu(bool won, bool levelComplete, int level,const std::map<std
             }
 
             // buttons
-            DrawRectangleRec(play_btn, DARKBLUE);
-            int pwW = MeasureText("Play Again", 20);
-            DrawText("Play Again",
-                play_btn.x + (play_btn.width - pwW)/2,
-                play_btn.y + (play_btn.height - 20)/2, 20, WHITE);
-
-            DrawRectangleRec(menu_btn, DARKBLUE);
-            int mmW = MeasureText("Main Menu", 20);
-            DrawText("Main Menu",
-                menu_btn.x + (menu_btn.width - mmW)/2,
-                menu_btn.y + (menu_btn.height - 20)/2, 20, WHITE);
+            menu_ui::DrawMenuButton(play_btn, "Play Again", 20);
+            menu_ui::DrawMenuButton(menu_btn, "Main Menu", 20);
         } else {
             // Game Over
             int w = MeasureText("Game Over", 40);
@@ -394,21 +346,10 @@ int showPostGame_menu(bool won, bool levelComplete, int level,const std::map<std
             }
 
             // buttons
-            DrawRectangleRec(play_btn, DARKBLUE);
-            int pwW = MeasureText("Play Again", 20);
-            DrawText("Play Again",
-                play_btn.x + (play_btn.width - pwW)/2,
-                play_btn.y + (play_btn.height - 20)/2, 20, WHITE);
-
-            DrawRectangleRec(menu_btn, DARKBLUE);
-            int mmW = MeasureText("Main Menu", 20);
-            DrawText("Main Menu",
-                menu_btn.x + (menu_btn.width - mmW)/2,
-                menu_btn.y + (menu_btn.height - 20)/2, 20, WHITE);
+            menu_ui::DrawMenuButton(play_btn, "Play Again", 20);
+            menu_ui::DrawMenuButton(menu_btn, "Main Menu", 20);
         }
-        DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+        menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
 
         EndDrawing();
     }

@@ -1,4 +1,5 @@
 #include"pong/menus/menu_pong.h"
+#include "ui/button_helpers.h"
 extern bool mutedBGm;
 extern Music bgm;
 extern Rectangle mute_btn;
@@ -10,7 +11,7 @@ int showmenu_pong() {
     BeginDrawing(); EndDrawing();
     Rectangle pvp={490,250,300,60};
     Rectangle ai={490,350,300,60};
-    Rectangle exit={490,450,300,60};
+    Rectangle back={490,450,300,60};
     while (!WindowShouldClose()) {
         UpdateMusicStream(bgm);
         if (mutedBGm) PauseMusicStream(bgm);
@@ -30,7 +31,7 @@ int showmenu_pong() {
                 return 1;
             if (CheckCollisionPointRec(mousePos,ai))
                 return 2;
-            if (CheckCollisionPointRec(mousePos,exit))
+            if (CheckCollisionPointRec(mousePos,back))
                 return 0;
         }
 
@@ -43,24 +44,10 @@ int showmenu_pong() {
         DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
         DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
         DrawText("Pong Game",520,140,40,WHITE);
-         DrawRectangleRec(pvp,DARKBLUE);
-         int pvpW = MeasureText("Player vs Player", 25);
-         DrawText("Player vs Player",
-                      pvp.x + (pvp.width - pvpW) / 2,
-                      pvp.y + (pvp.height - 25) / 2, 25, WHITE);
-         DrawRectangleRec(ai,DARKBLUE);
-         int aiW = MeasureText("Player vs AI", 25);
-         DrawText("Player vs AI",
-                      ai.x + (ai.width - aiW) / 2,
-                      ai.y + (ai.height - 25) / 2, 25, WHITE);
-         DrawRectangleRec(exit,DARKBLUE);
-         int exW = MeasureText("Exit", 25);
-        DrawText("Exit",
-                      exit.x + (exit.width - exW) / 2,
-                      exit.y + (exit.height - 25) / 2, 25, WHITE);
-        DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+         menu_ui::DrawMenuButton(pvp, "Player vs Player", 25);
+         menu_ui::DrawMenuButton(ai, "Player vs AI", 25);
+         menu_ui::DrawMenuButton(back, "Back", 25);
+         menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
 
         EndDrawing();
     }
@@ -115,14 +102,8 @@ bool getPlayerName_pong(Player &p, const std::string prompt) {
         DrawText("Enter Your Name:", 400, 280, 25, WHITE);
         DrawText(name.c_str(), 400, 320, 25, YELLOW);
         DrawText("Press Enter to Continue", 400, 370, 20, GRAY);
-        DrawRectangleRec(back_btn, DARKBLUE);
-        int backW = MeasureText("Back", 25);
-        DrawText("Back",
-            back_btn.x + (back_btn.width - backW)/2,
-            back_btn.y + (back_btn.height - 25)/2, 25, WHITE);
-        DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+        menu_ui::DrawMenuButton(back_btn, "Back", 25);
+        menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
         EndDrawing();
     }
     return false;
@@ -161,19 +142,9 @@ BeginDrawing();
     DrawText("Game Over", 560, 140, 40, WHITE);
         DrawText((p1.getName() + ": " + std::to_string(g1)).c_str(), 490, 180, 25, YELLOW);
         DrawText((p2.getName() + ": " + std::to_string(g2)).c_str(), 490, 220, 25, YELLOW);
-   DrawRectangleRec(again_btn, DARKBLUE);
-    int sameW = MeasureText("Play Again", 25);
-    DrawText("Play Again",
-             again_btn.x + (again_btn.width - sameW) / 2,
-             again_btn.y + (again_btn.height - 25) / 2, 25, WHITE);
-    DrawRectangleRec(back_btn, DARKBLUE);
-    int backW = MeasureText("Main Menu ", 25);
-    DrawText("Main Menu ",
-             back_btn.x + (back_btn.width - backW) / 2,
-             back_btn.y + (back_btn.height - 25) / 2, 25, WHITE);
-    DrawRectangleRec(mute_btn, DARKBLUE);
-    int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-    DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+   menu_ui::DrawMenuButton(again_btn, "Play Again", 25);
+   menu_ui::DrawMenuButton(back_btn, "Main Menu", 25);
+   menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
 
     EndDrawing();
 }
@@ -287,15 +258,8 @@ bool getPlayerColor_pong(Player &p) {
                  white.y + (white.height - 24) / 2, 24, WHITE);
 
         // Back button
-        DrawRectangleRec(back_btn, DARKBLUE);
-        int backW = MeasureText("Back", 25);
-        DrawText("Back",
-                 back_btn.x + (back_btn.width - backW) / 2,
-                 back_btn.y + (back_btn.height - 25) / 2, 25, WHITE);
-
-        DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+        menu_ui::DrawMenuButton(back_btn, "Back", 25);
+        menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
 
         EndDrawing();
     }
@@ -366,17 +330,8 @@ int setThreshold_pong() {
         DrawText(input.c_str(), 490, 270, 40, YELLOW);
         if (!error.empty())
             DrawText(error.c_str(), 490, 330, 20, RED);
-        DrawRectangleRec(back_btn, DARKBLUE);
-        int backW = MeasureText("Back", 25);
-        DrawText("Back",
-            back_btn.x + (back_btn.width - backW)/2,
-            back_btn.y + (back_btn.height - 25)/2, 25, WHITE);
-        DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-        DrawText(mutedBGm ? "SOUND" : "MUTE",
-            mute_btn.x + (mute_btn.width - muteW)/2,
-            mute_btn.y + (mute_btn.height - 20)/2, 20,
-            mutedBGm ? GREEN : RED);
+        menu_ui::DrawMenuButton(back_btn, "Back", 25);
+        menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
         EndDrawing();
     }
     return -1;

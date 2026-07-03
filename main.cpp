@@ -12,6 +12,7 @@
 #include "pong/pong game/ball.h"
 #include "pong/menus/menu_pong.h"
 #include <snake_game/main_game/menu_snake.h>
+#include "ui/button_helpers.h"
 #include <cstdlib>
 #include <ctime>
 
@@ -66,26 +67,11 @@ int showmenu_main() {
         int titleW = MeasureText("Arcade Games", 40);
         DrawText("Arcade Games", 1280/2 - titleW/2, 130, 40, WHITE);
 
-        DrawRectangleRec(xo_btn, DARKBLUE);
-        int ttW = MeasureText("Tic-Tac-Toe", 25);
-        DrawText("Tic-Tac-Toe", xo_btn.x+(xo_btn.width-ttW)/2, xo_btn.y+(xo_btn.height-25)/2, 25, WHITE);
-
-        DrawRectangleRec(c4_btn, DARKBLUE);
-        int c4W = MeasureText("Connect 4", 25);
-        DrawText("Connect 4", c4_btn.x+(c4_btn.width-c4W)/2, c4_btn.y+(c4_btn.height-25)/2, 25, WHITE);
-
-        DrawRectangleRec(snake_btn, DARKBLUE);
-        int snW = MeasureText("Snake", 25);
-        DrawText("Snake", snake_btn.x+(snake_btn.width-snW)/2, snake_btn.y+(snake_btn.height-25)/2, 25, WHITE);
-
-        DrawRectangleRec(pong_btn, DARKBLUE);
-        int pgW = MeasureText("Pong", 25);
-        DrawText("Pong", pong_btn.x+(pong_btn.width-pgW)/2, pong_btn.y+(pong_btn.height-25)/2, 25, WHITE);
-
-
-        DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x+(mute_btn.width-muteW)/2, mute_btn.y+(mute_btn.height-20)/2, 20, mutedBGm ? GREEN : RED);
+        menu_ui::DrawMenuButton(xo_btn, "Tic-Tac-Toe", 25);
+        menu_ui::DrawMenuButton(c4_btn, "Connect 4", 25);
+        menu_ui::DrawMenuButton(snake_btn, "Snake", 25);
+        menu_ui::DrawMenuButton(pong_btn, "Pong", 25);
+        menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
 
         EndDrawing();
     }

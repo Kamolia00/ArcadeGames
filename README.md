@@ -2,6 +2,8 @@
 
 A collection of classic arcade games built with C++ and [raylib](https://www.raylib.com/). Includes Tic-Tac-Toe (XO), Connect 4, Snake, and Pong — each playable via a GUI with player-vs-player and player-vs-AI modes.
 
+🌐 **Play it online:** [https://kamolia00.github.io/ArcadeGames/](https://kamolia00.github.io/ArcadeGames/)
+
 ## Games
 
 | Game | Modes |
