@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Arcade Games By Kamolia</title>
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: black;
+        }
+
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            outline: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+
+<script>
+    var Module = {
+        canvas: document.getElementById('canvas')
+    };
+</script>
+
+{{{ SCRIPT }}}
+
+</body>
+</html>
