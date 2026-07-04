@@ -289,21 +289,15 @@ return true;
         DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
         DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
         DrawText((prompt+" Choose Your Symbol:").c_str(), 380, 220, 25, WHITE);
-        DrawRectangleRec(x_btn, DARKBLUE);
-        int xW = MeasureText("X", 30);
-        DrawText("X",
-                 x_btn.x + (x_btn.width - xW) / 2,
-                 x_btn.y + (x_btn.height - 30) / 2, 30, RED);
-        DrawRectangleRec(o_btn, DARKBLUE);
-        int oW = MeasureText("O", 30);
-        DrawText("O",
-                 o_btn.x + (o_btn.width - oW) / 2,
-                 o_btn.y + (o_btn.height - 30) / 2, 30, GREEN);
-        // draw the Back button
+        menu_ui::DrawMenuButton(x_btn, "X", 30, RED);
+
+        // YELLOW
+        menu_ui::DrawMenuButton(o_btn, "O", 30, GREEN);
         menu_ui::DrawMenuButton(back_btn, "Back", 25);
         menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
         EndDrawing();
     }
+
     // window closed without choosing -> treat as cancel
     return false;
 }

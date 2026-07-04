@@ -324,6 +324,7 @@ void XO::drawBoard() {
     DrawLineEx({(float)startX, (float)(startY + cellSize*2)}, {(float)(startX + gridSize), (float)(startY + cellSize*2)}, thickness, lineColor);
 }
 void XO::playGameGUI_pvp() {
+    Rectangle continue_btn = {490, 400, 300, 60};
    const int startX = 490, startY = 210,cell_size=100;
     int kamoliaMovesP1 = 0;
     int kamoliaMovesP2 = 0;
@@ -405,10 +406,12 @@ for (int i = 0; i < 3; i++) {
             DrawText(msg.c_str(),500,150,30,YELLOW);
         }
         if (game_over) {
-            DrawText(msg.c_str(), 500, 150, 30, YELLOW);
-            DrawText("Press Enter to continue", 500, 190, 20, DARKGRAY);
-        }
-        if (!game_over) {
+            DrawRectangleRec(continue_btn, DARKBLUE);
+            int cW = MeasureText("Continue", 25);
+            DrawText("Continue",
+                continue_btn.x + (continue_btn.width - cW)/2,
+                continue_btn.y + (continue_btn.height - 25)/2, 25, WHITE);
+        }        if (!game_over) {
             string turn = p1_turn ? player1.getName() + "'s turn" : player2.getName() + "'s turn";
             DrawText(turn.c_str(), 490, 150, 25, WHITE);
         }
@@ -432,8 +435,10 @@ for (int i = 0; i < 3; i++) {
            }
        }
         EndDrawing();
-        if(game_over && IsKeyPressed(KEY_ENTER)) break;
-    }
+        if (game_over && IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+            Vector2 m = GetMousePosition();
+            if (CheckCollisionPointRec(m, continue_btn)) break;
+        }    }
 }
 void XO::playGameGUI_ai_easy() {
     const int startX = 490, startY = 210, cell_size = 100;
