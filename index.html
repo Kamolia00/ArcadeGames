@@ -1,1 +1,63 @@
-<!doctypehtml><html lang=en><head><meta charset=utf-8><title>Arcade Games By Kamolia</title><style>body,html{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#000}canvas{display:block;width:100vw;height:100vh;outline:0}</style></head><body><canvas id=canvas oncontextmenu=event.preventDefault()></canvas><script>var Module={canvas:document.getElementById("canvas")}</script><script async src=index.js></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Arcade Games By Kamolia</title>
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: black;
+        }
+
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            outline: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<canvas id="canvas" tabindex="0" oncontextmenu="event.preventDefault()"></canvas>
+
+<script>
+    var canvas = document.getElementById('canvas');
+    var Module = {
+        canvas: canvas
+    };
+
+    function clickCanvas() {
+        canvas.dispatchEvent(new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            view: window
+        }));
+    }
+
+    canvas.addEventListener('click', function () {
+        canvas.focus();
+    });
+
+    window.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter' && !event.repeat) {
+            clickCanvas();
+            event.preventDefault();
+        }
+    });
+
+    window.addEventListener('load', function () {
+        canvas.focus();
+    });
+</script>
+
+<script async src=index.js></script>
+
+</body>
+</html>
