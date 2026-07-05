@@ -1,3 +1,4 @@
+// GitHub Pages redeploy test
 #include "snake.h"
 #include "constants.h"
 #include <vector>
