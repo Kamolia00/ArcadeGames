@@ -24,6 +24,7 @@ void draw_board();
         void play_game();
         void vs_ai_easy();
     void vs_ai_hard();
+    //
     void pvp_gui();
 void ai_ez_gui();
     void ai_hard_gui();

@@ -344,6 +344,8 @@ void connect4::draw_board(){
     }
 }
 void connect4::pvp_gui() {
+    Rectangle continue_btn = {490, 700, 300, 60};
+    double gameOverTime = 0;
     char win=' ';
     bool game_over = false;
     bool p1_turn = (p1.getSymbol() == 'X');
@@ -374,6 +376,10 @@ void connect4::pvp_gui() {
                 mutedSFX = !mutedSFX;
             if (CheckCollisionPointRec(mouse_pos, mute_btn))
                 mutedBGm = !mutedBGm;
+            // continue button — only after 0.3s delay
+            if (game_over && (GetTime() - gameOverTime > 0.3)) {
+                if (CheckCollisionPointRec(mouse_pos, continue_btn)) break;
+            }
         }
         //  input
         if (!game_over && !animating && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
@@ -453,6 +459,20 @@ void connect4::pvp_gui() {
         if (game_over) {
             DrawText(msg.c_str(), startX, startY - 70, 25, YELLOW);
             DrawText("Press Enter to continue", startX, startY - 45, 20, DARKGRAY);
+            DrawRectangleRec(continue_btn, DARKBLUE);
+            int cW = MeasureText("Continue", 25);
+            DrawText("Continue",
+                continue_btn.x + (continue_btn.width - cW)/2,
+                continue_btn.y + (continue_btn.height - 25)/2, 25, WHITE);
+            int cells[4][2];
+            if(getWinCells(win,cells)) {
+                for (int k = 0; k < 4; k++) {
+                    int x = startX + cells[k][1] * cell_size;
+                    int y = startY + cells[k][0] * cell_size;
+                    DrawRectangle(x, y, cell_size, cell_size, {255, 215, 0, 80});
+                }
+            }
+
         } else {
             string turn = p1_turn ? p1.getName() + "'s turn" : p2.getName() + "'s turn";
             DrawText(turn.c_str(), startX, startY - 40, 25, WHITE);
@@ -465,21 +485,12 @@ void connect4::pvp_gui() {
         const char *sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
         int sfxW = MeasureText(sfxLabel, 20);
         DrawText(sfxLabel, sfx_btn.x + (sfx_btn.width - sfxW) / 2, sfx_btn.y + (sfx_btn.height - 20) / 2, 20, mutedSFX ? GREEN : RED);
-       if (game_over) {
-        int cells[4][2];
-        if(getWinCells(win,cells)) {
-            for (int k = 0; k < 4; k++) {
-                int x = startX + cells[k][1] * cell_size;
-                int y = startY + cells[k][0] * cell_size;
-                DrawRectangle(x, y, cell_size, cell_size, {255, 215, 0, 80});
-            }
-        }
-       }
         EndDrawing();
-        if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }
 }
 void connect4::ai_ez_gui() {
+    Rectangle continue_btn = {490, 700, 300, 60};
+    double gameOverTime = 0;
     char win=' ';
     bool game_over = false;
     bool p1_turn = p1.getSymbol() == 'X';
@@ -510,6 +521,9 @@ void connect4::ai_ez_gui() {
                 mutedSFX = !mutedSFX;
             if (CheckCollisionPointRec(mouse_pos, mute_btn))
                 mutedBGm = !mutedBGm;
+            if (game_over && (GetTime() - gameOverTime > 0.3)) {
+                if (CheckCollisionPointRec(mouse_pos, continue_btn)) break;
+            }
         }
         // player input move
         if (!game_over && p1_turn && !animating && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
@@ -564,22 +578,30 @@ void connect4::ai_ez_gui() {
                 bool wasP1 = (animSymbol == p1.getSymbol());
                 if (wasP1) {
                     if      (check_win(p1.getSymbol())) {
-                        game_over=true; msg=p1.getName()+" wins!"; p1.incrementScore();
+                        game_over = true;
+                        gameOverTime = GetTime();
+                        msg = p1.getName() + " wins!";
                         win=p1.getSymbol();
                     }
                     else if (check_draw()) {
-                        game_over=true; msg="It's a draw!";
+                        game_over=true;
+                        msg="It's a draw!";
+                        gameOverTime = GetTime();
                     }
                     else {
                         p1_turn=false;
                     }
                 } else {
                     if      (check_win(p2.getSymbol())) {
-                        game_over=true; msg=p2.getName()+" wins!"; p2.incrementScore();
+                        game_over = true;
+                        gameOverTime = GetTime();
+                        msg = p2.getName() + " wins!";
+                        p2.incrementScore();
                         win=p2.getSymbol();
                     }
                     else if (check_draw()) {
                         game_over=true; msg="It's a draw!";
+                        gameOverTime = GetTime();
                     }
                     else {
                         p1_turn=true;
@@ -605,7 +627,26 @@ void connect4::ai_ez_gui() {
 
         if (game_over) {
             DrawText(msg.c_str(), startX, startY - 70, 25, YELLOW);
-            DrawText("Press Enter to continue", startX, startY - 45, 20, DARKGRAY);
+
+            DrawRectangleRec(continue_btn, DARKBLUE);
+
+            int cW = MeasureText("Continue", 25);
+
+            DrawText(
+                "Continue",
+                continue_btn.x + (continue_btn.width - cW) / 2,
+                continue_btn.y + (continue_btn.height - 25) / 2,
+                25,
+                WHITE
+            );
+            int cells[4][2];
+            if(getWinCells(win,cells)) {
+                for (int k = 0; k < 4; k++) {
+                    int x = startX + cells[k][1] * cell_size;
+                    int y = startY + cells[k][0] * cell_size;
+                    DrawRectangle(x, y, cell_size, cell_size, {255, 215, 0, 80});
+                }
+            }
         } else {
             string turn = p1_turn ? p1.getName() + "'s turn" : "AI thinking...";
             DrawText(turn.c_str(), startX, startY - 40, 25, WHITE);
@@ -618,21 +659,13 @@ void connect4::ai_ez_gui() {
         const char *sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
         int sfxW = MeasureText(sfxLabel, 20);
         DrawText(sfxLabel, sfx_btn.x + (sfx_btn.width - sfxW) / 2, sfx_btn.y + (sfx_btn.height - 20) / 2, 20, mutedSFX ? GREEN : RED);
-        if (game_over) {
-            int cells[4][2];
-            if(getWinCells(win,cells)) {
-                for (int k = 0; k < 4; k++) {
-                    int x = startX + cells[k][1] * cell_size;
-                    int y = startY + cells[k][0] * cell_size;
-                    DrawRectangle(x, y, cell_size, cell_size, {255, 215, 0, 80});
-                }
-            }
-        }
+
         EndDrawing();
-        if (game_over && IsKeyPressed(KEY_ENTER)) break;
     }
 }
 void connect4::ai_hard_gui() {
+    Rectangle continue_btn = {490, 700, 300, 60};
+    double gameOverTime = 0;
     char win=' ';
     bool game_over = false;
     bool p1_turn = p1.getSymbol() == 'X';
@@ -663,6 +696,10 @@ void connect4::ai_hard_gui() {
                 mutedSFX = !mutedSFX;
             if (CheckCollisionPointRec(mouse_pos, mute_btn))
                 mutedBGm = !mutedBGm;
+            if (game_over && (GetTime() - gameOverTime > 0.3)) {
+                if (CheckCollisionPointRec(mouse_pos, continue_btn)) break;
+            }
+
         }
         // --- player input ---
         if (!game_over && p1_turn && !animating && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
@@ -711,23 +748,35 @@ void connect4::ai_hard_gui() {
                 bool wasP1 = (animSymbol == p1.getSymbol());
                 if (wasP1) {
                     if      (check_win(p1.getSymbol())) {
-                        game_over=true;
-                        msg=p1.getName()+" wins!"; p1.incrementScore();
-                    win=p1.getSymbol();
-                    }
+                        game_over = true;
+                        gameOverTime = GetTime();
+                        msg = p1.getName() + " wins!";
+                        win=p1.getSymbol();                    }
                     else if (check_draw()) {
-                        game_over=true; msg="It's a draw!";
+                        game_over=true;
+                        msg="It's a draw!";
+                        gameOverTime = GetTime();
+
                     }
-                    else                                 { p1_turn=false; }
-                } else {
+                    else {
+                        p1_turn=false;
+                    }
+                }
+                else {
                     if      (check_win(p2.getSymbol())) {
                         game_over=true;
+                        gameOverTime = GetTime();
                         msg=p2.getName()+" wins!";
                         p2.incrementScore();
                         win=p2.getSymbol();
                     }
-                    else if (check_draw())               { game_over=true; msg="It's a draw!"; }
-                    else                                 { p1_turn=true; }
+                    else if (check_draw()) {
+                        game_over=true; msg="It's a draw!";
+                        gameOverTime = GetTime();
+                    }
+                    else {
+                        p1_turn=true;
+                    }
                 }
             }
         }
@@ -749,7 +798,26 @@ void connect4::ai_hard_gui() {
 
         if (game_over) {
             DrawText(msg.c_str(), startX, startY - 70, 25, YELLOW);
-            DrawText("Press Enter to continue", startX, startY - 45, 20, DARKGRAY);
+
+            DrawRectangleRec(continue_btn, DARKBLUE);
+
+            int cW = MeasureText("Continue", 25);
+
+            DrawText(
+                "Continue",
+                continue_btn.x + (continue_btn.width - cW) / 2,
+                continue_btn.y + (continue_btn.height - 25) / 2,
+                25,
+                WHITE
+            );
+            int cells[4][2];
+            if(getWinCells(win,cells)) {
+                for (int k = 0; k < 4; k++) {
+                    int x = startX + cells[k][1] * cell_size;
+                    int y = startY + cells[k][0] * cell_size;
+                    DrawRectangle(x, y, cell_size, cell_size, {255, 215, 0, 80});
+                }
+            }
         } else {
             string turn = p1_turn ? p1.getName() + "'s turn" : "AI thinking...";
             DrawText(turn.c_str(), startX, startY - 40, 25, WHITE);
@@ -762,18 +830,8 @@ void connect4::ai_hard_gui() {
         const char *sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
         int sfxW = MeasureText(sfxLabel, 20);
         DrawText(sfxLabel, sfx_btn.x + (sfx_btn.width - sfxW) / 2, sfx_btn.y + (sfx_btn.height - 20) / 2, 20, mutedSFX ? GREEN : RED);
-        if (game_over) {
-            int cells[4][2];
-            if(getWinCells(win,cells)) {
-                for (int k = 0; k < 4; k++) {
-                    int x = startX + cells[k][1] * cell_size;
-                    int y = startY + cells[k][0] * cell_size;
-                    DrawRectangle(x, y, cell_size, cell_size, {255, 215, 0, 80});
-                }
-            }
-        }
-    EndDrawing();
-    if (game_over && IsKeyPressed(KEY_ENTER)) break;
+
+        EndDrawing();
     }
 }
 bool connect4::getWinCells(char symbol, int cells[4][2]) {
