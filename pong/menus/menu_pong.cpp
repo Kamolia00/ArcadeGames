@@ -109,8 +109,8 @@ bool getPlayerName_pong(Player &p, const std::string prompt) {
     return false;
 }
 int showPostGame_menu_pong(Player p1,Player p2, int g1,int g2) {
-    Rectangle again_btn = {490, 260, 300, 60};
-    Rectangle back_btn = {490, 340, 300, 60};
+    Rectangle again_btn = {490, 340, 300, 60};
+    Rectangle back_btn = {490, 410, 300, 60};
 BeginDrawing();
 EndDrawing();
 while (!WindowShouldClose()) {
@@ -140,8 +140,8 @@ BeginDrawing();
     DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
     DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
     DrawText("Game Over", 560, 140, 40, WHITE);
-        DrawText((p1.getName() + ": " + std::to_string(g1)).c_str(), 490, 180, 25, YELLOW);
-        DrawText((p2.getName() + ": " + std::to_string(g2)).c_str(), 490, 220, 25, YELLOW);
+        DrawText((p1.getName() + ": " + std::to_string(g1)).c_str(), 490, 220, 25, YELLOW);
+        DrawText((p2.getName() + ": " + std::to_string(g2)).c_str(), 490, 260, 25, YELLOW);
    menu_ui::DrawMenuButton(again_btn, "Play Again", 25);
    menu_ui::DrawMenuButton(back_btn, "Main Menu", 25);
    menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
