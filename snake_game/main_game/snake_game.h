@@ -22,6 +22,7 @@ const std::map<std::string, int>& getLeaderboard_default() const;
     void spawnObstacles(int count) ;
     bool checkWallCollision() const;
    bool checkObstacleCollision() const;
+    bool checkSelfCollision() const;
     void updateLeaderboard(std::map<std::string, int>& board,
                        const std::string& name, int score);
 public:

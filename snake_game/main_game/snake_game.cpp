@@ -22,6 +22,16 @@ SnakeGame::~SnakeGame() {
     UnloadSound(sfx_collision);
     UnloadSound(sfx_move);
 }
+bool SnakeGame::checkSelfCollision() const {
+    std::deque<Vector2> body = snake.getBody();
+    Vector2 head = body.back();
+    body.pop_back();
+
+    for (const auto &seg : body) {
+        if (seg.x == head.x && seg.y == head.y) return true;
+    }
+    return false;
+}
 void SnakeGame::drawLeaderboard(const std::map<std::string, int>& board, int x, int y) {
     // sort by score descending
     std::vector<std::pair<std::string, int>> entries(board.begin(), board.end());
@@ -120,15 +130,16 @@ int SnakeGame::Default_mode() {
     snake.setScore(0);
     obstacles.clear();
     spawnFood();
+
     double moveTimer = 0;
     double moveInterval = 0.15;
     double obstacleTimer = 0;
+    bool allowMove = true;
     bool gameOver = false;
     bool won = false;
     bool paused = false;
     bool collisionFreeze = false;
     double collisionTimer = 0.0;
-    Vector2 collisionPos = {0, 0};
 
     while (!WindowShouldClose() && !gameOver && !won) {
         if (IsKeyPressed(KEY_P)) paused = !paused;
@@ -146,28 +157,19 @@ int SnakeGame::Default_mode() {
         if (!paused) {
             if (!collisionFreeze) {
                 bool moved = false;
-                if (IsKeyPressed(KEY_UP))    { snake.setDirection({0, -1}); moved = true; }
-                if (IsKeyPressed(KEY_DOWN))  { snake.setDirection({0,  1}); moved = true; }
-                if (IsKeyPressed(KEY_LEFT))  { snake.setDirection({-1, 0}); moved = true; }
-                if (IsKeyPressed(KEY_RIGHT)) { snake.setDirection({1,  0}); moved = true; }
+                if (allowMove) {
+                    if (IsKeyPressed(KEY_UP))    { snake.setDirection({0, -1}); moved = true; }
+                    if (IsKeyPressed(KEY_DOWN))  { snake.setDirection({0,  1}); moved = true; }
+                    if (IsKeyPressed(KEY_LEFT))  { snake.setDirection({-1, 0}); moved = true; }
+                    if (IsKeyPressed(KEY_RIGHT)) { snake.setDirection({1,  0}); moved = true; }
+                    if (moved) allowMove = false;
+                }
                 if (moved && !muted_sfx) PlaySound(sfx_move);
 
                 moveTimer += GetFrameTime();
                 if (moveTimer >= moveInterval) {
                     moveTimer = 0;
-
-                    Vector2 predictedHead = snake.getHead();
-                    Vector2 dir = snake.getDirection();
-                    predictedHead.x += dir.x;
-                    predictedHead.y += dir.y;
-
-                    bool selfCollBeforeMove = false;
-                    for (const auto &seg : snake.getBody()) {
-                        if (seg.x == predictedHead.x && seg.y == predictedHead.y) {
-                            selfCollBeforeMove = true;
-                            break;
-                        }
-                    }
+                    allowMove = true;
 
                     snake.move();
 
@@ -186,16 +188,10 @@ int SnakeGame::Default_mode() {
                     int score = snake.getScore();
                     if (score >= 10) moveInterval = 0.10;
 
-                    if (checkWallCollision() || checkObstacleCollision()) {
+                    if (checkWallCollision() || checkObstacleCollision() || checkSelfCollision()) {
                         if (!muted_sfx) PlaySound(sfx_collision);
                         collisionFreeze = true;
                         collisionTimer = 0.0;
-                        collisionPos = predictedHead;
-                    } else if (selfCollBeforeMove || snake.checkSelfCollision()) {
-                        if (!muted_sfx) PlaySound(sfx_collision);
-                        collisionFreeze = true;
-                        collisionTimer = 0.0;
-                        collisionPos = predictedHead;
                     }
 
                     if (score >= 200) won = true;
@@ -235,15 +231,18 @@ int SnakeGame::Default_mode() {
             sfx_btn.x + (sfx_btn.width - sfxW)/2,
             sfx_btn.y + (sfx_btn.height - 20)/2, 20,
             muted_sfx ? GREEN : RED);
+
         DrawRectangleLines(OFFSET_X, OFFSET_Y, GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE, SKYBLUE);
-        snake.draw(collisionFreeze, collisionPos);
+        snake.draw(collisionFreeze, snake.getHead());
         DrawRectangle(food.x * CELL_SIZE + OFFSET_X, food.y * CELL_SIZE + OFFSET_Y, CELL_SIZE, CELL_SIZE, YELLOW);
         for (auto &obs : obstacles) {
             DrawRectangle(obs.x * CELL_SIZE + OFFSET_X, obs.y * CELL_SIZE + OFFSET_Y, CELL_SIZE, CELL_SIZE, WHITE);
         }
+
         if (collisionFreeze) {
-            int px = collisionPos.x * CELL_SIZE + OFFSET_X;
-            int py = collisionPos.y * CELL_SIZE + OFFSET_Y;
+            Vector2 head = snake.getHead();
+            int px = head.x * CELL_SIZE + OFFSET_X;
+            int py = head.y * CELL_SIZE + OFFSET_Y;
             DrawRectangleLines(px, py, CELL_SIZE, CELL_SIZE, RED);
             DrawLine(px, py, px + CELL_SIZE, py + CELL_SIZE, RED);
             DrawLine(px + CELL_SIZE, py, px, py + CELL_SIZE, RED);
@@ -287,6 +286,7 @@ int SnakeGame::play_gui(int level) {
     bool levelComplete    = false;
     bool paused           = false;
     bool collisionFreeze  = false;
+    bool allowMove = true;
     double collisionTimer = 0;
     Vector2 collisionPos  = {0, 0};
 
@@ -303,33 +303,41 @@ int SnakeGame::play_gui(int level) {
         if (!paused) {
             if (!collisionFreeze) {
                 bool moved = false;
-                if (IsKeyPressed(KEY_UP))    { snake.setDirection({0, -1}); moved = true; }
-                if (IsKeyPressed(KEY_DOWN))  { snake.setDirection({0,  1}); moved = true; }
-                if (IsKeyPressed(KEY_LEFT))  { snake.setDirection({-1, 0}); moved = true; }
-                if (IsKeyPressed(KEY_RIGHT)) { snake.setDirection({1,  0}); moved = true; }
-                if (moved && !muted_sfx) PlaySound(sfx_move);
-                moveTimer += GetFrameTime();
-                if (moveTimer >= moveInterval) {
-                    moveTimer = 0;
 
-                    // predict next head position to detect self-collision against
-                    // the current body (including tail), so collisions into the
-                    // tail are captured and can be highlighted.
-                    Vector2 predictedHead = snake.getHead();
-                    Vector2 dir = snake.getDirection();
-                    predictedHead.x += dir.x;
-                    predictedHead.y += dir.y;
-
-                    bool selfCollBeforeMove = false;
-                    for (const auto &seg : snake.getBody()) {
-                        if (seg.x == predictedHead.x && seg.y == predictedHead.y) {
-                            selfCollBeforeMove = true;
-                            break;
-                        }
+                if (allowMove) {
+                    if (IsKeyPressed(KEY_UP)) {
+                        snake.setDirection({0, -1});
+                        moved = true;
                     }
 
-                    snake.move();
+                    if (IsKeyPressed(KEY_DOWN)) {
+                        snake.setDirection({0, 1});
+                        moved = true;
+                    }
 
+                    if (IsKeyPressed(KEY_LEFT)) {
+                        snake.setDirection({-1, 0});
+                        moved = true;
+                    }
+
+                    if (IsKeyPressed(KEY_RIGHT)) {
+                        snake.setDirection({1, 0});
+                        moved = true;
+                    }
+
+                    if (moved)
+                        allowMove = false;
+                }
+
+                if (moved && !muted_sfx)
+                    PlaySound(sfx_move);
+                moveTimer += GetFrameTime();
+
+                if (moveTimer >= moveInterval) {
+                    moveTimer = 0;
+                    allowMove = true;
+
+                    snake.move();
                     Vector2 head = snake.getHead();
                     if (head.x == food.x && head.y == food.y) {
                         snake.grow();
@@ -345,16 +353,12 @@ int SnakeGame::play_gui(int level) {
                     if (snake.getScore() >= scoreToNext)
                         levelComplete = true;
 
-                    if (checkWallCollision() || checkObstacleCollision()) {
-                        if (!muted_sfx) PlaySound(sfx_collision);
+                    if (checkWallCollision() || checkObstacleCollision() || checkSelfCollision()) {
+                        if (!muted_sfx)
+                            PlaySound(sfx_collision);
+
                         collisionFreeze = true;
                         collisionTimer = 0.0;
-                        collisionPos = predictedHead;
-                    } else if (selfCollBeforeMove || snake.checkSelfCollision()) {
-                        if (!muted_sfx) PlaySound(sfx_collision);
-                        collisionFreeze = true;
-                        collisionTimer = 0.0;
-                        collisionPos = predictedHead;
                     }
                 }
 
@@ -398,8 +402,7 @@ int SnakeGame::play_gui(int level) {
         DrawRectangleLines(OFFSET_X, OFFSET_Y,
             GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE, SKYBLUE);
 
-        snake.draw(collisionFreeze, collisionPos);
-
+        snake.draw(collisionFreeze, snake.getHead());
         DrawRectangle(
             food.x * CELL_SIZE + OFFSET_X,
             food.y * CELL_SIZE + OFFSET_Y,
@@ -415,16 +418,25 @@ int SnakeGame::play_gui(int level) {
         }
 
         if (collisionFreeze) {
-            int px = collisionPos.x * CELL_SIZE + OFFSET_X;
-            int py = collisionPos.y * CELL_SIZE + OFFSET_Y;
+            Vector2 head = snake.getHead();
+
+            int px = head.x * CELL_SIZE + OFFSET_X;
+            int py = head.y * CELL_SIZE + OFFSET_Y;
+
             DrawRectangle(px, py, CELL_SIZE, CELL_SIZE, {255, 0, 0, 150});
             DrawRectangleLines(px, py, CELL_SIZE, CELL_SIZE, RED);
-            DrawLine(px, py, px+CELL_SIZE, py+CELL_SIZE, RED);
-            DrawLine(px+CELL_SIZE, py, px, py+CELL_SIZE, RED);
-            int msgW = MeasureText("SELF COLLISION!", 20);
-            DrawText("SELF COLLISION!", WINDOW_WIDTH/2 - msgW/2, OFFSET_Y - 30, 20, RED);
-        }
+            DrawLine(px, py, px + CELL_SIZE, py + CELL_SIZE, RED);
+            DrawLine(px + CELL_SIZE, py, px, py + CELL_SIZE, RED);
 
+            int msgW = MeasureText("SELF COLLISION!", 20);
+            DrawText(
+                "SELF COLLISION!",
+                WINDOW_WIDTH/2 - msgW/2,
+                OFFSET_Y - 30,
+                20,
+                RED
+            );
+        }
         if (paused && !collisionFreeze) {
             int pw = MeasureText("PAUSED", 30);
             DrawText("PAUSED", WINDOW_WIDTH/2 - pw/2, WINDOW_HEIGHT/2, 30, WHITE);
