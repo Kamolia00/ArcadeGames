@@ -224,36 +224,61 @@ void Pong::playGame_pvp() {
         }
         EndDrawing();
     }
-while (!WindowShouldClose()) {
-    BeginDrawing();
-    ClearBackground({20, 20, 40, 255});
-    std::string winner =
-        (p1.getScore() >= threshold)
-        ? p1.getName() + " Wins!"
-        : p2.getName() + " Wins!";
-    int fontSize1 = 60;
-    int fontSize2 = 30;
-    int textWidth1 = MeasureText(winner.c_str(), fontSize1);
-    int textWidth2 = MeasureText("Press ENTER to continue", fontSize2);
-    DrawText(            winner.c_str(),
-            GetScreenWidth()/2 - textWidth1/2,
+    Rectangle continue_btn = {490, 550, 300, 60};
+    double gameOverTime = GetTime();
+
+    while (!WindowShouldClose())
+    {
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+        {
+            Vector2 mouse = GetMousePosition();
+
+            if (CheckCollisionPointRec(mouse, mute_btn))
+                mutedBGm = !mutedBGm;
+
+            if (GetTime() - gameOverTime > 0.3)
+            {
+                if (CheckCollisionPointRec(mouse, continue_btn))
+                    break;
+            }
+        }
+
+        BeginDrawing();
+
+        ClearBackground({20, 20, 40, 255});
+
+        std::string winner =
+            (p1.getScore() >= threshold)
+                ? p1.getName() + " Wins!"
+                : p2.getName() + " Wins!";
+
+        int fontSize = 60;
+        int textWidth = MeasureText(winner.c_str(), fontSize);
+
+        DrawText(
+            winner.c_str(),
+            GetScreenWidth()/2 - textWidth/2,
             GetScreenHeight()/2 - 50,
-            fontSize1,
-            GREEN);
-    DrawText(
-        "Press ENTER to continue",
-        GetScreenWidth()/2 - textWidth2/2,
-        GetScreenHeight()/2 + 30,
-        fontSize2,
-        WHITE
-    );
+            fontSize,
+            GREEN
+        );
 
-    EndDrawing();
+        DrawRectangleRec(continue_btn, DARKBLUE);
 
-    if (IsKeyPressed(KEY_ENTER))
-        break;
-}}
-void Pong::setThreshold(int n) {
+        int cW = MeasureText("Continue", 25);
+
+        DrawText(
+            "Continue",
+            continue_btn.x + (continue_btn.width - cW) / 2,
+            continue_btn.y + (continue_btn.height - 25) / 2,
+            25,
+            WHITE
+        );
+
+        EndDrawing();
+    }    }
+
+    void Pong::setThreshold(int n) {
     threshold = n;
 }
 void Pong::playGame_ai() {
@@ -270,7 +295,7 @@ void Pong::playGame_ai() {
     ai.setScore(0);
     paddle1Rect = {10,300,25,120};
     aiRect = {1245,300,25,120};
-ball.setPosition(kCenterX,kCenterY);
+    ball.setPosition(kCenterX,kCenterY);
     ball.setSpeed(0,0);
     ball.setRadius(20);
     bool countdownActive = false;
@@ -298,8 +323,8 @@ ball.setPosition(kCenterX,kCenterY);
             ball.update();
         }
         if (!paused) {
-        movePaddel1();
-        moveAi();
+            movePaddel1();
+            moveAi();
         }
         // AI scores
         if (!countdownActive && ball.getX() - ball.getRadius() <= 0)
@@ -327,7 +352,7 @@ ball.setPosition(kCenterX,kCenterY);
         }
         // check for collisions
         if (CheckCollisionCircleRec(Vector2{ball.getX(), ball.getY()},ball.getRadius(),Rectangle{paddle1Rect.x,paddle1Rect.y,paddle1Rect.width,paddle1Rect.height})){
-        ball.setSpeed(-ball.getSpeedX(),ball.getSpeedY());
+            ball.setSpeed(-ball.getSpeedX(),ball.getSpeedY());
         }
         if (CheckCollisionCircleRec(Vector2{ball.getX(), ball.getY()},ball.getRadius(),Rectangle{aiRect.x,aiRect.y,aiRect.width,aiRect.height})) {
             ball.setSpeed(-ball.getSpeedX(),ball.getSpeedY());
@@ -343,7 +368,7 @@ ball.setPosition(kCenterX,kCenterY);
 
         DrawLine(640,0,640,720,WHITE);
         ball.draw();
-    Color c2,r=RED;
+        Color c2,r=RED;
         if (c.r == r.r &&
     c.g == r.g &&
     c.b == r.b &&
@@ -404,43 +429,58 @@ ball.setPosition(kCenterX,kCenterY);
             );
         }
         EndDrawing();
-}
+    }
+    Rectangle continue_btn = {490, 550, 300, 60};
+    double gameOverTime = GetTime();
+
     while (!WindowShouldClose())
     {
-        bool ai_w=false;
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+        {
+            Vector2 mouse = GetMousePosition();
+
+            if (CheckCollisionPointRec(mouse, mute_btn))
+                mutedBGm = !mutedBGm;
+
+            if (GetTime() - gameOverTime > 0.3)
+            {
+                if (CheckCollisionPointRec(mouse, continue_btn))
+                    break;
+            }
+        }
+
         BeginDrawing();
+
         ClearBackground({20, 20, 40, 255});
 
         std::string winner =
             (p1.getScore() >= threshold)
-            ? p1.getName() + " Wins!"
-            : ai.getName() + " Wins!";
+                ? p1.getName() + " Wins!"
+                : p2.getName() + " Wins!";
 
-        int fontSize1 = 60;
-        int fontSize2 = 30;
+        int fontSize = 60;
+        int textWidth = MeasureText(winner.c_str(), fontSize);
 
-        int textWidth1 = MeasureText(winner.c_str(), fontSize1);
-        int textWidth2 = MeasureText("Press ENTER to continue", fontSize2);
-if (winner == ai.getName() + " Wins!")
-    ai_w=true;
         DrawText(
             winner.c_str(),
-            GetScreenWidth()/2 - textWidth1/2,
+            GetScreenWidth()/2 - textWidth/2,
             GetScreenHeight()/2 - 50,
-            fontSize1,
-            ai_w?RED:GREEN
+            fontSize,
+            GREEN
         );
 
+        DrawRectangleRec(continue_btn, DARKBLUE);
+
+        int cW = MeasureText("Continue", 25);
+
         DrawText(
-            "Press ENTER to continue",
-            GetScreenWidth()/2 - textWidth2/2,
-            GetScreenHeight()/2 + 30,
-            fontSize2,
+            "Continue",
+            continue_btn.x + (continue_btn.width - cW) / 2,
+            continue_btn.y + (continue_btn.height - 25) / 2,
+            25,
             WHITE
         );
 
         EndDrawing();
-
-        if (IsKeyPressed(KEY_ENTER))
-            break;
-    }}
+    }
+}
