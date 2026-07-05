@@ -324,7 +324,8 @@ void XO::drawBoard() {
     DrawLineEx({(float)startX, (float)(startY + cellSize*2)}, {(float)(startX + gridSize), (float)(startY + cellSize*2)}, thickness, lineColor);
 }
 void XO::playGameGUI_pvp() {
-    Rectangle continue_btn = {490, 400, 300, 60};
+    Rectangle continue_btn = {490, 550, 300, 60};
+    double gameOverTime = 0;
    const int startX = 490, startY = 210,cell_size=100;
     int kamoliaMovesP1 = 0;
     int kamoliaMovesP2 = 0;
@@ -332,357 +333,408 @@ void XO::playGameGUI_pvp() {
     // X always starts:
     bool p1_turn = (player1.getSymbol() == 'X');
     string msg=" ";
-    while (!WindowShouldClose()) {
-        UpdateMusicStream(bgm);
-        if (mutedBGm) PauseMusicStream(bgm);
-        else       ResumeMusicStream(bgm);
-        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
-            Vector2 mouse_pos = GetMousePosition();
-            if (CheckCollisionPointRec(mouse_pos, sfx_btn))
-                mutedSFX = !mutedSFX;
-            if (CheckCollisionPointRec(mouse_pos, mute_btn))
-                mutedBGm = !mutedBGm;
+while (!WindowShouldClose()) {
+    UpdateMusicStream(bgm);
+    if (mutedBGm) PauseMusicStream(bgm);
+    else ResumeMusicStream(bgm);
+
+    // --- input ---
+    if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+        Vector2 mouse_pos = GetMousePosition();
+        if (CheckCollisionPointRec(mouse_pos, sfx_btn)) mutedSFX = !mutedSFX;
+        if (CheckCollisionPointRec(mouse_pos, mute_btn)) mutedBGm = !mutedBGm;
+
+        // continue button — only after 0.3s delay
+        if (game_over && (GetTime() - gameOverTime > 0.3)) {
+            if (CheckCollisionPointRec(mouse_pos, continue_btn)) break;
         }
-        //input
-        if (!game_over and IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            Vector2 mouse_pos = GetMousePosition();
-    // cel check
-            int col = (mouse_pos.x-startX)/cell_size ;
-            int row = (mouse_pos.y-startY)/cell_size;
+    }
+
+    if (!game_over && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        Vector2 mouse_pos = GetMousePosition();
+        // cell check
+        int col = (mouse_pos.x - startX) / cell_size;
+        int row = (mouse_pos.y - startY) / cell_size;
+        if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
+            board[row][col] = p1_turn ? player1.getSymbol() : player2.getSymbol();
+            if (!mutedSFX) PlaySound(clickSfx);
+
+            if (p1_turn && player1.getName() == "kamolia") kamoliaMovesP1++;
+            if (!p1_turn && player2.getName() == "kamolia") kamoliaMovesP2++;
+
+            Player &cur = p1_turn ? player1 : player2;
+            int &kamoliaCount = p1_turn ? kamoliaMovesP1 : kamoliaMovesP2;
+
+            if (cur.getName() == "kamolia" && kamoliaCount >= 3) {
+                game_over = true;
+                gameOverTime = GetTime();
+                msg = "kamolia wins! (obviously!)";
+                cur.incrementScore();
+            } else if (checkWin(player1.getSymbol())) {
+                game_over = true;
+                gameOverTime = GetTime();
+                msg = player1.getName() + " wins!";
+                player1.incrementScore();
+            } else if (checkWin(player2.getSymbol())) {
+                game_over = true;
+                gameOverTime = GetTime();
+                msg = player2.getName() + " wins!";
+                player2.incrementScore();
+            } else if (checkDraw()) {
+                game_over = true;
+                gameOverTime = GetTime();
+                msg = "It's a draw!";
+            } else {
+                p1_turn = !p1_turn;
+            }
+        }
+    }
+
+    // --- draw ---
+    BeginDrawing();
+    ClearBackground({20, 20, 40, 255});
+    drawBoard();
+
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            int x = startX + j * cell_size + 35;
+            int y = startY + i * cell_size + 35;
+            if (board[i][j] == 'X')
+                DrawTextEx(font, "X", {(float)x, (float)y}, 40, 0, RED);
+            else if (board[i][j] == 'O')
+                DrawTextEx(font, "O", {(float)x, (float)y}, 40, 0, GREEN);
+        }
+    }
+
+    if (game_over) {
+        DrawText(msg.c_str(), 500, 150, 30, YELLOW);
+        DrawRectangleRec(continue_btn, DARKBLUE);
+        int cW = MeasureText("Continue", 25);
+        DrawText("Continue",
+            continue_btn.x + (continue_btn.width - cW)/2,
+            continue_btn.y + (continue_btn.height - 25)/2, 25, WHITE);
+
+        // win cells highlight
+        int cells[3][2];
+        char winSym = checkWin(player1.getSymbol()) ? player1.getSymbol() : player2.getSymbol();
+        if (GetWinCells(winSym, cells)) {
+            for (int k = 0; k < 3; k++) {
+                int x = startX + cells[k][1] * cell_size;
+                int y = startY + cells[k][0] * cell_size;
+                DrawRectangle(x, y, cell_size, cell_size, {255, 215, 0, 80});
+            }
+        }
+    } else {
+        string turn = p1_turn ? player1.getName() + "'s turn" : player2.getName() + "'s turn";
+        DrawText(turn.c_str(), 490, 150, 25, WHITE);
+    }
+
+    DrawRectangleRec(mute_btn, DARKBLUE);
+    int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
+    DrawText(mutedBGm ? "SOUND" : "MUTE",
+        mute_btn.x + (mute_btn.width - muteW)/2,
+        mute_btn.y + (mute_btn.height - 20)/2, 20,
+        mutedBGm ? GREEN : RED);
+
+    DrawRectangleRec(sfx_btn, DARKBLUE);
+    const char* sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
+    int sfxW = MeasureText(sfxLabel, 20);
+    DrawText(sfxLabel,
+        sfx_btn.x + (sfx_btn.width - sfxW)/2,
+        sfx_btn.y + (sfx_btn.height - 20)/2, 20,
+        mutedSFX ? GREEN : RED);
+
+    EndDrawing();
+}
+}
+void XO::playGameGUI_ai_easy() {
+Rectangle continue_btn = {490, 550, 300, 60};
+double gameOverTime = 0;
+const int startX = 490, startY = 210, cell_size = 100;
+bool game_over = false;
+bool p1_turn = (player1.getSymbol() == 'X');
+string msg = " ";
+srand(time(nullptr));
+
+bool openingDelayActive = true;
+double openingMoveTime = GetTime() + kAiTurnDelaySeconds;
+bool aiWaiting = false;
+double aiMoveTime = 0.0;
+
+BeginDrawing(); EndDrawing();
+
+while (!WindowShouldClose()) {
+    UpdateMusicStream(bgm);
+    if (mutedBGm) PauseMusicStream(bgm);
+    else ResumeMusicStream(bgm);
+
+    // opening AI move
+    if (openingDelayActive && GetTime() >= openingMoveTime) {
+        if (!p1_turn) {
+            int r, c;
+            do { r = rand() % 3; c = rand() % 3; } while (board[r][c] != ' ');
+            board[r][c] = player2.getSymbol();
+            if (!mutedSFX) PlaySound(clickSfx);
+            if (checkWin(player2.getSymbol())) {
+                game_over = true; gameOverTime = GetTime();
+                msg = "AI wins!"; player2.incrementScore();
+            } else if (checkDraw()) {
+                game_over = true; gameOverTime = GetTime();
+                msg = "It's a draw!";
+            } else {
+                p1_turn = true;
+            }
+        }
+        openingDelayActive = false;
+    }
+
+    // AI delay move
+    if (!openingDelayActive && !game_over && !p1_turn) {
+        if (!aiWaiting) startAiTurnDelay(aiWaiting, aiMoveTime);
+        if (aiWaiting && GetTime() >= aiMoveTime) {
+            aiWaiting = false;
+            int r, c;
+            do { r = rand() % 3; c = rand() % 3; } while (board[r][c] != ' ');
+            board[r][c] = player2.getSymbol();
+            if (!mutedSFX) PlaySound(clickSfx);
+            if (checkWin(player2.getSymbol())) {
+                game_over = true; gameOverTime = GetTime();
+                msg = "AI wins!"; player2.incrementScore();
+            } else if (checkDraw()) {
+                game_over = true; gameOverTime = GetTime();
+                msg = "It's a draw!";
+            } else {
+                p1_turn = true;
+            }
+        }
+    }
+
+    // input
+    if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+        Vector2 mouse_pos = GetMousePosition();
+
+        if (CheckCollisionPointRec(mouse_pos, mute_btn)) mutedBGm = !mutedBGm;
+        if (CheckCollisionPointRec(mouse_pos, sfx_btn))  mutedSFX = !mutedSFX;
+
+        // continue button
+        if (game_over && (GetTime() - gameOverTime > 0.3)) {
+            if (CheckCollisionPointRec(mouse_pos, continue_btn)) break;
+        }
+
+        // player move
+        if (!openingDelayActive && !game_over && p1_turn) {
+            int col = (mouse_pos.x - startX) / cell_size;
+            int row = (mouse_pos.y - startY) / cell_size;
             if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
-                board[row][col] = p1_turn ? player1.getSymbol() : player2.getSymbol();
+                board[row][col] = player1.getSymbol();
                 if (!mutedSFX) PlaySound(clickSfx);
-
-                // track kamolia moves
-                if (p1_turn && player1.getName() == "kamolia") kamoliaMovesP1++;
-                if (!p1_turn && player2.getName() == "kamolia") kamoliaMovesP2++;
-
-                Player &cur = p1_turn ? player1 : player2;
-                int &kamoliaCount = p1_turn ? kamoliaMovesP1 : kamoliaMovesP2;
-
-                // wasta cases
-                if (cur.getName() == "kamolia" && kamoliaCount >= 3) {
-                    game_over = true;
-                    msg = "kamolia wins! (obviously)";
-                    cur.incrementScore();
-                }
-                else if (checkWin(player1.getSymbol())) {
-                    game_over = true;
-                    msg = player1.getName() + " wins!";
-                    player1.incrementScore();
-                }
-                else if (checkWin(player2.getSymbol())) {
-                    game_over = true;
-                    msg = player2.getName() + " wins!";
-                    player2.incrementScore();
-                }
-                else if (checkDraw()) {
-                    game_over = true;
+                if (checkWin(player1.getSymbol())) {
+                    game_over = true; gameOverTime = GetTime();
+                    msg = player1.getName() + " wins!"; player1.incrementScore();
+                } else if (checkDraw()) {
+                    game_over = true; gameOverTime = GetTime();
                     msg = "It's a draw!";
-                }
-                else {
-                    p1_turn = !p1_turn;
+                } else {
+                    p1_turn = false; aiWaiting = false;
                 }
             }
         }
-        // Drawing begins
+    }
+
+    // draw
+    BeginDrawing();
+    ClearBackground({20, 20, 40, 255});
+    drawBoard();
+
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            int x = startX + j * cell_size + 30;
+            int y = startY + i * cell_size + 30;
+            if      (board[i][j] == 'X') DrawTextEx(font, "X", {(float)x, (float)y}, 40, 0, RED);
+            else if (board[i][j] == 'O') DrawTextEx(font, "O", {(float)x, (float)y}, 40, 0, GREEN);
+        }
+    }
+
+    if (game_over) {
+        DrawText(msg.c_str(), 500, 150, 30, YELLOW);
+        DrawRectangleRec(continue_btn, DARKBLUE);
+        int cW = MeasureText("Continue", 25);
+        DrawText("Continue",
+            continue_btn.x + (continue_btn.width - cW)/2,
+            continue_btn.y + (continue_btn.height - 25)/2, 25, WHITE);
+
+        // win highlight
+        int cells[3][2];
+        char winSym = checkWin(player1.getSymbol()) ? player1.getSymbol() : player2.getSymbol();
+        if (GetWinCells(winSym, cells)) {
+            for (int k = 0; k < 3; k++) {
+                int x = startX + cells[k][1] * cell_size;
+                int y = startY + cells[k][0] * cell_size;
+                DrawRectangle(x, y, cell_size, cell_size, {255, 215, 0, 80});
+            }
+        }
+    } else {
+        DrawText(p1_turn ? "Your turn" : "AI thinking...", 500, 150, 25, WHITE);
+    }
+
+    DrawRectangleRec(mute_btn, DARKBLUE);
+    int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
+    DrawText(mutedBGm ? "SOUND" : "MUTE",
+        mute_btn.x + (mute_btn.width - muteW)/2,
+        mute_btn.y + (mute_btn.height - 20)/2, 20,
+        mutedBGm ? GREEN : RED);
+
+    DrawRectangleRec(sfx_btn, DARKBLUE);
+    const char* sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
+    int sfxW = MeasureText(sfxLabel, 20);
+    DrawText(sfxLabel,
+        sfx_btn.x + (sfx_btn.width - sfxW)/2,
+        sfx_btn.y + (sfx_btn.height - 20)/2, 20,
+        mutedSFX ? GREEN : RED);
+
+    EndDrawing();
+}
+}
+void XO::playGameGUI_ai_hard() {
+    Rectangle continue_btn = {490, 550, 300, 60};
+    double gameOverTime = 0;
+    const int startX = 490, startY = 210, cell_size = 100;
+    bool game_over = false;
+    bool p1_turn = (player1.getSymbol() == 'X');
+    string msg = " ";
+
+    bool openingDelayActive = true;
+    double openingMoveTime = GetTime() + kAiTurnDelaySeconds;
+    bool aiWaiting = false;
+    double aiMoveTime = 0.0;
+
+    BeginDrawing(); EndDrawing();
+
+    while (!WindowShouldClose()) {
+        UpdateMusicStream(bgm);
+        if (mutedBGm) PauseMusicStream(bgm);
+        else ResumeMusicStream(bgm);
+
+        // opening AI move
+        if (openingDelayActive && GetTime() >= openingMoveTime) {
+            if (!p1_turn) {
+                bestMove();
+                if (!mutedSFX) PlaySound(clickSfx);
+                if (checkWin(player2.getSymbol())) {
+                    game_over = true; gameOverTime = GetTime();
+                    msg = "AI wins!"; player2.incrementScore();
+                } else if (checkDraw()) {
+                    game_over = true; gameOverTime = GetTime();
+                    msg = "It's a draw!";
+                } else {
+                    p1_turn = true;
+                }
+            }
+            openingDelayActive = false;
+        }
+
+        // AI delay move
+        if (!openingDelayActive && !game_over && !p1_turn) {
+            if (!aiWaiting) startAiTurnDelay(aiWaiting, aiMoveTime);
+            if (aiWaiting && GetTime() >= aiMoveTime) {
+                aiWaiting = false;
+                bestMove();
+                if (!mutedSFX) PlaySound(clickSfx);
+                if (checkWin(player2.getSymbol())) {
+                    game_over = true; gameOverTime = GetTime();
+                    msg = "AI wins!"; player2.incrementScore();
+                } else if (checkDraw()) {
+                    game_over = true; gameOverTime = GetTime();
+                    msg = "It's a draw!";
+                } else {
+                    p1_turn = true;
+                }
+            }
+        }
+
+        // input
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+            Vector2 mouse_pos = GetMousePosition();
+
+            if (CheckCollisionPointRec(mouse_pos, mute_btn)) mutedBGm = !mutedBGm;
+            if (CheckCollisionPointRec(mouse_pos, sfx_btn))  mutedSFX = !mutedSFX;
+
+            // continue button
+            if (game_over && (GetTime() - gameOverTime > 0.3)) {
+                if (CheckCollisionPointRec(mouse_pos, continue_btn)) break;
+            }
+
+            // player move
+            if (!openingDelayActive && !game_over && p1_turn) {
+                int col = (mouse_pos.x - startX) / cell_size;
+                int row = (mouse_pos.y - startY) / cell_size;
+                if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
+                    board[row][col] = player1.getSymbol();
+                    if (!mutedSFX) PlaySound(clickSfx);
+                    if (checkWin(player1.getSymbol())) {
+                        game_over = true; gameOverTime = GetTime();
+                        msg = player1.getName() + " wins!"; player1.incrementScore();
+                    } else if (checkDraw()) {
+                        game_over = true; gameOverTime = GetTime();
+                        msg = "It's a draw!";
+                    } else {
+                        p1_turn = false; aiWaiting = false;
+                    }
+                }
+            }
+        }
+
+        // draw
         BeginDrawing();
         ClearBackground({20, 20, 40, 255});
         drawBoard();
-        // put x and o on board
-for (int i = 0; i < 3; i++) {
-    for (int j = 0; j < 3; j++) {
-        int x = startX + j * cell_size + 35;
-        int y = startY + i * cell_size + 35;
-        if (board[i][j] == 'X') {
-            DrawTextEx(font, "X", {(float)x, (float)y}, 40, 0, RED);
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                int x = startX + j * cell_size + 30;
+                int y = startY + i * cell_size + 30;
+                if      (board[i][j] == 'X') DrawTextEx(font, "X", {(float)x, (float)y}, 40, 0, RED);
+                else if (board[i][j] == 'O') DrawTextEx(font, "O", {(float)x, (float)y}, 40, 0, GREEN);
+            }
         }
-        else if (board[i][j] == 'O'){
-            DrawTextEx(font, "O", {(float)x, (float)y}, 40, 0, GREEN);
-    }
-    }
-}
+
         if (game_over) {
-            DrawText(msg.c_str(),500,150,30,YELLOW);
-        }
-        if (game_over) {
+            DrawText(msg.c_str(), 500, 150, 30, YELLOW);
             DrawRectangleRec(continue_btn, DARKBLUE);
             int cW = MeasureText("Continue", 25);
             DrawText("Continue",
                 continue_btn.x + (continue_btn.width - cW)/2,
                 continue_btn.y + (continue_btn.height - 25)/2, 25, WHITE);
-        }        if (!game_over) {
-            string turn = p1_turn ? player1.getName() + "'s turn" : player2.getName() + "'s turn";
-            DrawText(turn.c_str(), 490, 150, 25, WHITE);
-        }
-        DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
 
-        DrawRectangleRec(sfx_btn, DARKBLUE);
-        const char *sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
-        int sfxW = MeasureText(sfxLabel, 20);
-        DrawText(sfxLabel, sfx_btn.x + (sfx_btn.width - sfxW) / 2, sfx_btn.y + (sfx_btn.height - 20) / 2, 20, mutedSFX ? GREEN : RED);
-       if (game_over) {
-           int cells[3][2];
-           char winSym=checkWin(player1.getSymbol()) ? player1.getSymbol() : player2.getSymbol();
-           if(GetWinCells(winSym,cells)) {
-               for (int k = 0; k < 3; k++) {
-                   int x = startX + cells[k][1] * cell_size;
-                   int y = startY + cells[k][0] * cell_size;
-                   DrawRectangle(x, y, cell_size, cell_size, {255, 215, 0, 80});
-               }
-           }
-       }
-        EndDrawing();
-        if (game_over && IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
-            Vector2 m = GetMousePosition();
-            if (CheckCollisionPointRec(m, continue_btn)) break;
-        }    }
-}
-void XO::playGameGUI_ai_easy() {
-    const int startX = 490, startY = 210, cell_size = 100;
-    bool game_over = false;
-    bool p1_turn = (player1.getSymbol() == 'X');
-    string msg = " ";
-    srand(time(nullptr));
-
-    bool openingDelayActive = true;
-    double openingMoveTime = GetTime() + kAiTurnDelaySeconds;
-
-    // AI delay
-    bool   aiWaiting  = false;
-    double aiMoveTime = 0.0;
-
-    BeginDrawing();
-    EndDrawing();
-
-    while (!WindowShouldClose()) {
-        UpdateMusicStream(bgm);
-        if (mutedBGm) PauseMusicStream(bgm);
-        else       ResumeMusicStream(bgm);
-        if (openingDelayActive && GetTime() >= openingMoveTime) {
-            if (!p1_turn) {
-                int r, c;
-                do { r = rand() % 3; c = rand() % 3; } while (board[r][c] != ' ');
-                board[r][c] = player2.getSymbol();
-                if (!mutedSFX) PlaySound(clickSfx);
-                if      (checkWin(player2.getSymbol())) {
-                    game_over=true; msg="AI wins!"; player2.incrementScore();
-                }
-                else if (checkDraw()) {
-                    game_over=true; msg="It's a draw!";
-                }
-                else {
-                    p1_turn=true;
-                }
-            }
-            openingDelayActive = false;
-        }
-
-        //  player input for his move
-        if (!openingDelayActive && !game_over && p1_turn && IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
-            Vector2 mouse_pos = GetMousePosition();
-            if (CheckCollisionPointRec(mouse_pos, mute_btn)) mutedBGm = !mutedBGm;
-            if (CheckCollisionPointRec(mouse_pos, sfx_btn)) mutedSFX = !mutedSFX;
-            int col = (mouse_pos.x - startX) / cell_size;
-            int row = (mouse_pos.y - startY) / cell_size;
-            if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
-                board[row][col] = player1.getSymbol();
-                if (!mutedSFX) PlaySound(clickSfx);
-                if      (checkWin(player1.getSymbol())) {
-                    game_over=true; msg=player1.getName()+" wins!"; player1.incrementScore();
-                }
-                else if (checkDraw()) {
-                    game_over=true; msg="It's a draw!";
-                }
-                else {
-                    p1_turn=false; aiWaiting=false;
-                }
-            }
-        }
-
-        // AI delay
-        if (!openingDelayActive && !game_over && !p1_turn) {
-            if (!aiWaiting) {
-                startAiTurnDelay(aiWaiting, aiMoveTime);
-            }
-            if (aiWaiting && GetTime() >= aiMoveTime) {
-                aiWaiting = false;
-                int r, c;
-                do { r = rand() % 3; c = rand() % 3; } while (board[r][c] != ' ');
-                board[r][c] = player2.getSymbol();
-                if (!mutedSFX) PlaySound(clickSfx);
-                if      (checkWin(player2.getSymbol())) {
-                    game_over=true; msg="AI wins!"; player2.incrementScore();
-                }
-                else if (checkDraw()) {
-                    game_over=true; msg="It's a draw!";
-                }
-                else {
-                    p1_turn=true;
-                }
-            }
-        }
-
-        // drawing
-        BeginDrawing();
-        ClearBackground({20, 20, 40, 255});
-        drawBoard();
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                int x = startX + j * cell_size + 30;
-                int y = startY + i * cell_size + 30;
-                if      (board[i][j] == 'X') DrawTextEx(font, "X", {(float)x,(float)y}, 40, 0, RED);
-                else if (board[i][j] == 'O') DrawTextEx(font, "O", {(float)x,(float)y}, 40, 0, GREEN);
-            }
-        }
-        if (game_over) {
-            DrawText(msg.c_str(), 500, 150, 30, YELLOW);
-            DrawText("Press Enter to continue", 500, 190, 20, DARKGRAY);
-        } else {
-            DrawText(p1_turn ? "Your turn" : "AI thinking...", 500, 150, 25, WHITE);
-        }
-        DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
-
-        DrawRectangleRec(sfx_btn, DARKBLUE);
-        const char *sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
-        int sfxW = MeasureText(sfxLabel, 20);
-        DrawText(sfxLabel, sfx_btn.x + (sfx_btn.width - sfxW) / 2, sfx_btn.y + (sfx_btn.height - 20) / 2, 20, mutedSFX ? GREEN : RED);
-        if (game_over) {
             int cells[3][2];
-            char winSym=checkWin(player1.getSymbol()) ? player1.getSymbol() : player2.getSymbol();
-            if(GetWinCells(winSym,cells)) {
+            char winSym = checkWin(player1.getSymbol()) ? player1.getSymbol() : player2.getSymbol();
+            if (GetWinCells(winSym, cells)) {
                 for (int k = 0; k < 3; k++) {
                     int x = startX + cells[k][1] * cell_size;
                     int y = startY + cells[k][0] * cell_size;
                     DrawRectangle(x, y, cell_size, cell_size, {255, 215, 0, 80});
                 }
             }
-        }
-        EndDrawing();
-        if (game_over && IsKeyPressed(KEY_ENTER)) break;
-    }
-}
-void XO::playGameGUI_ai_hard() {
-    const int startX = 490, startY = 210, cell_size = 100;
-    bool game_over = false;
-    bool p1_turn = (player1.getSymbol() == 'X');
-    string msg = " ";
-
-    bool openingDelayActive = true;
-    double openingMoveTime = GetTime() + kAiTurnDelaySeconds;
-
-    // AI delay
-    bool   aiWaiting  = false;
-    double aiMoveTime = 0.0;
-
-    while (!WindowShouldClose()) {
-        UpdateMusicStream(bgm);
-        if (mutedBGm) PauseMusicStream(bgm);
-        else       ResumeMusicStream(bgm);
-        if (openingDelayActive && GetTime() >= openingMoveTime) {
-            if (!p1_turn) {
-                bestMove();
-                if (!mutedSFX) PlaySound(clickSfx);
-                if      (checkWin(player2.getSymbol())) {
-                    game_over=true; msg="AI wins!"; player2.incrementScore();
-                }
-                else if (checkDraw()) {
-                    game_over=true; msg="It's a draw!";
-                }
-                else {
-                    p1_turn=true;
-                }
-            }
-            openingDelayActive = false;
-        }
-
-        //  player input move
-        if (!openingDelayActive && !game_over && p1_turn && IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
-            Vector2 mouse_pos = GetMousePosition();
-            if (CheckCollisionPointRec(mouse_pos, mute_btn)) mutedBGm = !mutedBGm;
-            if (CheckCollisionPointRec(mouse_pos, sfx_btn)) mutedSFX = !mutedSFX;
-            int col = (mouse_pos.x - startX) / cell_size;
-            int row = (mouse_pos.y - startY) / cell_size;
-            if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
-                board[row][col] = player1.getSymbol();
-                if (!mutedSFX) PlaySound(clickSfx);
-                if      (checkWin(player1.getSymbol())) {
-                    game_over=true; msg=player1.getName()+" wins!"; player1.incrementScore();
-                }
-                else if (checkDraw()) {
-                    game_over=true; msg="It's a draw!";
-                }
-                else {
-                    p1_turn=false; aiWaiting=false;
-                }
-            }
-        }
-
-        // AI delay
-        if (!openingDelayActive && !game_over && !p1_turn) {
-            if (!aiWaiting) {
-                startAiTurnDelay(aiWaiting, aiMoveTime);
-            }
-            if (aiWaiting && GetTime() >= aiMoveTime) {
-                aiWaiting = false;
-                bestMove();
-                if (!mutedSFX) PlaySound(clickSfx);
-                if      (checkWin(player2.getSymbol())) {
-                    game_over=true; msg="AI wins!"; player2.incrementScore();
-                }
-                else if (checkDraw()) {
-                    game_over=true; msg="It's a draw!";
-                }
-                else {
-                    p1_turn=true;
-                }
-            }
-        }
-
-        //drawing
-        BeginDrawing();
-        ClearBackground({20, 20, 40, 255});
-        drawBoard();
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                int x = startX + j * cell_size + 30;
-                int y = startY + i * cell_size + 30;
-                if      (board[i][j] == 'X')
-                    DrawTextEx(font, "X", {(float)x,(float)y}, 40, 0, RED);
-                else if (board[i][j] == 'O')
-                    DrawTextEx(font, "O", {(float)x,(float)y}, 40, 0, GREEN);
-            }
-        }
-        if (game_over) {
-            DrawText(msg.c_str(), 500, 150, 30, YELLOW);
-            DrawText("Press Enter to continue", 500, 190, 20, DARKGRAY);
         } else {
             DrawText(p1_turn ? "Your turn" : "AI thinking...", 500, 150, 25, WHITE);
         }
+
         DrawRectangleRec(mute_btn, DARKBLUE);
         int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-        DrawText(mutedBGm ? "SOUND" : "MUTE", mute_btn.x + (mute_btn.width - muteW) / 2, mute_btn.y + (mute_btn.height - 20) / 2, 20, mutedBGm ? GREEN : RED);
+        DrawText(mutedBGm ? "SOUND" : "MUTE",
+            mute_btn.x + (mute_btn.width - muteW)/2,
+            mute_btn.y + (mute_btn.height - 20)/2, 20,
+            mutedBGm ? GREEN : RED);
 
         DrawRectangleRec(sfx_btn, DARKBLUE);
-        const char *sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
+        const char* sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
         int sfxW = MeasureText(sfxLabel, 20);
-        DrawText(sfxLabel, sfx_btn.x + (sfx_btn.width - sfxW) / 2, sfx_btn.y + (sfx_btn.height - 20) / 2, 20, mutedSFX ? GREEN : RED);        EndDrawing();
-        if (game_over) {
-            int cells[3][2];
-            char winSym=checkWin(player1.getSymbol()) ? player1.getSymbol() : player2.getSymbol();
-            if(GetWinCells(winSym,cells)) {
-                for (int k = 0; k < 3; k++) {
-                    int x = startX + cells[k][1] * cell_size;
-                    int y = startY + cells[k][0] * cell_size;
-                    DrawRectangle(x, y, cell_size, cell_size, {255, 215, 0, 80});
-                }
-            }
-        }
-        if (game_over && IsKeyPressed(KEY_ENTER)) break;
+        DrawText(sfxLabel,
+            sfx_btn.x + (sfx_btn.width - sfxW)/2,
+            sfx_btn.y + (sfx_btn.height - 20)/2, 20,
+            mutedSFX ? GREEN : RED);
+
+        EndDrawing();
     }
 }
 bool XO::GetWinCells(char Symbol,int cells[3][2]){
