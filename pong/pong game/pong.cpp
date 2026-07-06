@@ -456,7 +456,7 @@ void Pong::playGame_ai() {
         std::string winner =
             (p1.getScore() >= threshold)
                 ? p1.getName() + " Wins!"
-                : p2.getName() + " Wins!";
+                : ai.getName() + " Wins!";
 
         int fontSize = 60;
         int textWidth = MeasureText(winner.c_str(), fontSize);
