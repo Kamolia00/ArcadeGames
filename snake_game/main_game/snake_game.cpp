@@ -162,10 +162,10 @@ int SnakeGame::Default_mode() {
             if (!collisionFreeze) {
                 bool moved = false;
                 if (allowMove) {
-                    if (IsKeyPressed(KEY_UP))    { snake.setDirection({0, -1}); moved = true; }
-                    if (IsKeyPressed(KEY_DOWN))  { snake.setDirection({0,  1}); moved = true; }
-                    if (IsKeyPressed(KEY_LEFT))  { snake.setDirection({-1, 0}); moved = true; }
-                    if (IsKeyPressed(KEY_RIGHT)) { snake.setDirection({1,  0}); moved = true; }
+                    if (IsKeyPressed(KEY_UP) or IsKeyPressed(KEY_W))    { snake.setDirection({0, -1}); moved = true; }
+                    if (IsKeyPressed(KEY_DOWN) or IsKeyPressed(KEY_S))  { snake.setDirection({0,  1}); moved = true; }
+                    if (IsKeyPressed(KEY_LEFT) or IsKeyPressed(KEY_A))  { snake.setDirection({-1, 0}); moved = true; }
+                    if (IsKeyPressed(KEY_RIGHT) or IsKeyPressed(KEY_D)) { snake.setDirection({1,  0}); moved = true; }
                     if (moved) allowMove = false;
                 }
 
@@ -310,22 +310,22 @@ int SnakeGame::play_gui(int level) {
                 bool moved = false;
 
                 if (allowMove) {
-                    if (IsKeyPressed(KEY_UP)) {
+                    if (IsKeyPressed(KEY_UP) or IsKeyPressed(KEY_W)) {
                         snake.setDirection({0, -1});
                         moved = true;
                     }
 
-                    if (IsKeyPressed(KEY_DOWN)) {
+                    if (IsKeyPressed(KEY_DOWN) or IsKeyPressed(KEY_S)) {
                         snake.setDirection({0, 1});
                         moved = true;
                     }
 
-                    if (IsKeyPressed(KEY_LEFT)) {
+                    if (IsKeyPressed(KEY_LEFT) or IsKeyPressed(KEY_A)) {
                         snake.setDirection({-1, 0});
                         moved = true;
                     }
 
-                    if (IsKeyPressed(KEY_RIGHT)) {
+                    if (IsKeyPressed(KEY_RIGHT) or IsKeyPressed(KEY_D)) {
                         snake.setDirection({1, 0});
                         moved = true;
                     }
