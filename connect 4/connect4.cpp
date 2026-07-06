@@ -344,7 +344,7 @@ void connect4::draw_board(){
     }
 }
 void connect4::pvp_gui() {
-    Rectangle continue_btn = {490, 700, 300, 60};
+    Rectangle continue_btn = {950, 500, 300, 60};
     double gameOverTime = 0;
     char win=' ';
     bool game_over = false;
@@ -489,7 +489,7 @@ void connect4::pvp_gui() {
     }
 }
 void connect4::ai_ez_gui() {
-    Rectangle continue_btn = {490, 700, 300, 60};
+    Rectangle continue_btn = {950, 500, 300, 60};
     double gameOverTime = 0;
     char win=' ';
     bool game_over = false;
@@ -664,7 +664,7 @@ void connect4::ai_ez_gui() {
     }
 }
 void connect4::ai_hard_gui() {
-    Rectangle continue_btn = {490, 700, 300, 60};
+    Rectangle continue_btn = {950, 500, 300, 60};
     double gameOverTime = 0;
     char win=' ';
     bool game_over = false;
