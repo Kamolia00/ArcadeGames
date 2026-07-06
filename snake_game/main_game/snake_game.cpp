@@ -13,14 +13,18 @@ std::map<std::string, int> SnakeGame::leaderboard_default;
 std::map<std::string, int> SnakeGame::leaderboard_levels;
 SnakeGame::SnakeGame(Snake &snake) : snake(snake),food({0, 0}) {
     spawnFood();
-    sfx_food=LoadSound("assets/Sounds/eat.mp3");
-    sfx_collision=LoadSound("assets/Sounds/Collision.mp3");
-    sfx_move=LoadSound("assets/Sounds/move.wav");
+    sfx_food = LoadSound("assets/sounds/eat.ogg");
+    sfx_collision = LoadSound("assets/sounds/wall.ogg");
+    if (!IsSoundValid(sfx_food)) {
+    TraceLog(LOG_WARNING, "sfx_food failed to load!");
+    }
+    if (!IsSoundValid(sfx_collision)) {
+    TraceLog(LOG_WARNING, "sfx_collision failed to load!");
+        }
 }
 SnakeGame::~SnakeGame() {
     UnloadSound(sfx_food);
     UnloadSound(sfx_collision);
-    UnloadSound(sfx_move);
 }
 bool SnakeGame::checkSelfCollision() const {
     std::deque<Vector2> body = snake.getBody();
@@ -164,7 +168,6 @@ int SnakeGame::Default_mode() {
                     if (IsKeyPressed(KEY_RIGHT)) { snake.setDirection({1,  0}); moved = true; }
                     if (moved) allowMove = false;
                 }
-                if (moved && !muted_sfx) PlaySound(sfx_move);
 
                 moveTimer += GetFrameTime();
                 if (moveTimer >= moveInterval) {
@@ -279,7 +282,8 @@ int SnakeGame::play_gui(int level) {
     snake.reset();
     snake.setScore(0);
     spawnFood();
-// movement
+
+    // movement
     double moveTimer      = 0;
     double obstacleTimer  = 0;
     bool gameOver         = false;
@@ -300,6 +304,7 @@ int SnakeGame::play_gui(int level) {
             if (CheckCollisionPointRec(m, sfx_btn))  muted_sfx = !muted_sfx;
             if (CheckCollisionPointRec(m, mute_btn)) mutedBGm  = !mutedBGm;
         }
+
         if (!paused) {
             if (!collisionFreeze) {
                 bool moved = false;
@@ -329,8 +334,6 @@ int SnakeGame::play_gui(int level) {
                         allowMove = false;
                 }
 
-                if (moved && !muted_sfx)
-                    PlaySound(sfx_move);
                 moveTimer += GetFrameTime();
 
                 if (moveTimer >= moveInterval) {
@@ -380,10 +383,11 @@ int SnakeGame::play_gui(int level) {
         ClearBackground(bgColor);
 
         int titleW = MeasureText("Snake", 40);
-         DrawText("Snake", WINDOW_WIDTH/2 - titleW/2, 20, 40, WHITE);
-         DrawText(TextFormat("Score: %d", snake.getScore()), 20, 20, 20, WHITE);
-         DrawText(TextFormat("Level: %d  |  Next: %d", level, scoreToNext), 20, 45, 18, GRAY);
-         DrawText("P = pause", WINDOW_WIDTH - 120, 20, 18, GRAY);
+        DrawText("Snake", WINDOW_WIDTH/2 - titleW/2, 20, 40, WHITE);
+        DrawText(TextFormat("Score: %d", snake.getScore()), 20, 20, 20, WHITE);
+        DrawText(TextFormat("Level: %d  |  Next: %d", level, scoreToNext), 20, 45, 18, GRAY);
+        DrawText("P = pause", WINDOW_WIDTH - 120, 20, 18, GRAY);
+
         DrawRectangleRec(mute_btn, DARKBLUE);
         int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
         DrawText(mutedBGm ? "SOUND" : "MUTE",

@@ -10,7 +10,6 @@ static std::map<std::string, int> leaderboard_default;
     bool muted_sfx = false;
     Sound sfx_food;
     Sound sfx_collision;
-    Sound sfx_move;
     static std::map<std::string, int> leaderboard_levels;
     Snake &snake;
     Vector2 food;
