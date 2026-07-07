@@ -53,7 +53,9 @@ int showmenu_snake() {
 }
 bool getPlayerName_snake(Snake &snake, const std::string& prompt) {
     std::string name="";
-    Rectangle back_btn={490,450,300,60};
+    Rectangle back_btn={490,510,300,60};
+    Rectangle cont_btn={490,400,300,60};
+
     BeginDrawing();
     EndDrawing();
     while (!WindowShouldClose()) {
@@ -87,6 +89,12 @@ bool getPlayerName_snake(Snake &snake, const std::string& prompt) {
         if(IsKeyPressed(KEY_BACKSPACE) and !name.empty()){
             name.pop_back();
         }
+        auto m=GetMousePosition();
+        if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON) and CheckCollisionPointRec(m, cont_btn) and !name.empty()){
+            snake.setName(name);
+            // signal success to caller
+            return true;
+        }
         if(key >= 32 && key <= 125) name += (char)key;
          BeginDrawing();
          ClearBackground({20,20,40,225});
@@ -98,9 +106,9 @@ bool getPlayerName_snake(Snake &snake, const std::string& prompt) {
         DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
         DrawText((prompt+" Enter Your Name:").c_str(), 400, 280, 25, WHITE);
          DrawText(name.c_str(), 400, 320, 25, WHITE);
-         DrawText("Press Enter to Continue", 400, 380, 20, WHITE);
          // draw the Back button
          menu_ui::DrawMenuButton(back_btn, "Back", 25);
+        menu_ui::DrawMenuButton(cont_btn, "Continue", 25);
          menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
 
         EndDrawing();
@@ -116,6 +124,7 @@ bool getPlayerColor_snake(Snake &snake, std::string prompt) {
     Rectangle blue_btn  = {620, 300, 150, 60};
     Rectangle dark_btn  = {800, 300, 150, 60};
     Rectangle back_btn  = {490, 450, 300, 60};
+
 
     int selected = -1; // no color initially selected
 

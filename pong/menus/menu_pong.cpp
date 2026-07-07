@@ -55,7 +55,8 @@ int showmenu_pong() {
 }
 bool getPlayerName_pong(Player &p, const std::string prompt) {
     std::string name = "";
-    Rectangle back_btn = {490, 450, 300, 60};
+    Rectangle back_btn={490,510,300,60};
+    Rectangle cont_btn={490,400,300,60};
     BeginDrawing(); EndDrawing();
 
     while (!WindowShouldClose()) {
@@ -72,8 +73,10 @@ bool getPlayerName_pong(Player &p, const std::string prompt) {
             if (rocketX > 1400) {
                 rocketX = -60; rocketY = 600;
             }
-        if (IsKeyPressed(KEY_ENTER) && !name.empty()) {
+        auto m=GetMousePosition();
+        if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON) and CheckCollisionPointRec(m, cont_btn) and !name.empty()){
             p.setName(name);
+            // signal success to caller
             return true;
         }
         if (IsKeyPressed(KEY_ESCAPE)) return false;
@@ -101,7 +104,7 @@ bool getPlayerName_pong(Player &p, const std::string prompt) {
         DrawText(prompt.c_str(), 400, 220, 25, SKYBLUE);
         DrawText("Enter Your Name:", 400, 280, 25, WHITE);
         DrawText(name.c_str(), 400, 320, 25, YELLOW);
-        DrawText("Press Enter to Continue", 400, 370, 20, GRAY);
+        menu_ui::DrawMenuButton(cont_btn, "Continue", 25);
         menu_ui::DrawMenuButton(back_btn, "Back", 25);
         menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
         EndDrawing();
@@ -270,7 +273,8 @@ bool getPlayerColor_pong(Player &p) {
 int setThreshold_pong() {
     std::string input = "";
     std::string error = "";
-    Rectangle back_btn = {490, 450, 300, 60};
+    Rectangle back_btn={490,510,300,60};
+    Rectangle cont_btn={490,400,300,60};
     BeginDrawing(); EndDrawing();
 
     while (!WindowShouldClose()) {
@@ -287,7 +291,7 @@ int setThreshold_pong() {
 
         int key = GetCharPressed();
 
-        if (IsKeyPressed(KEY_ENTER)) {
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON) and CheckCollisionPointRec(GetMousePosition(), cont_btn)) {
             if (input.empty()) {
                 error = "Please enter a number!";
             } else {
@@ -330,6 +334,7 @@ int setThreshold_pong() {
         DrawText(input.c_str(), 490, 270, 40, YELLOW);
         if (!error.empty())
             DrawText(error.c_str(), 490, 330, 20, RED);
+        menu_ui::DrawMenuButton(cont_btn, "Continue", 25);
         menu_ui::DrawMenuButton(back_btn, "Back", 25);
         menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
         EndDrawing();

@@ -175,7 +175,8 @@ int showPostGameMenu_c4(Player &p1, Player &p2) {
 }
 bool getPlayerName_c4(Player &p , const std::string& prompt) {
     string name="";
-    Rectangle back_btn={490,450,300,60};
+    Rectangle back_btn={490,510,300,60};
+    Rectangle cont_btn={490,400,300,60};
     for (int i = 0; i < STAR_COUNT; i++) {
         starX[i] = rand() % 1280; starY[i] = rand() % 720;
         starSpeed[i] = 0.5f + (rand() % 20) / 10.0f;
@@ -200,12 +201,13 @@ bool getPlayerName_c4(Player &p , const std::string& prompt) {
             if (CheckCollisionPointRec(mouse_pos, mute_btn)) mutedBGm = !mutedBGm;
         }
         int key=GetCharPressed();
-        if(IsKeyPressed(KEY_ENTER) and !name.empty()){
+        auto m=GetMousePosition();
+        if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON) and CheckCollisionPointRec(m, cont_btn) and !name.empty()){
             p.setName(name);
             // signal success to caller
             return true;
         }
-    // ESC key also cancels back to main menu
+        // ESC key also cancels back to main menu
     if(IsKeyPressed(KEY_ESCAPE)) return false;
     // mouse click on Back cancels too
     if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
@@ -228,10 +230,9 @@ bool getPlayerName_c4(Player &p , const std::string& prompt) {
         DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
     DrawText((prompt+" Enter Your Name:").c_str(), 400, 280, 25, WHITE);
     DrawText(name.c_str(), 400, 320, 25, WHITE);
-    DrawText("Press Enter to Continue", 400, 380, 20, WHITE);
-    // draw the Back button
-    menu_ui::DrawMenuButton(back_btn, "Back", 25);
-    menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
+        menu_ui::DrawMenuButton(back_btn, "Back", 25);
+        menu_ui::DrawMenuButton(cont_btn, "Continue", 25);
+        menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
     EndDrawing();
 }
 // window closed without confirming -> treat as cancel
