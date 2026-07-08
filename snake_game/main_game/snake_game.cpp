@@ -235,10 +235,21 @@ int SnakeGame::Default_mode() {
             sfx_btn.y + (sfx_btn.height - 20)/2, 20,
             muted_sfx ? GREEN : RED);
 
-        DrawRectangleLines(OFFSET_X, OFFSET_Y, GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE, SKYBLUE);
+        Color cellA = {26, 26, 52, 255};
+Color cellB = {18, 18, 38, 255};
+        for (int gy = 0; gy < GRID_HEIGHT; gy++) {
+            for (int gx = 0; gx < GRID_WIDTH; gx++) {
+                Color c = ((gx + gy) % 2 == 0) ? cellA : cellB;
+                DrawRectangle(gx * CELL_SIZE + OFFSET_X, gy * CELL_SIZE + OFFSET_Y, CELL_SIZE, CELL_SIZE, c);
+            }
+        }
         snake.draw(collisionFreeze, snake.getHead());
-        DrawRectangle(food.x * CELL_SIZE + OFFSET_X, food.y * CELL_SIZE + OFFSET_Y, CELL_SIZE, CELL_SIZE, YELLOW);
-        for (auto &obs : obstacles) {
+        float fcx = food.x * CELL_SIZE + OFFSET_X + CELL_SIZE / 2.0f;
+        float fcy = food.y * CELL_SIZE + OFFSET_Y + CELL_SIZE / 2.0f;
+        float armLen = CELL_SIZE * 0.35f;
+        float thick  = CELL_SIZE * 0.15f;
+        DrawRectangle(fcx - armLen, fcy - thick/2, armLen*2, thick,  YELLOW);
+        DrawRectangle(fcx - thick/2, fcy - armLen, thick, armLen*2,  YELLOW);        for (auto &obs : obstacles) {
             DrawRectangle(obs.x * CELL_SIZE + OFFSET_X, obs.y * CELL_SIZE + OFFSET_Y, CELL_SIZE, CELL_SIZE, WHITE);
         }
 
@@ -403,14 +414,22 @@ int SnakeGame::play_gui(int level) {
             sfx_btn.y + (sfx_btn.height - 20)/2, 20,
             muted_sfx ? GREEN : RED);
 
-        DrawRectangleLines(OFFSET_X, OFFSET_Y,
-            GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE, SKYBLUE);
+        Color cellA = {26, 26, 52, 255};
+        Color cellB = {18, 18, 38, 255};
 
+        for (int gy = 0; gy < GRID_HEIGHT; gy++) {
+            for (int gx = 0; gx < GRID_WIDTH; gx++) {
+                Color c = ((gx + gy) % 2 == 0) ? cellA : cellB;
+                DrawRectangle(gx * CELL_SIZE + OFFSET_X, gy * CELL_SIZE + OFFSET_Y, CELL_SIZE, CELL_SIZE, c);
+            }
+        }
         snake.draw(collisionFreeze, snake.getHead());
-        DrawRectangle(
-            food.x * CELL_SIZE + OFFSET_X,
-            food.y * CELL_SIZE + OFFSET_Y,
-            CELL_SIZE, CELL_SIZE, YELLOW);
+        float fcx = food.x * CELL_SIZE + OFFSET_X + CELL_SIZE / 2.0f;
+        float fcy = food.y * CELL_SIZE + OFFSET_Y + CELL_SIZE / 2.0f;
+        float armLen = CELL_SIZE * 0.35f;
+        float thick  = CELL_SIZE * 0.15f;
+        DrawRectangle(fcx - armLen, fcy - thick/2, armLen*2, thick, DARKGREEN);
+        DrawRectangle(fcx - thick/2, fcy - armLen, thick, armLen*2, DARKGREEN);
 
         for (auto &obs : obstacles) {
             DrawRectangle(obs.x * CELL_SIZE + OFFSET_X,

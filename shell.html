@@ -19,6 +19,8 @@
             width: 100vw;
             height: 100vh;
             outline: none;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
         }
     </style>
 </head>
@@ -33,6 +35,17 @@
         canvas: canvas
     };
 
+    // --- Coordinate scaling fix ---
+    // Keeps canvas internal resolution in sync with its CSS display size
+    // so GetMousePosition()/touch coords line up with what's on screen.
+    function resizeCanvas() {
+        var dpr = window.devicePixelRatio || 1;
+        canvas.width = canvas.clientWidth * dpr;
+        canvas.height = canvas.clientHeight * dpr;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
     function clickCanvas() {
         canvas.dispatchEvent(new MouseEvent('click', {
             bubbles: true,
@@ -41,19 +54,32 @@
         }));
     }
 
+    // --- Focus handling ---
     canvas.addEventListener('click', function () {
         canvas.focus();
     });
+    canvas.addEventListener('mousedown', function () {
+        canvas.focus();
+    });
+    canvas.addEventListener('touchstart', function () {
+        canvas.focus();
+    });
+    window.addEventListener('load', function () {
+        canvas.focus();
+    });
 
+    // --- Key handling ---
     window.addEventListener('keydown', function (event) {
         if (event.key === 'Enter' && !event.repeat) {
             clickCanvas();
             event.preventDefault();
+            return;
         }
-    });
-
-    window.addEventListener('load', function () {
-        canvas.focus();
+        // Stop the browser from scrolling/consuming these while canvas is focused
+        var blocked = ['Space', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+        if (blocked.indexOf(event.code) !== -1) {
+            event.preventDefault();
+        }
     });
 </script>
 
