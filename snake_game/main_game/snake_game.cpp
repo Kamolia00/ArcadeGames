@@ -236,12 +236,20 @@ int SnakeGame::Default_mode() {
             muted_sfx ? GREEN : RED);
 
         Color cellA = {26, 26, 52, 255};
-Color cellB = {18, 18, 38, 255};
+        Color cellB = {18, 18, 38, 255};
         for (int gy = 0; gy < GRID_HEIGHT; gy++) {
             for (int gx = 0; gx < GRID_WIDTH; gx++) {
                 Color c = ((gx + gy) % 2 == 0) ? cellA : cellB;
                 DrawRectangle(gx * CELL_SIZE + OFFSET_X, gy * CELL_SIZE + OFFSET_Y, CELL_SIZE, CELL_SIZE, c);
             }
+        }
+        for (int gx = 0; gx <= GRID_WIDTH; gx++) {
+            DrawLine(OFFSET_X + gx * CELL_SIZE, OFFSET_Y,
+                     OFFSET_X + gx * CELL_SIZE, OFFSET_Y + GRID_HEIGHT * CELL_SIZE, {60, 60, 90, 255});
+        }
+        for (int gy = 0; gy <= GRID_HEIGHT; gy++) {
+            DrawLine(OFFSET_X, OFFSET_Y + gy * CELL_SIZE,
+                     OFFSET_X + GRID_WIDTH * CELL_SIZE, OFFSET_Y + gy * CELL_SIZE, {60, 60, 90, 255});
         }
         snake.draw(collisionFreeze, snake.getHead());
         float fcx = food.x * CELL_SIZE + OFFSET_X + CELL_SIZE / 2.0f;
@@ -422,6 +430,14 @@ int SnakeGame::play_gui(int level) {
                 Color c = ((gx + gy) % 2 == 0) ? cellA : cellB;
                 DrawRectangle(gx * CELL_SIZE + OFFSET_X, gy * CELL_SIZE + OFFSET_Y, CELL_SIZE, CELL_SIZE, c);
             }
+        }
+        for (int gx = 0; gx <= GRID_WIDTH; gx++) {
+            DrawLine(OFFSET_X + gx * CELL_SIZE, OFFSET_Y,
+                     OFFSET_X + gx * CELL_SIZE, OFFSET_Y + GRID_HEIGHT * CELL_SIZE, {60, 60, 90, 255});
+        }
+        for (int gy = 0; gy <= GRID_HEIGHT; gy++) {
+            DrawLine(OFFSET_X, OFFSET_Y + gy * CELL_SIZE,
+                     OFFSET_X + GRID_WIDTH * CELL_SIZE, OFFSET_Y + gy * CELL_SIZE, {60, 60, 90, 255});
         }
         snake.draw(collisionFreeze, snake.getHead());
         float fcx = food.x * CELL_SIZE + OFFSET_X + CELL_SIZE / 2.0f;
