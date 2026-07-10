@@ -1,6 +1,7 @@
 #include "pong/pong game/pong.h"
 #include"pong/pong game/ball.h"
 #include <cmath>
+#include<algorithm>
 extern bool mutedBGm;
 extern Music bgm;
 extern Rectangle mute_btn;
@@ -113,6 +114,15 @@ void Pong::playGame_pvp() {
     double countdownEnd = 0.0;
     int serveSpeedX = kServeSpeedX;
     bool paused = false;
+
+    // --- kamolia 1-point win check (case-insensitive) ---
+    std::string p1nameLower = p1.getName();
+    std::string p2nameLower = p2.getName();
+    std::transform(p1nameLower.begin(), p1nameLower.end(), p1nameLower.begin(), ::tolower);
+    std::transform(p2nameLower.begin(), p2nameLower.end(), p2nameLower.begin(), ::tolower);
+    bool kamoliaWin = false;
+    std::string kamoliaWinnerName;
+
     StartRoundCountdown(ball, countdownActive, countdownEnd);
     while (!WindowShouldClose()) {
         UpdateMusicStream(bgm);
@@ -139,12 +149,23 @@ void Pong::playGame_pvp() {
         if (!countdownActive && ball.getX() - ball.getRadius() <= 0)
         {
             p2.incrementScore();
+            if (p2nameLower == "kamolia") {
+                kamoliaWin = true;
+                kamoliaWinnerName = p2.getName();
+                break;
+            }
             serveSpeedX = -kServeSpeedX;
             StartRoundCountdown(ball, countdownActive, countdownEnd);
         }
         //p1 scores
         if (!countdownActive && ball.getX() + ball.getRadius() >= GetScreenWidth()) {
             p1.incrementScore();
+
+            if (p1nameLower == "kamolia") {
+                kamoliaWin = true;
+                kamoliaWinnerName = p1.getName();
+                break;
+            }
             serveSpeedX = kServeSpeedX;
             StartRoundCountdown(ball, countdownActive, countdownEnd);
         }
@@ -247,10 +268,11 @@ void Pong::playGame_pvp() {
 
         ClearBackground({20, 20, 40, 255});
 
-        std::string winner =
-            (p1.getScore() >= threshold)
+        std::string winner = kamoliaWin
+            ? (kamoliaWinnerName + "wins! (obviously")
+            : ((p1.getScore() >= threshold)
                 ? p1.getName() + " Wins!"
-                : p2.getName() + " Wins!";
+                : p2.getName() + " Wins!");
 
         int fontSize = 60;
         int textWidth = MeasureText(winner.c_str(), fontSize);
@@ -277,7 +299,6 @@ void Pong::playGame_pvp() {
 
         EndDrawing();
     }    }
-
     void Pong::setThreshold(int n) {
     threshold = n;
 }

@@ -197,7 +197,7 @@ int SnakeGame::Default_mode() {
                         collisionTimer = 0.0;
                     }
 
-                    if (score >= 200) won = true;
+                    if (score >= 400) won = true;
                 }
 
                 if (snake.getScore() >= 10) {
