@@ -58,7 +58,7 @@ int Pong::getGamesP2() const {
     return gamesP2;
 }
 void Pong::moveAi() {
-    float paddleSpeed=8.0f;
+    float paddleSpeed=12.0f;
    if (ball.getY() < aiRect.y+aiRect.height/2) {
        aiRect.y-=paddleSpeed;
    }  if (ball.getY() >= aiRect.y+aiRect.height/2) {
@@ -152,6 +152,7 @@ void Pong::playGame_pvp() {
             if (p2nameLower == "kamolia") {
                 kamoliaWin = true;
                 kamoliaWinnerName = p2.getName();
+                gamesP2++;
                 break;
             }
             serveSpeedX = -kServeSpeedX;
@@ -164,6 +165,7 @@ void Pong::playGame_pvp() {
             if (p1nameLower == "kamolia") {
                 kamoliaWin = true;
                 kamoliaWinnerName = p1.getName();
+                gamesP1++;
                 break;
             }
             serveSpeedX = kServeSpeedX;
@@ -177,12 +179,18 @@ void Pong::playGame_pvp() {
             gamesP2++;
             break;
         }
-        // check for collisions
-        if (CheckCollisionCircleRec(Vector2{ball.getX(), ball.getY()},ball.getRadius(),Rectangle{paddle1Rect.x,paddle1Rect.y,paddle1Rect.width,paddle1Rect.height})){
-            ball.setSpeed(-ball.getSpeedX(),ball.getSpeedY());
+        // check for collisions (direction-guarded + push-out to prevent multi-bounce)
+        if (ball.getSpeedX() < 0 &&
+            CheckCollisionCircleRec(Vector2{ball.getX(), ball.getY()}, ball.getRadius(),
+                Rectangle{paddle1Rect.x, paddle1Rect.y, paddle1Rect.width, paddle1Rect.height})) {
+            ball.setSpeed(-ball.getSpeedX(), ball.getSpeedY());
+            ball.setPosition(paddle1Rect.x + paddle1Rect.width + ball.getRadius(), ball.getY());
         }
-        if (CheckCollisionCircleRec(Vector2{ball.getX(), ball.getY()},ball.getRadius(),Rectangle{paddle2Rect.x,paddle2Rect.y,paddle2Rect.width,paddle2Rect.height})) {
-            ball.setSpeed(-ball.getSpeedX(),ball.getSpeedY());
+        if (ball.getSpeedX() > 0 &&
+            CheckCollisionCircleRec(Vector2{ball.getX(), ball.getY()}, ball.getRadius(),
+                Rectangle{paddle2Rect.x, paddle2Rect.y, paddle2Rect.width, paddle2Rect.height})) {
+            ball.setSpeed(-ball.getSpeedX(), ball.getSpeedY());
+            ball.setPosition(paddle2Rect.x - ball.getRadius(), ball.getY());
         }
         ClearBackground({20, 20, 40, 255});
         DrawRectangleRec(mute_btn, DARKBLUE);
@@ -269,7 +277,7 @@ void Pong::playGame_pvp() {
         ClearBackground({20, 20, 40, 255});
 
         std::string winner = kamoliaWin
-            ? (kamoliaWinnerName + "wins! (obviously")
+            ? (kamoliaWinnerName + " wins! (obviously)")
             : ((p1.getScore() >= threshold)
                 ? p1.getName() + " Wins!"
                 : p2.getName() + " Wins!");
@@ -298,8 +306,9 @@ void Pong::playGame_pvp() {
         );
 
         EndDrawing();
-    }    }
-    void Pong::setThreshold(int n) {
+    }
+}
+void Pong::setThreshold(int n) {
     threshold = n;
 }
 void Pong::playGame_ai() {
@@ -371,12 +380,18 @@ void Pong::playGame_ai() {
             gamesP2++;
             break;
         }
-        // check for collisions
-        if (CheckCollisionCircleRec(Vector2{ball.getX(), ball.getY()},ball.getRadius(),Rectangle{paddle1Rect.x,paddle1Rect.y,paddle1Rect.width,paddle1Rect.height})){
-            ball.setSpeed(-ball.getSpeedX(),ball.getSpeedY());
+        // check for collisions (direction-guarded + push-out to prevent multi-bounce)
+        if (ball.getSpeedX() < 0 &&
+            CheckCollisionCircleRec(Vector2{ball.getX(), ball.getY()}, ball.getRadius(),
+                Rectangle{paddle1Rect.x, paddle1Rect.y, paddle1Rect.width, paddle1Rect.height})) {
+            ball.setSpeed(-ball.getSpeedX(), ball.getSpeedY());
+            ball.setPosition(paddle1Rect.x + paddle1Rect.width + ball.getRadius(), ball.getY());
         }
-        if (CheckCollisionCircleRec(Vector2{ball.getX(), ball.getY()},ball.getRadius(),Rectangle{aiRect.x,aiRect.y,aiRect.width,aiRect.height})) {
-            ball.setSpeed(-ball.getSpeedX(),ball.getSpeedY());
+        if (ball.getSpeedX() > 0 &&
+            CheckCollisionCircleRec(Vector2{ball.getX(), ball.getY()}, ball.getRadius(),
+                Rectangle{aiRect.x, aiRect.y, aiRect.width, aiRect.height})) {
+            ball.setSpeed(-ball.getSpeedX(), ball.getSpeedY());
+            ball.setPosition(aiRect.x - ball.getRadius(), ball.getY());
         }
         ClearBackground({20, 20, 40, 255});
         //drawing
