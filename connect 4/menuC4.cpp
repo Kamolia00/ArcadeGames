@@ -167,7 +167,7 @@ int showPostGameMenu_c4(Player &p1, Player &p2) {
         DrawText((p2.getName() + ": " + std::to_string(p2.getScore())).c_str(), 490, 220, 25, YELLOW);
 
         menu_ui::DrawMenuButton(same_btn, "Play Again", 25);
-        menu_ui::DrawMenuButton(main_btn, "Main Menu (Enter)", 25);
+        menu_ui::DrawMenuButton(main_btn, "Main Menu ", 25);
         menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
         EndDrawing();
     }

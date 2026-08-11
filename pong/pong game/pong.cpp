@@ -2,6 +2,8 @@
 #include"pong/pong game/ball.h"
 #include <cmath>
 #include<algorithm>
+#include "ui/button_helpers.h"
+
 extern bool mutedBGm;
 extern Music bgm;
 extern Rectangle mute_btn;
@@ -47,10 +49,7 @@ Pong::Pong( Player &p1, Player &p2, const Ball &ball, int threshold) : p1(p1), p
     // resetRound();
 }
 
-int Pong::getAiWins() const {
 
-    return aiWins;
-}
 int Pong::getGamesP1() const {
     return gamesP1;
 }
@@ -58,7 +57,7 @@ int Pong::getGamesP2() const {
     return gamesP2;
 }
 void Pong::moveAi() {
-    float paddleSpeed=12.0f;
+    float paddleSpeed=10.0f;
    if (ball.getY() < aiRect.y+aiRect.height/2) {
        aiRect.y-=paddleSpeed;
    }  if (ball.getY() >= aiRect.y+aiRect.height/2) {
@@ -193,12 +192,7 @@ void Pong::playGame_pvp() {
             ball.setPosition(paddle2Rect.x - ball.getRadius(), ball.getY());
         }
         ClearBackground({20, 20, 40, 255});
-        DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-        DrawText(mutedBGm ? "SOUND" : "MUTE",
-            mute_btn.x + (mute_btn.width - muteW)/2,
-            mute_btn.y + (mute_btn.height - 20)/2, 20,
-            mutedBGm ? GREEN : RED);
+        menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
 
         //drawing
         DrawLine(640,0,640,720,WHITE);
@@ -293,23 +287,9 @@ void Pong::playGame_pvp() {
             GREEN
         );
 
-        DrawRectangleRec(continue_btn, DARKBLUE);
-
-        int cW = MeasureText("Continue", 25);
-
-        DrawText(
-            "Continue",
-            continue_btn.x + (continue_btn.width - cW) / 2,
-            continue_btn.y + (continue_btn.height - 25) / 2,
-            25,
-            WHITE
-        );
-
+        menu_ui::DrawMenuButton(continue_btn, "Continue", 25);
         EndDrawing();
     }
-}
-void Pong::setThreshold(int n) {
-    threshold = n;
 }
 void Pong::playGame_ai() {
     Color c;
@@ -378,6 +358,7 @@ void Pong::playGame_ai() {
         }
         if (ai.getScore() >= threshold) {
             gamesP2++;
+
             break;
         }
         // check for collisions (direction-guarded + push-out to prevent multi-bounce)
@@ -395,12 +376,7 @@ void Pong::playGame_ai() {
         }
         ClearBackground({20, 20, 40, 255});
         //drawing
-        DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-        DrawText(mutedBGm ? "SOUND" : "MUTE",
-            mute_btn.x + (mute_btn.width - muteW)/2,
-            mute_btn.y + (mute_btn.height - 20)/2, 20,
-            mutedBGm ? GREEN : RED);
+        menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
 
         DrawLine(640,0,640,720,WHITE);
         ball.draw();
@@ -505,18 +481,10 @@ void Pong::playGame_ai() {
             GREEN
         );
 
-        DrawRectangleRec(continue_btn, DARKBLUE);
-
-        int cW = MeasureText("Continue", 25);
-
-        DrawText(
-            "Continue",
-            continue_btn.x + (continue_btn.width - cW) / 2,
-            continue_btn.y + (continue_btn.height - 25) / 2,
-            25,
-            WHITE
-        );
-
+        menu_ui::DrawMenuButton(continue_btn, "Continue", 25);
         EndDrawing();
     }
+}
+void Pong::setThreshold(int n) {
+    threshold = n;
 }

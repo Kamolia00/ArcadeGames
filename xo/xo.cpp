@@ -4,6 +4,7 @@
 #include "connect 4/menuC4.h"
 #include "player stuff/player.h"
 #include "player stuff/valid_input.h"
+#include "ui/button_helpers.h"
 extern bool mutedBGm;
 extern Music bgm;
 
@@ -408,11 +409,8 @@ while (!WindowShouldClose()) {
 
     if (game_over) {
         DrawText(msg.c_str(), 500, 150, 30, YELLOW);
-        DrawRectangleRec(continue_btn, DARKBLUE);
-        int cW = MeasureText("Continue", 25);
-        DrawText("Continue",
-            continue_btn.x + (continue_btn.width - cW)/2,
-            continue_btn.y + (continue_btn.height - 25)/2, 25, WHITE);
+
+        menu_ui::DrawMenuButton(continue_btn,"Continue",25);
 
         // win cells highlight
         int cells[3][2];
@@ -429,21 +427,8 @@ while (!WindowShouldClose()) {
         DrawText(turn.c_str(), 490, 150, 25, WHITE);
     }
 
-    DrawRectangleRec(mute_btn, DARKBLUE);
-    int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-    DrawText(mutedBGm ? "SOUND" : "MUTE",
-        mute_btn.x + (mute_btn.width - muteW)/2,
-        mute_btn.y + (mute_btn.height - 20)/2, 20,
-        mutedBGm ? GREEN : RED);
-
-    DrawRectangleRec(sfx_btn, DARKBLUE);
-    const char* sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
-    int sfxW = MeasureText(sfxLabel, 20);
-    DrawText(sfxLabel,
-        sfx_btn.x + (sfx_btn.width - sfxW)/2,
-        sfx_btn.y + (sfx_btn.height - 20)/2, 20,
-        mutedSFX ? GREEN : RED);
-
+    menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
+    menu_ui::DrawMenuButton(sfx_btn,mutedSFX?"SFX ON": "SFX OFF",20, mutedBGm ? GREEN : RED);
     EndDrawing();
 }
 }
@@ -557,11 +542,8 @@ while (!WindowShouldClose()) {
 
     if (game_over) {
         DrawText(msg.c_str(), 500, 150, 30, YELLOW);
-        DrawRectangleRec(continue_btn, DARKBLUE);
-        int cW = MeasureText("Continue", 25);
-        DrawText("Continue",
-            continue_btn.x + (continue_btn.width - cW)/2,
-            continue_btn.y + (continue_btn.height - 25)/2, 25, WHITE);
+
+        menu_ui::DrawMenuButton(continue_btn,"Continue",25);
 
         // win highlight
         int cells[3][2];
@@ -577,21 +559,8 @@ while (!WindowShouldClose()) {
         DrawText(p1_turn ? "Your turn" : "AI thinking...", 500, 150, 25, WHITE);
     }
 
-    DrawRectangleRec(mute_btn, DARKBLUE);
-    int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-    DrawText(mutedBGm ? "SOUND" : "MUTE",
-        mute_btn.x + (mute_btn.width - muteW)/2,
-        mute_btn.y + (mute_btn.height - 20)/2, 20,
-        mutedBGm ? GREEN : RED);
-
-    DrawRectangleRec(sfx_btn, DARKBLUE);
-    const char* sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
-    int sfxW = MeasureText(sfxLabel, 20);
-    DrawText(sfxLabel,
-        sfx_btn.x + (sfx_btn.width - sfxW)/2,
-        sfx_btn.y + (sfx_btn.height - 20)/2, 20,
-        mutedSFX ? GREEN : RED);
-
+    menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
+    menu_ui::DrawMenuButton(sfx_btn,mutedSFX?"SFX ON": "SFX OFF",20, mutedBGm ? GREEN : RED);
     EndDrawing();
 }
 }
@@ -700,11 +669,8 @@ void XO::playGameGUI_ai_hard() {
 
         if (game_over) {
             DrawText(msg.c_str(), 500, 150, 30, YELLOW);
-            DrawRectangleRec(continue_btn, DARKBLUE);
-            int cW = MeasureText("Continue", 25);
-            DrawText("Continue",
-                continue_btn.x + (continue_btn.width - cW)/2,
-                continue_btn.y + (continue_btn.height - 25)/2, 25, WHITE);
+
+            menu_ui::DrawMenuButton(continue_btn,"Continue",25);
 
             int cells[3][2];
             char winSym = checkWin(player1.getSymbol()) ? player1.getSymbol() : player2.getSymbol();
@@ -719,21 +685,8 @@ void XO::playGameGUI_ai_hard() {
             DrawText(p1_turn ? "Your turn" : "AI thinking...", 500, 150, 25, WHITE);
         }
 
-        DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-        DrawText(mutedBGm ? "SOUND" : "MUTE",
-            mute_btn.x + (mute_btn.width - muteW)/2,
-            mute_btn.y + (mute_btn.height - 20)/2, 20,
-            mutedBGm ? GREEN : RED);
-
-        DrawRectangleRec(sfx_btn, DARKBLUE);
-        const char* sfxLabel = mutedSFX ? "SFX ON" : "SFX OFF";
-        int sfxW = MeasureText(sfxLabel, 20);
-        DrawText(sfxLabel,
-            sfx_btn.x + (sfx_btn.width - sfxW)/2,
-            sfx_btn.y + (sfx_btn.height - 20)/2, 20,
-            mutedSFX ? GREEN : RED);
-
+        menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
+        menu_ui::DrawMenuButton(sfx_btn,mutedSFX?"SFX ON": "SFX OFF",20, mutedBGm ? GREEN : RED);
         EndDrawing();
     }
 }

@@ -3,6 +3,8 @@
 #include <algorithm>
 #include "raylib.h"
 #include "snake_game/main_game/menu_snake.h"
+#include "ui/button_helpers.h"
+
 using namespace std;
 extern bool mutedBGm;
 extern Music bgm;
@@ -220,20 +222,8 @@ int SnakeGame::Default_mode() {
         DrawText(TextFormat("Score: %d", snake.getScore()), 20, 20, 20, WHITE);
         DrawText("P = pause", WINDOW_WIDTH - 120, 20, 18, GRAY);
 
-        DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-        DrawText(mutedBGm ? "SOUND" : "MUTE",
-            mute_btn.x + (mute_btn.width - muteW)/2,
-            mute_btn.y + (mute_btn.height - 20)/2, 20,
-            mutedBGm ? GREEN : RED);
-
-        DrawRectangleRec(sfx_btn, DARKBLUE);
-        const char* sfxLabel = muted_sfx ? "SFX ON" : "SFX OFF";
-        int sfxW = MeasureText(sfxLabel, 20);
-        DrawText(sfxLabel,
-            sfx_btn.x + (sfx_btn.width - sfxW)/2,
-            sfx_btn.y + (sfx_btn.height - 20)/2, 20,
-            muted_sfx ? GREEN : RED);
+        menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
+        menu_ui::DrawMenuButton(sfx_btn,muted_sfx?"SFX ON": "SFX OFF",20, mutedBGm ? GREEN : RED);
 
         Color cellA = {26, 26, 52, 255};
         Color cellB = {18, 18, 38, 255};
@@ -407,21 +397,8 @@ int SnakeGame::play_gui(int level) {
         DrawText(TextFormat("Level: %d  |  Next: %d", level, scoreToNext), 20, 45, 18, GRAY);
         DrawText("P = pause", WINDOW_WIDTH - 120, 20, 18, GRAY);
 
-        DrawRectangleRec(mute_btn, DARKBLUE);
-        int muteW = MeasureText(mutedBGm ? "SOUND" : "MUTE", 20);
-        DrawText(mutedBGm ? "SOUND" : "MUTE",
-            mute_btn.x + (mute_btn.width - muteW)/2,
-            mute_btn.y + (mute_btn.height - 20)/2, 20,
-            mutedBGm ? GREEN : RED);
-
-        DrawRectangleRec(sfx_btn, DARKBLUE);
-        const char* sfxLabel = muted_sfx ? "SFX ON" : "SFX OFF";
-        int sfxW = MeasureText(sfxLabel, 20);
-        DrawText(sfxLabel,
-            sfx_btn.x + (sfx_btn.width - sfxW)/2,
-            sfx_btn.y + (sfx_btn.height - 20)/2, 20,
-            muted_sfx ? GREEN : RED);
-
+        menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
+        menu_ui::DrawMenuButton(sfx_btn,muted_sfx?"SFX ON": "SFX OFF",20, mutedBGm ? GREEN : RED);
         Color cellA = {26, 26, 52, 255};
         Color cellB = {18, 18, 38, 255};
 
@@ -455,7 +432,6 @@ int SnakeGame::play_gui(int level) {
                 obs.y * CELL_SIZE + OFFSET_Y,
                 CELL_SIZE, CELL_SIZE, WHITE);
         }
-
         if (collisionFreeze) {
             Vector2 head = snake.getHead();
 

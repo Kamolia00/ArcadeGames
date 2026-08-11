@@ -241,10 +241,11 @@ int main() {
                         if (!getPlayerColor_pong(p1)) break;
                         int t = setThreshold_pong();
                         if (t == -1) break;
+                        p2.setName("AI");
                         Pong pgame(p1, p2, b, t);
                         while (!WindowShouldClose()) {
                             pgame.playGame_ai();
-                            int r = showPostGame_menu_pong(p1, p2, pgame.getGamesP1(), pgame.getAiWins());
+                            int r = showPostGame_menu_pong(p1,p2,pgame.getGamesP1(),pgame.getGamesP2());
                             if (r == 1) break;
                         }
                         break;
