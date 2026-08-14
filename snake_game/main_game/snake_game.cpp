@@ -1,6 +1,7 @@
 #include "snake_game/main_game/snake_game.h"
 #include "snake_game/snake/constants.h"
 #include <algorithm>
+#include <cmath>
 #include "raylib.h"
 #include "snake_game/main_game/menu_snake.h"
 #include "ui/button_helpers.h"
@@ -13,6 +14,37 @@ extern Rectangle mute_btn;
 extern Rectangle sfx_btn;
 std::map<std::string, int> SnakeGame::leaderboard_default;
 std::map<std::string, int> SnakeGame::leaderboard_levels;
+
+namespace {
+void HandleSnakeSwipe(Snake& snake, bool& touchActive, Vector2& touchStart, Vector2& touchLast) {
+    if (GetTouchPointCount() > 0) {
+        const Vector2 touch = GetTouchPosition(0);
+        if (!touchActive) {
+            touchStart = touch;
+        }
+        touchLast = touch;
+        touchActive = true;
+        return;
+    }
+
+    if (!touchActive) {
+        return;
+    }
+
+    const float dx = touchLast.x - touchStart.x;
+    const float dy = touchLast.y - touchStart.y;
+    const float minSwipeDistance = 20.0f;
+    if (std::fabs(dx) >= minSwipeDistance || std::fabs(dy) >= minSwipeDistance) {
+        if (std::fabs(dx) > std::fabs(dy)) {
+            snake.setDirection({dx > 0.0f ? 1.0f : -1.0f, 0.0f});
+        } else {
+            snake.setDirection({0.0f, dy > 0.0f ? 1.0f : -1.0f});
+        }
+    }
+    touchActive = false;
+}
+}
+
 SnakeGame::SnakeGame(Snake &snake) : snake(snake),food({0, 0}) {
     spawnFood();
     sfx_food = LoadSound("assets/sounds/eat.ogg");
@@ -146,8 +178,12 @@ int SnakeGame::Default_mode() {
     bool paused = false;
     bool collisionFreeze = false;
     double collisionTimer = 0.0;
+    bool touchActive = false;
+    Vector2 touchStart = {0, 0};
+    Vector2 touchLast = {0, 0};
 
     while (!WindowShouldClose() && !gameOver && !won) {
+        menu_ui::SyncAudioButtonRects(mute_btn, sfx_btn);
         if (IsKeyPressed(KEY_P)) paused = !paused;
 
         UpdateMusicStream(bgm);
@@ -162,6 +198,7 @@ int SnakeGame::Default_mode() {
 
         if (!paused) {
             if (!collisionFreeze) {
+                HandleSnakeSwipe(snake, touchActive, touchStart, touchLast);
                 bool moved = false;
                 if (allowMove) {
                     if (IsKeyPressed(KEY_UP) or IsKeyPressed(KEY_W))    { snake.setDirection({0, -1}); moved = true; }
@@ -302,8 +339,12 @@ int SnakeGame::play_gui(int level) {
     bool allowMove = true;
     double collisionTimer = 0;
     Vector2 collisionPos  = {0, 0};
+    bool touchActive = false;
+    Vector2 touchStart = {0, 0};
+    Vector2 touchLast = {0, 0};
 
     while (!WindowShouldClose() && !gameOver && !levelComplete) {
+        menu_ui::SyncAudioButtonRects(mute_btn, sfx_btn);
         if (IsKeyPressed(KEY_P)) paused = !paused;
         UpdateMusicStream(bgm);
         if (mutedBGm) PauseMusicStream(bgm);
@@ -316,6 +357,7 @@ int SnakeGame::play_gui(int level) {
 
         if (!paused) {
             if (!collisionFreeze) {
+                HandleSnakeSwipe(snake, touchActive, touchStart, touchLast);
                 bool moved = false;
 
                 if (allowMove) {

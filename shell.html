@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Arcade Games By Kamolia</title>
 
     <style>
@@ -22,65 +23,102 @@
             image-rendering: pixelated;
             image-rendering: crisp-edges;
         }
+
+        #nameInput {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: 0;
+            font-size: 16px;
+            opacity: 0.01;
+            border: 0;
+            background: transparent;
+            color: transparent;
+            z-index: -1;
+            display: none;
+        }
     </style>
 </head>
 
 <body>
 
 <canvas id="canvas" tabindex="0" oncontextmenu="event.preventDefault()"></canvas>
+<input id="nameInput" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="24">
 
 <script>
     var canvas = document.getElementById('canvas');
+    var nameInput = document.getElementById('nameInput');
     var Module = {
         canvas: canvas
     };
 
-    // --- Coordinate scaling fix ---
-    // Keeps canvas internal resolution in sync with its CSS display size
-    // so GetMousePosition()/touch coords line up with what's on screen.
     function resizeCanvas() {
         var dpr = window.devicePixelRatio || 1;
-        canvas.width = canvas.clientWidth * dpr;
-        canvas.height = canvas.clientHeight * dpr;
+        var vw = window.visualViewport ? window.visualViewport.width : (canvas.clientWidth || window.innerWidth);
+        var vh = window.visualViewport ? window.visualViewport.height : (canvas.clientHeight || window.innerHeight);
+        canvas.style.width = vw + 'px';
+        canvas.style.height = vh + 'px';
+        canvas.width = Math.max(1, Math.floor(vw * dpr));
+        canvas.height = Math.max(1, Math.floor(vh * dpr));
     }
     window.addEventListener('resize', resizeCanvas);
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', resizeCanvas);
+    }
     resizeCanvas();
 
+    ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(function (ev) {
+        document.addEventListener(ev, function () {
+            resizeCanvas();
+            setTimeout(resizeCanvas, 100);
+        });
+    });
+
     function clickCanvas() {
-        canvas.dispatchEvent(new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-            view: window
-        }));
+        canvas.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
     }
 
-    // --- Focus handling ---
     canvas.addEventListener('click', function () {
-        canvas.focus();
+        if (nameInput.style.display !== 'block') canvas.focus();
     });
     canvas.addEventListener('mousedown', function () {
-        canvas.focus();
+        if (nameInput.style.display !== 'block') canvas.focus();
     });
     canvas.addEventListener('touchstart', function () {
-        canvas.focus();
+        if (nameInput.style.display !== 'block') canvas.focus();
     });
-    window.addEventListener('load', function () {
-        canvas.focus();
-    });
+    window.addEventListener('load', function () { canvas.focus(); });
 
-    // --- Key handling ---
     window.addEventListener('keydown', function (event) {
         if (event.key === 'Enter' && !event.repeat) {
             clickCanvas();
             event.preventDefault();
             return;
         }
-        // Stop the browser from scrolling/consuming these while canvas is focused
         var blocked = ['Space', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
         if (blocked.indexOf(event.code) !== -1) {
             event.preventDefault();
         }
     });
+
+    nameInput.addEventListener('input', function () {
+        if (Module && Module.ccall) {
+            Module.ccall('SetNameFromJS', null, ['string'], [nameInput.value]);
+        }
+    });
+
+    window.showNameKeyboard = function () {
+        nameInput.value = '';
+        nameInput.style.display = 'block';
+        setTimeout(function () { nameInput.focus(); }, 50);
+    };
+    window.hideNameKeyboard = function () {
+        nameInput.blur();
+        nameInput.style.display = 'none';
+    };
 </script>
 
 {{{ SCRIPT }}}

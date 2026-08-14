@@ -325,7 +325,7 @@ void XO::drawBoard() {
     DrawLineEx({(float)startX, (float)(startY + cellSize*2)}, {(float)(startX + gridSize), (float)(startY + cellSize*2)}, thickness, lineColor);
 }
 void XO::playGameGUI_pvp() {
-    Rectangle continue_btn = {490, 550, 300, 60};
+    Rectangle continue_btn = menu_ui::ReferenceRect(490, 550, 300, 60);
     double gameOverTime = 0;
    const int startX = 490, startY = 210,cell_size=100;
     int kamoliaMovesP1 = 0;
@@ -335,6 +335,8 @@ void XO::playGameGUI_pvp() {
     bool p1_turn = (player1.getSymbol() == 'X');
     string msg=" ";
 while (!WindowShouldClose()) {
+    menu_ui::SyncAudioButtonRects(mute_btn, sfx_btn);
+    continue_btn = menu_ui::ReferenceRect(490, 550, 300, 60);
     UpdateMusicStream(bgm);
     if (mutedBGm) PauseMusicStream(bgm);
     else ResumeMusicStream(bgm);
@@ -433,7 +435,7 @@ while (!WindowShouldClose()) {
 }
 }
 void XO::playGameGUI_ai_easy() {
-Rectangle continue_btn = {490, 550, 300, 60};
+Rectangle continue_btn = menu_ui::ReferenceRect(490, 550, 300, 60);
 double gameOverTime = 0;
 const int startX = 490, startY = 210, cell_size = 100;
 bool game_over = false;
@@ -449,6 +451,8 @@ double aiMoveTime = 0.0;
 BeginDrawing(); EndDrawing();
 
 while (!WindowShouldClose()) {
+    menu_ui::SyncAudioButtonRects(mute_btn, sfx_btn);
+    continue_btn = menu_ui::ReferenceRect(490, 550, 300, 60);
     UpdateMusicStream(bgm);
     if (mutedBGm) PauseMusicStream(bgm);
     else ResumeMusicStream(bgm);
@@ -565,7 +569,7 @@ while (!WindowShouldClose()) {
 }
 }
 void XO::playGameGUI_ai_hard() {
-    Rectangle continue_btn = {490, 550, 300, 60};
+    Rectangle continue_btn = menu_ui::ReferenceRect(490, 550, 300, 60);
     double gameOverTime = 0;
     const int startX = 490, startY = 210, cell_size = 100;
     bool game_over = false;
@@ -580,6 +584,8 @@ void XO::playGameGUI_ai_hard() {
     BeginDrawing(); EndDrawing();
 
     while (!WindowShouldClose()) {
+        menu_ui::SyncAudioButtonRects(mute_btn, sfx_btn);
+        continue_btn = menu_ui::ReferenceRect(490, 550, 300, 60);
         UpdateMusicStream(bgm);
         if (mutedBGm) PauseMusicStream(bgm);
         else ResumeMusicStream(bgm);

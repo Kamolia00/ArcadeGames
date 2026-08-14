@@ -1,18 +1,25 @@
 #include"pong/menus/menu_pong.h"
 #include "ui/button_helpers.h"
+
+#ifdef PLATFORM_WEB
+#include <emscripten/emscripten.h>
+#endif
+
 extern bool mutedBGm;
 extern Music bgm;
 extern Rectangle mute_btn;
+extern Rectangle sfx_btn;
 extern  int STAR_COUNT;
 extern float starX[], starY[], starSpeed[], starSize[];
 extern float rocketX, rocketY, rocketSpeed;
 
 int showmenu_pong() {
     BeginDrawing(); EndDrawing();
-    Rectangle pvp={490,250,300,60};
-    Rectangle ai={490,350,300,60};
-    Rectangle back={490,450,300,60};
     while (!WindowShouldClose()) {
+        menu_ui::SyncAudioButtonRects(mute_btn, sfx_btn);
+        Rectangle pvp = menu_ui::ReferenceRect(490, 250, 300, 60);
+        Rectangle ai = menu_ui::ReferenceRect(490, 350, 300, 60);
+        Rectangle back = menu_ui::ReferenceRect(490, 450, 300, 60);
         UpdateMusicStream(bgm);
         if (mutedBGm) PauseMusicStream(bgm);
         else       ResumeMusicStream(bgm);
@@ -37,13 +44,8 @@ int showmenu_pong() {
 
         BeginDrawing();
         ClearBackground({20,20,40,225});
-        for (int i = 0; i < STAR_COUNT; i++)
-            DrawCircle(starX[i], starY[i], starSize[i], {255, 255, 255, 180});
-        DrawRectanglePro({rocketX, rocketY, 40, 20}, {20, 10}, -25.0f, DARKGRAY);
-        DrawTriangle({rocketX+28,rocketY-8},{rocketX+28,rocketY+8},{rocketX+48,rocketY}, RED);
-        DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
-        DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
-        DrawText("Pong Game",520,140,40,WHITE);
+        menu_ui::DrawMenuBackdrop(starX, starY, starSize, STAR_COUNT, rocketX, rocketY);
+        menu_ui::DrawTextRef("Pong Game", 520, 140, 40, WHITE);
          menu_ui::DrawMenuButton(pvp, "Player vs Player", 25);
          menu_ui::DrawMenuButton(ai, "Player vs AI", 25);
          menu_ui::DrawMenuButton(back, "Back", 25);
@@ -55,11 +57,16 @@ int showmenu_pong() {
 }
 bool getPlayerName_pong(Player &p, const std::string prompt) {
     std::string name = "";
-    Rectangle back_btn={490,510,300,60};
-    Rectangle cont_btn={490,400,300,60};
     BeginDrawing(); EndDrawing();
+#ifdef PLATFORM_WEB
+    g_webName.clear();
+    EM_ASM({ showNameKeyboard(); });
+#endif
 
     while (!WindowShouldClose()) {
+        menu_ui::SyncAudioButtonRects(mute_btn, sfx_btn);
+        Rectangle back_btn = menu_ui::ReferenceRect(490, 510, 300, 60);
+        Rectangle cont_btn = menu_ui::ReferenceRect(490, 400, 300, 60);
         UpdateMusicStream(bgm);
         if (mutedBGm) PauseMusicStream(bgm);
         else       ResumeMusicStream(bgm);
@@ -70,53 +77,71 @@ bool getPlayerName_pong(Player &p, const std::string prompt) {
                 }
             }
             rocketX += rocketSpeed; rocketY -= rocketSpeed * 0.4f;
-            if (rocketX > 1400) {
-                rocketX = -60; rocketY = 600;
-            }
+        if (rocketX > 1400) {
+            rocketX = -60; rocketY = 600;
+        }
+#ifdef PLATFORM_WEB
+        name = g_webName;
+#endif
         auto m=GetMousePosition();
         if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON) and CheckCollisionPointRec(m, cont_btn) and !name.empty()){
             p.setName(name);
             // signal success to caller
+#ifdef PLATFORM_WEB
+            EM_ASM({ hideNameKeyboard(); });
+#endif
             return true;
         }
-        if (IsKeyPressed(KEY_ESCAPE)) return false;
+        if (IsKeyPressed(KEY_ESCAPE)) {
+#ifdef PLATFORM_WEB
+            EM_ASM({ hideNameKeyboard(); });
+#endif
+            return false;
+        }
+#ifdef PLATFORM_WEB
+#else
         int key = GetCharPressed();
+#endif
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
             Vector2 m = GetMousePosition();
             if (CheckCollisionPointRec(m, mute_btn))
                 mutedBGm = !mutedBGm;
             if (CheckCollisionPointRec(m, back_btn)) {
                 BeginDrawing(); EndDrawing();
+#ifdef PLATFORM_WEB
+                EM_ASM({ hideNameKeyboard(); });
+#endif
                 return false;
             }
         }
+#ifndef PLATFORM_WEB
         if (IsKeyPressed(KEY_BACKSPACE) && !name.empty()) name.pop_back();
         if (key >= 32 && key <= 125) name += (char)key;
+#endif
 
         BeginDrawing();
         ClearBackground({20, 20, 40, 255});
-        for (int i = 0; i < STAR_COUNT; i++)
-            DrawCircle(starX[i], starY[i], starSize[i], {255, 255, 255, 180});
-        DrawRectanglePro({rocketX, rocketY, 40, 20}, {20, 10}, -25.0f, DARKGRAY);
-        DrawTriangle({rocketX+28,rocketY-8},{rocketX+28,rocketY+8},{rocketX+48,rocketY}, RED);
-        DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
-        DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
-        DrawText(prompt.c_str(), 400, 220, 25, SKYBLUE);
-        DrawText("Enter Your Name:", 400, 280, 25, WHITE);
-        DrawText(name.c_str(), 400, 320, 25, YELLOW);
+        menu_ui::DrawMenuBackdrop(starX, starY, starSize, STAR_COUNT, rocketX, rocketY);
+        menu_ui::DrawTextRef(prompt.c_str(), 400, 220, 25, SKYBLUE);
+        menu_ui::DrawTextRef("Enter Your Name:", 400, 280, 25, WHITE);
+        menu_ui::DrawTextRef(name.c_str(), 400, 320, 25, YELLOW);
         menu_ui::DrawMenuButton(cont_btn, "Continue", 25);
         menu_ui::DrawMenuButton(back_btn, "Back", 25);
         menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
         EndDrawing();
     }
+#ifdef PLATFORM_WEB
+    EM_ASM({ hideNameKeyboard(); });
+#endif
     return false;
 }
 int showPostGame_menu_pong(Player p1,Player p2, int g1,int g2) {
-    Rectangle again_btn = {490, 340, 300, 60};
-    Rectangle back_btn = {490, 410, 300, 60};
 BeginDrawing();
 EndDrawing();
 while (!WindowShouldClose()) {
+    menu_ui::SyncAudioButtonRects(mute_btn, sfx_btn);
+    Rectangle again_btn = menu_ui::ReferenceRect(490, 340, 300, 60);
+    Rectangle back_btn = menu_ui::ReferenceRect(490, 410, 300, 60);
     UpdateMusicStream(bgm);
     if (mutedBGm) PauseMusicStream(bgm);
     else       ResumeMusicStream(bgm);
@@ -136,15 +161,10 @@ while (!WindowShouldClose()) {
     }
 BeginDrawing();
     ClearBackground({20, 20, 40, 255});
-    for (int i = 0; i < STAR_COUNT; i++)
-        DrawCircle(starX[i], starY[i], starSize[i], {255, 255, 255, 180});
-    DrawRectanglePro({rocketX, rocketY, 40, 20}, {20, 10}, -25.0f, DARKGRAY);
-    DrawTriangle({rocketX+28,rocketY-8},{rocketX+28,rocketY+8},{rocketX+48,rocketY}, RED);
-    DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
-    DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
-    DrawText("Game Over", 560, 140, 40, WHITE);
-        DrawText((p1.getName() + ": " + std::to_string(g1)).c_str(), 490, 220, 25, YELLOW);
-        DrawText((p2.getName() + ": " + std::to_string(g2)).c_str(), 490, 260, 25, YELLOW);
+    menu_ui::DrawMenuBackdrop(starX, starY, starSize, STAR_COUNT, rocketX, rocketY);
+    menu_ui::DrawTextRef("Game Over", 560, 140, 40, WHITE);
+        menu_ui::DrawTextRef((p1.getName() + ": " + std::to_string(g1)).c_str(), 490, 220, 25, YELLOW);
+        menu_ui::DrawTextRef((p2.getName() + ": " + std::to_string(g2)).c_str(), 490, 260, 25, YELLOW);
    menu_ui::DrawMenuButton(again_btn, "Play Again", 25);
    menu_ui::DrawMenuButton(back_btn, "Main Menu", 25);
    menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
@@ -154,17 +174,18 @@ BeginDrawing();
     return 0;
 }
 bool getPlayerColor_pong(Player &p) {
-    Rectangle green_btn = {260, 300, 150, 60};
-    Rectangle red_btn   = {440, 300, 150, 60};
-    Rectangle blue_btn  = {620, 300, 150, 60};
-    Rectangle white  = {800, 300, 150, 60};
-    Rectangle back_btn  = {490, 450, 300, 60};
     int selected = -1; // no color initially selected
 
     // wait one frame to clear previous input state
     BeginDrawing();
     EndDrawing();
     while (!WindowShouldClose()) {
+        menu_ui::SyncAudioButtonRects(mute_btn, sfx_btn);
+        Rectangle green_btn = menu_ui::ReferenceRect(260, 300, 150, 60);
+        Rectangle red_btn = menu_ui::ReferenceRect(440, 300, 150, 60);
+        Rectangle blue_btn = menu_ui::ReferenceRect(620, 300, 150, 60);
+        Rectangle white = menu_ui::ReferenceRect(800, 300, 150, 60);
+        Rectangle back_btn = menu_ui::ReferenceRect(490, 450, 300, 60);
         if (IsKeyPressed(KEY_ONE)) {
             p.setSymbol('g');
             return true;
@@ -227,38 +248,37 @@ bool getPlayerColor_pong(Player &p) {
         else if (CheckCollisionPointRec(mouse_pos, white)) selected = 3;
         BeginDrawing();
         ClearBackground({20,20,40,225});
-        for (int i = 0; i < STAR_COUNT; i++)
-            DrawCircle(starX[i], starY[i], starSize[i], {255, 255, 255, 180});
-        DrawRectanglePro({rocketX, rocketY, 40, 20}, {20, 10}, -25.0f, DARKGRAY);
-        DrawTriangle({rocketX+28,rocketY-8},{rocketX+28,rocketY+8},{rocketX+48,rocketY}, RED);
-        DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
-        DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
-        DrawText((p.getName() + " Choose Your Color:").c_str(), 420, 220, 25, WHITE);
-        DrawText("(or press 1-4, or ESC to go back)", 420, 250, 18, GRAY);
+        menu_ui::DrawMenuBackdrop(starX, starY, starSize, STAR_COUNT, rocketX, rocketY);
+        menu_ui::DrawTextRef((p.getName() + " Choose Your Color:").c_str(), 420, 220, 25, WHITE);
+        menu_ui::DrawTextRef("(or press 1-4, or ESC to go back)", 420, 250, 18, GRAY);
 
         DrawRectangleRec(green_btn, selected == 0 ? Color{50, 150, 200, 255} : DARKBLUE);
-        int gW = MeasureText("GREEN", 30);
+        int greenFontSize = menu_ui::ReferenceFontSize(30);
+        int gW = MeasureText("GREEN", greenFontSize);
         DrawText("GREEN",
                  green_btn.x + (green_btn.width - gW) / 2,
-                 green_btn.y + (green_btn.height - 30) / 2, 30, GREEN);
+                 green_btn.y + (green_btn.height - greenFontSize) / 2, greenFontSize, GREEN);
 
         DrawRectangleRec(red_btn, selected == 1 ? Color{50, 150, 200, 255} : DARKBLUE);
-        int rW = MeasureText("RED", 30);
+        int redFontSize = menu_ui::ReferenceFontSize(30);
+        int rW = MeasureText("RED", redFontSize);
         DrawText("RED",
                  red_btn.x + (red_btn.width - rW) / 2,
-                 red_btn.y + (red_btn.height - 30) / 2, 30, RED);
+                 red_btn.y + (red_btn.height - redFontSize) / 2, redFontSize, RED);
 
         DrawRectangleRec(blue_btn, selected == 2 ? Color{50, 150, 200, 255} : DARKBLUE);
-        int bW = MeasureText("BLUE", 30);
+        int blueFontSize = menu_ui::ReferenceFontSize(30);
+        int bW = MeasureText("BLUE", blueFontSize);
         DrawText("BLUE",
                  blue_btn.x + (blue_btn.width - bW) / 2,
-                 blue_btn.y + (blue_btn.height - 30) / 2, 30, BLUE);
+                 blue_btn.y + (blue_btn.height - blueFontSize) / 2, blueFontSize, BLUE);
 
         DrawRectangleRec(white, selected == 3 ? Color{50, 150, 200, 255} : DARKBLUE);
-        int dW = MeasureText("WHITE", 24);
+        int whiteFontSize = menu_ui::ReferenceFontSize(24);
+        int dW = MeasureText("WHITE", whiteFontSize);
         DrawText("WHITE",
                  white.x + (white.width - dW) / 2,
-                 white.y + (white.height - 24) / 2, 24, WHITE);
+                 white.y + (white.height - whiteFontSize) / 2, whiteFontSize, WHITE);
 
         // Back button
         menu_ui::DrawMenuButton(back_btn, "Back", 25);
@@ -273,11 +293,12 @@ bool getPlayerColor_pong(Player &p) {
 int setThreshold_pong() {
     std::string input = "";
     std::string error = "";
-    Rectangle back_btn={490,510,300,60};
-    Rectangle cont_btn={490,400,300,60};
     BeginDrawing(); EndDrawing();
 
     while (!WindowShouldClose()) {
+        menu_ui::SyncAudioButtonRects(mute_btn, sfx_btn);
+        Rectangle back_btn = menu_ui::ReferenceRect(490, 510, 300, 60);
+        Rectangle cont_btn = menu_ui::ReferenceRect(490, 400, 300, 60);
         UpdateMusicStream(bgm);
         if (mutedBGm) PauseMusicStream(bgm);
         else ResumeMusicStream(bgm);
@@ -323,17 +344,12 @@ int setThreshold_pong() {
 
         BeginDrawing();
         ClearBackground({20, 20, 40, 255});
-        for (int i = 0; i < STAR_COUNT; i++)
-            DrawCircle(starX[i], starY[i], starSize[i], {255, 255, 255, 180});
-        DrawRectanglePro({rocketX, rocketY, 40, 20}, {20, 10}, -25.0f, DARKGRAY);
-        DrawTriangle({rocketX+28,rocketY-8},{rocketX+28,rocketY+8},{rocketX+48,rocketY}, RED);
-        DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
-        DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
-        DrawText("Set Score Limit", 490, 140, 35, WHITE);
-        DrawText("Enter max score (1-8):", 490, 220, 25, WHITE);
-        DrawText(input.c_str(), 490, 270, 40, YELLOW);
+        menu_ui::DrawMenuBackdrop(starX, starY, starSize, STAR_COUNT, rocketX, rocketY);
+        menu_ui::DrawTextRef("Set Score Limit", 490, 140, 35, WHITE);
+        menu_ui::DrawTextRef("Enter max score (1-8):", 490, 220, 25, WHITE);
+        menu_ui::DrawTextRef(input.c_str(), 490, 270, 40, YELLOW);
         if (!error.empty())
-            DrawText(error.c_str(), 490, 330, 20, RED);
+            menu_ui::DrawTextRef(error.c_str(), 490, 330, 20, RED);
         menu_ui::DrawMenuButton(cont_btn, "Continue", 25);
         menu_ui::DrawMenuButton(back_btn, "Back", 25);
         menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);

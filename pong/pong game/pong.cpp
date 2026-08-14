@@ -7,6 +7,7 @@
 extern bool mutedBGm;
 extern Music bgm;
 extern Rectangle mute_btn;
+extern Rectangle sfx_btn;
 extern  int STAR_COUNT;
 extern float starX[], starY[], starSpeed[], starSize[];
 extern float rocketX, rocketY, rocketSpeed;
@@ -31,6 +32,29 @@ void StartRoundCountdown(Ball &ball, bool &countdownActive, double &countdownEnd
     ball.setSpeed(0, 0);
     countdownActive = true;
     countdownEnd = GetTime() + kRoundCountdownSeconds;
+}
+
+void ClampPaddleToScreen(Rectangle& paddle) {
+    if (paddle.y < 0) {
+        paddle.y = 0;
+    }
+    if (paddle.y + paddle.height >= GetScreenHeight()) {
+        paddle.y = GetScreenHeight() - paddle.height;
+    }
+}
+
+void ApplyPongTouchDrag(Rectangle& leftPaddle, Rectangle* rightPaddle) {
+    const int touches = GetTouchPointCount();
+    for (int i = 0; i < touches; ++i) {
+        const Vector2 touch = GetTouchPosition(i);
+        if (touch.x < GetScreenWidth() * 0.5f) {
+            leftPaddle.y = touch.y;
+            ClampPaddleToScreen(leftPaddle);
+        } else if (rightPaddle != nullptr) {
+            rightPaddle->y = touch.y;
+            ClampPaddleToScreen(*rightPaddle);
+        }
+    }
 }
 }
 
@@ -124,6 +148,7 @@ void Pong::playGame_pvp() {
 
     StartRoundCountdown(ball, countdownActive, countdownEnd);
     while (!WindowShouldClose()) {
+        menu_ui::SyncAudioButtonRects(mute_btn, sfx_btn);
         UpdateMusicStream(bgm);
         if (mutedBGm) PauseMusicStream(bgm);
         else ResumeMusicStream(bgm);
@@ -143,6 +168,7 @@ void Pong::playGame_pvp() {
         if (!paused) {
             movePaddel1();
             movePaddel2();
+            ApplyPongTouchDrag(paddle1Rect, &paddle2Rect);
         }
         //p2 scores
         if (!countdownActive && ball.getX() - ball.getRadius() <= 0)
@@ -247,11 +273,13 @@ void Pong::playGame_pvp() {
         }
         EndDrawing();
     }
-    Rectangle continue_btn = {490, 550, 300, 60};
+    Rectangle continue_btn = menu_ui::ReferenceRect(490, 550, 300, 60);
     double gameOverTime = GetTime();
 
     while (!WindowShouldClose())
     {
+        menu_ui::SyncAudioButtonRects(mute_btn, sfx_btn);
+        continue_btn = menu_ui::ReferenceRect(490, 550, 300, 60);
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
             Vector2 mouse = GetMousePosition();
@@ -314,6 +342,7 @@ void Pong::playGame_ai() {
     StartRoundCountdown(ball, countdownActive, countdownEnd);
 
     while (!WindowShouldClose()) {
+        menu_ui::SyncAudioButtonRects(mute_btn, sfx_btn);
         UpdateMusicStream(bgm);
         if (mutedBGm) PauseMusicStream(bgm);
         else ResumeMusicStream(bgm);
@@ -334,6 +363,7 @@ void Pong::playGame_ai() {
         }
         if (!paused) {
             movePaddel1();
+            ApplyPongTouchDrag(paddle1Rect, nullptr);
             moveAi();
         }
         // AI scores
@@ -442,11 +472,13 @@ void Pong::playGame_ai() {
         }
         EndDrawing();
     }
-    Rectangle continue_btn = {490, 550, 300, 60};
+    Rectangle continue_btn = menu_ui::ReferenceRect(490, 550, 300, 60);
     double gameOverTime = GetTime();
 
     while (!WindowShouldClose())
     {
+        menu_ui::SyncAudioButtonRects(mute_btn, sfx_btn);
+        continue_btn = menu_ui::ReferenceRect(490, 550, 300, 60);
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
             Vector2 mouse = GetMousePosition();

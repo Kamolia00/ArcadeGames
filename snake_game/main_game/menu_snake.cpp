@@ -1,18 +1,25 @@
 #include <snake_game/main_game/menu_snake.h>
 #include <string>
 #include "ui/button_helpers.h"
+
+#ifdef PLATFORM_WEB
+#include <emscripten/emscripten.h>
+#endif
+
 extern bool mutedBGm;
 extern Music bgm;
 extern Rectangle mute_btn;
+extern Rectangle sfx_btn;
 extern  int STAR_COUNT;
 extern float starX[], starY[], starSpeed[], starSize[];
 extern float rocketX, rocketY, rocketSpeed;
 int showmenu_snake() {
     BeginDrawing(); EndDrawing();
-    Rectangle defualt_btn={490,250,300,60};
-    Rectangle lvl_btn={490,350,300,60};
-    Rectangle back_btn={490,450,300,60};
     while (!WindowShouldClose()) {
+        menu_ui::SyncAudioButtonRects(mute_btn, sfx_btn);
+        Rectangle defualt_btn = menu_ui::ReferenceRect(490, 250, 300, 60);
+        Rectangle lvl_btn = menu_ui::ReferenceRect(490, 350, 300, 60);
+        Rectangle back_btn = menu_ui::ReferenceRect(490, 450, 300, 60);
         UpdateMusicStream(bgm);
         if (mutedBGm) PauseMusicStream(bgm);
         else       ResumeMusicStream(bgm);
@@ -35,13 +42,8 @@ int showmenu_snake() {
 
         BeginDrawing();
          ClearBackground({20,20,40,225});
-        for (int i = 0; i < STAR_COUNT; i++)
-            DrawCircle(starX[i], starY[i], starSize[i], {255, 255, 255, 180});
-        DrawRectanglePro({rocketX, rocketY, 40, 20}, {20, 10}, -25.0f, DARKGRAY);
-        DrawTriangle({rocketX+28,rocketY-8},{rocketX+28,rocketY+8},{rocketX+48,rocketY}, RED);
-        DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
-        DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
-         DrawText("Snake Game",520,140,40,WHITE);
+        menu_ui::DrawMenuBackdrop(starX, starY, starSize, STAR_COUNT, rocketX, rocketY);
+         menu_ui::DrawTextRef("Snake Game", 520, 140, 40, WHITE);
          menu_ui::DrawMenuButton(defualt_btn, "Free for all mode", 25);
          menu_ui::DrawMenuButton(lvl_btn, "Level based mode", 25);
          menu_ui::DrawMenuButton(back_btn, "Back", 25);
@@ -53,12 +55,17 @@ int showmenu_snake() {
 }
 bool getPlayerName_snake(Snake &snake, const std::string& prompt) {
     std::string name="";
-    Rectangle back_btn={490,510,300,60};
-    Rectangle cont_btn={490,400,300,60};
 
     BeginDrawing();
     EndDrawing();
+#ifdef PLATFORM_WEB
+    g_webName.clear();
+    EM_ASM({ showNameKeyboard(); });
+#endif
     while (!WindowShouldClose()) {
+        menu_ui::SyncAudioButtonRects(mute_btn, sfx_btn);
+        Rectangle back_btn = menu_ui::ReferenceRect(490, 510, 300, 60);
+        Rectangle cont_btn = menu_ui::ReferenceRect(490, 400, 300, 60);
         UpdateMusicStream(bgm);
         if (mutedBGm) PauseMusicStream(bgm);
         else       ResumeMusicStream(bgm);
@@ -68,13 +75,25 @@ bool getPlayerName_snake(Snake &snake, const std::string& prompt) {
         }
         rocketX += rocketSpeed; rocketY -= rocketSpeed * 0.4f;
         if (rocketX > 1400) { rocketX = -60; rocketY = 600; }
+#ifdef PLATFORM_WEB
+        name = g_webName;
+#else
         int key=GetCharPressed();
+#endif
         if(IsKeyPressed(KEY_ENTER) and !name.empty()){
             snake.setName(name);
             // signal success to caller
+#ifdef PLATFORM_WEB
+            EM_ASM({ hideNameKeyboard(); });
+#endif
             return true;
         }
-        if(IsKeyPressed(KEY_ESCAPE)) return false;
+        if(IsKeyPressed(KEY_ESCAPE)) {
+#ifdef PLATFORM_WEB
+            EM_ASM({ hideNameKeyboard(); });
+#endif
+            return false;
+        }
         if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
             Vector2 mouse_pos = GetMousePosition();
             if (CheckCollisionPointRec(mouse_pos, mute_btn)) mutedBGm = !mutedBGm;
@@ -83,29 +102,34 @@ bool getPlayerName_snake(Snake &snake, const std::string& prompt) {
                 // immediately receive the same mouse release (which shares
                 // the same button/position) and inadvertently act on it.
                 BeginDrawing(); EndDrawing();
+#ifdef PLATFORM_WEB
+                EM_ASM({ hideNameKeyboard(); });
+#endif
                 return false;
             }
         }
+#ifndef PLATFORM_WEB
         if(IsKeyPressed(KEY_BACKSPACE) and !name.empty()){
             name.pop_back();
         }
+#endif
         auto m=GetMousePosition();
         if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON) and CheckCollisionPointRec(m, cont_btn) and !name.empty()){
             snake.setName(name);
             // signal success to caller
+#ifdef PLATFORM_WEB
+            EM_ASM({ hideNameKeyboard(); });
+#endif
             return true;
         }
+#ifndef PLATFORM_WEB
         if(key >= 32 && key <= 125) name += (char)key;
+#endif
          BeginDrawing();
          ClearBackground({20,20,40,225});
-        for (int i = 0; i < STAR_COUNT; i++)
-            DrawCircle(starX[i], starY[i], starSize[i], {255, 255, 255, 180});
-        DrawRectanglePro({rocketX, rocketY, 40, 20}, {20, 10}, -25.0f, DARKGRAY);
-        DrawTriangle({rocketX+28,rocketY-8},{rocketX+28,rocketY+8},{rocketX+48,rocketY}, RED);
-        DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
-        DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
-        DrawText((prompt+" Enter Your Name:").c_str(), 400, 280, 25, WHITE);
-         DrawText(name.c_str(), 400, 320, 25, WHITE);
+        menu_ui::DrawMenuBackdrop(starX, starY, starSize, STAR_COUNT, rocketX, rocketY);
+        menu_ui::DrawTextRef((prompt+" Enter Your Name:").c_str(), 400, 280, 25, WHITE);
+         menu_ui::DrawTextRef(name.c_str(), 400, 320, 25, WHITE);
          // draw the Back button
          menu_ui::DrawMenuButton(back_btn, "Back", 25);
         menu_ui::DrawMenuButton(cont_btn, "Continue", 25);
@@ -114,18 +138,13 @@ bool getPlayerName_snake(Snake &snake, const std::string& prompt) {
         EndDrawing();
     }
     // window closed without confirming -> treat as cancel
+#ifdef PLATFORM_WEB
+    EM_ASM({ hideNameKeyboard(); });
+#endif
     return false;
 
     }
 bool getPlayerColor_snake(Snake &snake, std::string prompt) {
-    // four color option buttons and a Back button
-    Rectangle green_btn = {260, 300, 150, 60};
-    Rectangle red_btn   = {440, 300, 150, 60};
-    Rectangle blue_btn  = {620, 300, 150, 60};
-    Rectangle dark_btn  = {800, 300, 150, 60};
-    Rectangle back_btn  = {490, 450, 300, 60};
-
-
     int selected = -1; // no color initially selected
 
     // wait one frame to clear previous input state
@@ -133,6 +152,12 @@ bool getPlayerColor_snake(Snake &snake, std::string prompt) {
     EndDrawing();
 
     while (!WindowShouldClose()) {
+        menu_ui::SyncAudioButtonRects(mute_btn, sfx_btn);
+        Rectangle green_btn = menu_ui::ReferenceRect(260, 300, 150, 60);
+        Rectangle red_btn = menu_ui::ReferenceRect(440, 300, 150, 60);
+        Rectangle blue_btn = menu_ui::ReferenceRect(620, 300, 150, 60);
+        Rectangle dark_btn = menu_ui::ReferenceRect(800, 300, 150, 60);
+        Rectangle back_btn = menu_ui::ReferenceRect(490, 450, 300, 60);
         UpdateMusicStream(bgm);
         if (mutedBGm) PauseMusicStream(bgm);
         else       ResumeMusicStream(bgm);
@@ -205,38 +230,37 @@ bool getPlayerColor_snake(Snake &snake, std::string prompt) {
 
         BeginDrawing();
         ClearBackground({20,20,40,225});
-        for (int i = 0; i < STAR_COUNT; i++)
-            DrawCircle(starX[i], starY[i], starSize[i], {255, 255, 255, 180});
-        DrawRectanglePro({rocketX, rocketY, 40, 20}, {20, 10}, -25.0f, DARKGRAY);
-        DrawTriangle({rocketX+28,rocketY-8},{rocketX+28,rocketY+8},{rocketX+48,rocketY}, RED);
-        DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
-        DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
-        DrawText((prompt + " Choose Your Color:").c_str(), 420, 220, 25, WHITE);
-        DrawText("(or press 1-4, or ESC to go back)", 420, 250, 18, GRAY);
+        menu_ui::DrawMenuBackdrop(starX, starY, starSize, STAR_COUNT, rocketX, rocketY);
+        menu_ui::DrawTextRef((prompt + " Choose Your Color:").c_str(), 420, 220, 25, WHITE);
+        menu_ui::DrawTextRef("(or press 1-4, or ESC to go back)", 420, 250, 18, GRAY);
 
         DrawRectangleRec(green_btn, selected == 0 ? Color{50, 150, 200, 255} : DARKBLUE);
-        int gW = MeasureText("GREEN", 30);
+        int greenFontSize = menu_ui::ReferenceFontSize(30);
+        int gW = MeasureText("GREEN", greenFontSize);
         DrawText("GREEN",
                  green_btn.x + (green_btn.width - gW) / 2,
-                 green_btn.y + (green_btn.height - 30) / 2, 30, GREEN);
+                 green_btn.y + (green_btn.height - greenFontSize) / 2, greenFontSize, GREEN);
 
         DrawRectangleRec(red_btn, selected == 1 ? Color{50, 150, 200, 255} : DARKBLUE);
-        int rW = MeasureText("RED", 30);
+        int redFontSize = menu_ui::ReferenceFontSize(30);
+        int rW = MeasureText("RED", redFontSize);
         DrawText("RED",
                  red_btn.x + (red_btn.width - rW) / 2,
-                 red_btn.y + (red_btn.height - 30) / 2, 30, RED);
+                 red_btn.y + (red_btn.height - redFontSize) / 2, redFontSize, RED);
 
         DrawRectangleRec(blue_btn, selected == 2 ? Color{50, 150, 200, 255} : DARKBLUE);
-        int bW = MeasureText("BLUE", 30);
+        int blueFontSize = menu_ui::ReferenceFontSize(30);
+        int bW = MeasureText("BLUE", blueFontSize);
         DrawText("BLUE",
                  blue_btn.x + (blue_btn.width - bW) / 2,
-                 blue_btn.y + (blue_btn.height - 30) / 2, 30, BLUE);
+                 blue_btn.y + (blue_btn.height - blueFontSize) / 2, blueFontSize, BLUE);
 
         DrawRectangleRec(dark_btn, selected == 3 ? Color{50, 150, 200, 255} : DARKBLUE);
-        int dW = MeasureText("DARKGREEN", 24);
+        int darkFontSize = menu_ui::ReferenceFontSize(24);
+        int dW = MeasureText("DARKGREEN", darkFontSize);
         DrawText("DARKGREEN",
                  dark_btn.x + (dark_btn.width - dW) / 2,
-                 dark_btn.y + (dark_btn.height - 24) / 2, 24, DARKGREEN);
+                 dark_btn.y + (dark_btn.height - darkFontSize) / 2, darkFontSize, DARKGREEN);
 
         // Back button
         menu_ui::DrawMenuButton(back_btn, "Back", 25);
@@ -249,9 +273,6 @@ bool getPlayerColor_snake(Snake &snake, std::string prompt) {
 }
 int showPostGame_menu(bool won, bool levelComplete, int level,const std::map<std::string, int>& board) {
 
-    Rectangle play_btn = {WINDOW_WIDTH/2 - 160, WINDOW_HEIGHT/2 + 120, 140, 50};
-    Rectangle menu_btn = {WINDOW_WIDTH/2 + 20,  WINDOW_HEIGHT/2 + 120, 140, 50};
-
     // sort leaderboard descending
     std::vector<std::pair<std::string, int>> entries(board.begin(), board.end());
     std::sort(entries.begin(), entries.end(),
@@ -262,6 +283,9 @@ int showPostGame_menu(bool won, bool levelComplete, int level,const std::map<std
     BeginDrawing(); EndDrawing(); // consume one frame
 
     while (!WindowShouldClose()) {
+        menu_ui::SyncAudioButtonRects(mute_btn, sfx_btn);
+        Rectangle play_btn = menu_ui::ReferenceRect(WINDOW_WIDTH/2 - 160, WINDOW_HEIGHT/2 + 120, 140, 50);
+        Rectangle menu_btn = menu_ui::ReferenceRect(WINDOW_WIDTH/2 + 20, WINDOW_HEIGHT/2 + 120, 140, 50);
         UpdateMusicStream(bgm);
         if (mutedBGm) PauseMusicStream(bgm);
         else       ResumeMusicStream(bgm);
@@ -281,25 +305,20 @@ int showPostGame_menu(bool won, bool levelComplete, int level,const std::map<std
         BeginDrawing();
         ClearBackground({20, 20, 40, 255});
         ClearBackground({20,20,40,225});
-        for (int i = 0; i < STAR_COUNT; i++)
-            DrawCircle(starX[i], starY[i], starSize[i], {255, 255, 255, 180});
-        DrawRectanglePro({rocketX, rocketY, 40, 20}, {20, 10}, -25.0f, DARKGRAY);
-        DrawTriangle({rocketX+28,rocketY-8},{rocketX+28,rocketY+8},{rocketX+48,rocketY}, RED);
-        DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
-        DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
+        menu_ui::DrawMenuBackdrop(starX, starY, starSize, STAR_COUNT, rocketX, rocketY);
         // result
         if (levelComplete && level == 3) {
             int w = MeasureText("You Beat All Levels!", 35);
-            DrawText("You Beat All Levels!", WINDOW_WIDTH/2 - w/2, 80, 35, GOLD);
+            menu_ui::DrawTextCenteredRef("You Beat All Levels!", WINDOW_WIDTH/2, 80, 35, GOLD);
 
             // leaderboard
-            DrawText("Leaderboard", WINDOW_WIDTH/2 - 80, 160, 25, GOLD);
+            menu_ui::DrawTextRef("Leaderboard", WINDOW_WIDTH/2 - 80, 160, 25, GOLD);
             int top = std::min((int)entries.size(), 5);
             for (int i = 0; i < top; i++) {
                 const char* line = TextFormat("%d. %s - %d",
                     i+1, entries[i].first.c_str(), entries[i].second);
                 int lw = MeasureText(line, 20);
-                DrawText(line, WINDOW_WIDTH/2 - lw/2, 200 + i * 30, 20, WHITE);
+                menu_ui::DrawTextCenteredRef(line, WINDOW_WIDTH/2, 200 + i * 30, 20, WHITE);
             }
 
             // only show Main Menu button for level 3 completion
@@ -307,16 +326,16 @@ int showPostGame_menu(bool won, bool levelComplete, int level,const std::map<std
         } else if (levelComplete) {
             // Level complete but not final level
             int w = MeasureText("Level Complete!", 40);
-            DrawText("Level Complete!", WINDOW_WIDTH/2 - w/2, 80, 40, GOLD);
+            menu_ui::DrawTextCenteredRef("Level Complete!", WINDOW_WIDTH/2, 80, 40, GOLD);
 
             // leaderboard
-            DrawText("Leaderboard", WINDOW_WIDTH/2 - 80, 160, 25, GOLD);
+            menu_ui::DrawTextRef("Leaderboard", WINDOW_WIDTH/2 - 80, 160, 25, GOLD);
             int top = std::min((int)entries.size(), 5);
             for (int i = 0; i < top; i++) {
                 const char* line = TextFormat("%d. %s - %d",
                     i+1, entries[i].first.c_str(), entries[i].second);
                 int lw = MeasureText(line, 20);
-                DrawText(line, WINDOW_WIDTH/2 - lw/2, 200 + i * 30, 20, WHITE);
+                menu_ui::DrawTextCenteredRef(line, WINDOW_WIDTH/2, 200 + i * 30, 20, WHITE);
             }
 
             // buttons
@@ -324,16 +343,16 @@ int showPostGame_menu(bool won, bool levelComplete, int level,const std::map<std
             menu_ui::DrawMenuButton(menu_btn, "Main Menu", 20);
         } else if (won) {
             int w = MeasureText("You Win!", 40);
-            DrawText("You Win!", WINDOW_WIDTH/2 - w/2, 80, 40, GOLD);
+            menu_ui::DrawTextCenteredRef("You Win!", WINDOW_WIDTH/2, 80, 40, GOLD);
 
             // leaderboard
-            DrawText("Leaderboard", WINDOW_WIDTH/2 - 80, 160, 25, GOLD);
+            menu_ui::DrawTextRef("Leaderboard", WINDOW_WIDTH/2 - 80, 160, 25, GOLD);
             int top = std::min((int)entries.size(), 5);
             for (int i = 0; i < top; i++) {
                 const char* line = TextFormat("%d. %s - %d",
                     i+1, entries[i].first.c_str(), entries[i].second);
                 int lw = MeasureText(line, 20);
-                DrawText(line, WINDOW_WIDTH/2 - lw/2, 200 + i * 30, 20, WHITE);
+                menu_ui::DrawTextCenteredRef(line, WINDOW_WIDTH/2, 200 + i * 30, 20, WHITE);
             }
 
             // buttons
@@ -342,16 +361,16 @@ int showPostGame_menu(bool won, bool levelComplete, int level,const std::map<std
         } else {
             // Game Over
             int w = MeasureText("Game Over", 40);
-            DrawText("Game Over", WINDOW_WIDTH/2 - w/2, 80, 40, RED);
+            menu_ui::DrawTextCenteredRef("Game Over", WINDOW_WIDTH/2, 80, 40, RED);
 
             // leaderboard
-            DrawText("Leaderboard", WINDOW_WIDTH/2 - 80, 160, 25, GOLD);
+            menu_ui::DrawTextRef("Leaderboard", WINDOW_WIDTH/2 - 80, 160, 25, GOLD);
             int top = std::min((int)entries.size(), 5);
             for (int i = 0; i < top; i++) {
                 const char* line = TextFormat("%d. %s - %d",
                     i+1, entries[i].first.c_str(), entries[i].second);
                 int lw = MeasureText(line, 20);
-                DrawText(line, WINDOW_WIDTH/2 - lw/2, 200 + i * 30, 20, WHITE);
+                menu_ui::DrawTextCenteredRef(line, WINDOW_WIDTH/2, 200 + i * 30, 20, WHITE);
             }
 
             // buttons

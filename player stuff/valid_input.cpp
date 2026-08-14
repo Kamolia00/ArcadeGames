@@ -2,6 +2,13 @@
 #include "player stuff/player.h"
 #include "player stuff/valid_input.h"
 #include <limits>
+
+std::string g_webName;
+
+extern "C" EMSCRIPTEN_KEEPALIVE void SetNameFromJS(const char* name) {
+    g_webName = name ? name : "";
+}
+
 void input(char &c){
     while(true){
         if(std::cin >> c){

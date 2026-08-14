@@ -16,10 +16,15 @@
 #include <cstdlib>
 #include <ctime>
 
+#ifdef PLATFORM_WEB
+#include <emscripten/emscripten.h>
+#include <emscripten/html5.h>
+#endif
+
 Font font;
 bool mutedBGm = false;
-Rectangle mute_btn = {20, 660, 100, 40};
-Rectangle sfx_btn  = {140, 660, 120, 40};
+Rectangle mute_btn = menu_ui::ReferenceRect(20, 660, 100, 40);
+Rectangle sfx_btn  = menu_ui::ReferenceRect(140, 660, 120, 40);
 Music bgm;
 int STAR_COUNT = 80;
 float starX[80], starY[80], starSpeed[80], starSize[80];
@@ -27,14 +32,27 @@ float rocketX = -60.0f;
 float rocketY = 600.0f;
 float rocketSpeed = 3.0f;
 
+#ifdef PLATFORM_WEB
+static EM_BOOL SyncWindowSizeToCanvas(int, const EmscriptenUiEvent*, void*) {
+    double cssWidth = 0.0;
+    double cssHeight = 0.0;
+    emscripten_get_element_css_size("#canvas", &cssWidth, &cssHeight);
+    const double devicePixelRatio = emscripten_get_device_pixel_ratio();
+    SetWindowSize(static_cast<int>(cssWidth * devicePixelRatio),
+                  static_cast<int>(cssHeight * devicePixelRatio));
+    return EM_TRUE;
+}
+#endif
+
 int showmenu_main() {
     BeginDrawing(); EndDrawing();
-    Rectangle xo_btn    = {490, 250, 300, 60};
-    Rectangle c4_btn    = {490, 320, 300, 60};
-    Rectangle snake_btn = {490, 390, 300, 60};
-    Rectangle pong_btn  = {490, 460, 300, 60};
 
     while (!WindowShouldClose()) {
+        menu_ui::SyncAudioButtonRects(mute_btn, sfx_btn);
+        Rectangle xo_btn    = menu_ui::ReferenceRect(490, 250, 300, 60);
+        Rectangle c4_btn    = menu_ui::ReferenceRect(490, 320, 300, 60);
+        Rectangle snake_btn = menu_ui::ReferenceRect(490, 390, 300, 60);
+        Rectangle pong_btn  = menu_ui::ReferenceRect(490, 460, 300, 60);
         UpdateMusicStream(bgm);
         if (mutedBGm) PauseMusicStream(bgm);
         else          ResumeMusicStream(bgm);
@@ -57,15 +75,8 @@ int showmenu_main() {
 
         BeginDrawing();
         ClearBackground({20, 20, 40, 255});
-        for (int i = 0; i < STAR_COUNT; i++)
-            DrawCircle(starX[i], starY[i], starSize[i], {255, 255, 255, 180});
-        DrawRectanglePro({rocketX, rocketY, 40, 20}, {20, 10}, -25.0f, DARKGRAY);
-        DrawTriangle({rocketX+28,rocketY-8},{rocketX+28,rocketY+8},{rocketX+48,rocketY}, RED);
-        DrawTriangle({rocketX-10,rocketY-5},{rocketX-10,rocketY+5},{rocketX-25,rocketY}, ORANGE);
-        DrawCircle(rocketX+10, rocketY, 5, SKYBLUE);
-
-        int titleW = MeasureText("Arcade Games", 40);
-        DrawText("Arcade Games", 1280/2 - titleW/2, 130, 40, WHITE);
+        menu_ui::DrawMenuBackdrop(starX, starY, starSize, STAR_COUNT, rocketX, rocketY);
+        menu_ui::DrawTextCenteredRef("Arcade Games", 640, 130, 40, WHITE);
 
         menu_ui::DrawMenuButton(xo_btn, "Tic-Tac-Toe", 25);
         menu_ui::DrawMenuButton(c4_btn, "Connect 4", 25);
@@ -85,8 +96,13 @@ int main() {
         starSpeed[i] = 0.5f + (rand() % 20) / 10.0f;
         starSize[i]  = 1.0f + (rand() % 3);
     }
-    SetConfigFlags(FLAG_FULLSCREEN_MODE);
-    InitWindow(1280,720,"Arcade");    SetExitKey(KEY_NULL);
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+    InitWindow(1280,720,"Arcade");
+#ifdef PLATFORM_WEB
+    emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, nullptr, false, SyncWindowSizeToCanvas);
+    SyncWindowSizeToCanvas(0, nullptr, nullptr);
+#endif
+    SetExitKey(KEY_NULL);
     InitAudioDevice();
     SetTargetFPS(60);
     bgm = LoadMusicStream("assets/sounds/main_menu.mp3");

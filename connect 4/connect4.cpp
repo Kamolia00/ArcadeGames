@@ -346,7 +346,7 @@ void connect4::draw_board(){
     }
 }
 void connect4::pvp_gui() {
-    Rectangle continue_btn = {950, 500, 300, 60};
+    Rectangle continue_btn = menu_ui::ReferenceRect(950, 500, 300, 60);
     double gameOverTime = 0;
     char win=' ';
     bool game_over = false;
@@ -369,6 +369,8 @@ void connect4::pvp_gui() {
     int kamoliaMovesP2 = 0;
 
     while (!WindowShouldClose()) {
+        menu_ui::SyncAudioButtonRects(mute_btn, sfx_btn);
+        continue_btn = menu_ui::ReferenceRect(950, 500, 300, 60);
         UpdateMusicStream(bgm);
         if (mutedBGm) PauseMusicStream(bgm);
         else       ResumeMusicStream(bgm);
@@ -480,7 +482,7 @@ void connect4::pvp_gui() {
     }
 }
 void connect4::ai_ez_gui() {
-    Rectangle continue_btn = {950, 500, 300, 60};
+    Rectangle continue_btn = menu_ui::ReferenceRect(950, 500, 300, 60);
     double gameOverTime = 0;
     char win=' ';
     bool game_over = false;
@@ -503,6 +505,8 @@ void connect4::ai_ez_gui() {
     double aiMoveTime = 0.0;
 
     while (!WindowShouldClose()) {
+        menu_ui::SyncAudioButtonRects(mute_btn, sfx_btn);
+        continue_btn = menu_ui::ReferenceRect(950, 500, 300, 60);
         UpdateMusicStream(bgm);
         if (mutedBGm) PauseMusicStream(bgm);
         else       ResumeMusicStream(bgm);
@@ -637,7 +641,7 @@ void connect4::ai_ez_gui() {
     }
 }
 void connect4::ai_hard_gui() {
-    Rectangle continue_btn = {950, 500, 300, 60};
+    Rectangle continue_btn = menu_ui::ReferenceRect(950, 500, 300, 60);
     double gameOverTime = 0;
     char win=' ';
     bool game_over = false;
@@ -660,6 +664,8 @@ void connect4::ai_hard_gui() {
     double aiMoveTime = 0.0;
 
     while (!WindowShouldClose()) {
+        menu_ui::SyncAudioButtonRects(mute_btn, sfx_btn);
+        continue_btn = menu_ui::ReferenceRect(950, 500, 300, 60);
         UpdateMusicStream(bgm);
         if (mutedBGm) PauseMusicStream(bgm);
         else       ResumeMusicStream(bgm);
