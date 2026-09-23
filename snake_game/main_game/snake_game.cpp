@@ -421,8 +421,8 @@ int SnakeGame::play_gui(int level) {
         float fcy = food.y * CELL_SIZE + OFFSET_Y + CELL_SIZE / 2.0f;
         float armLen = CELL_SIZE * 0.35f;
         float thick  = CELL_SIZE * 0.15f;
-        DrawRectangle(fcx - armLen, fcy - thick/2, armLen*2, thick, DARKGREEN);
-        DrawRectangle(fcx - thick/2, fcy - armLen, thick, armLen*2, DARKGREEN);
+        DrawRectangle(fcx - armLen, fcy - thick/2, armLen*2, thick, YELLOW);
+        DrawRectangle(fcx - thick/2, fcy - armLen, thick, armLen*2, YELLOW);
 
         for (auto &obs : obstacles) {
             DrawRectangle(obs.x * CELL_SIZE + OFFSET_X,
