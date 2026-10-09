@@ -85,17 +85,20 @@ int main() {
         starSpeed[i] = 0.5f + (rand() % 20) / 10.0f;
         starSize[i]  = 1.0f + (rand() % 3);
     }
-    SetConfigFlags(FLAG_FULLSCREEN_MODE);
-    InitWindow(1280,720,"Arcade");    SetExitKey(KEY_NULL);
+    InitWindow(1280,720,"Arcade");
+    SetExitKey(KEY_NULL);
     InitAudioDevice();
     SetTargetFPS(60);
     bgm = LoadMusicStream("assets/sounds/main_menu.mp3");
-    SetMusicVolume(bgm, 0.5f);
-    PlayMusicStream(bgm);
+    if (IsAudioDeviceReady() && IsMusicValid(bgm)) {
+        SetMusicVolume(bgm, 0.5f);
+        PlayMusicStream(bgm);
+    } else {
+        TraceLog(LOG_ERROR, "Failed to initialize or load main menu music: assets/sounds/main_menu.mp3");
+    }
     font = LoadFont("C:/Windows/Fonts/arial.ttf");
 
     while (!WindowShouldClose()) {
-        UpdateMusicStream(bgm);
         if (mutedBGm) PauseMusicStream(bgm);
         else ResumeMusicStream(bgm);
 

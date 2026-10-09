@@ -2,85 +2,90 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Arcade Games By Kamolia</title>
 
     <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: black;
-        }
-
+        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
+        body { display: flex; align-items: center; justify-content: center; }
         canvas {
             display: block;
-            width: 100vw;
-            height: 100vh;
             outline: none;
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
+            width: min(100vw, calc(100vh * 16 / 9));
+            height: min(100vh, calc(100vw * 9 / 16));
+        }
+        #nameInput {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: 0;
+            font-size: 16px;
+            opacity: 0.01;
+            border: 0;
+            background: transparent;
+            color: transparent;
+            z-index: -1;
+            display: none;
         }
     </style>
 </head>
 
 <body>
 
-<canvas id="canvas" tabindex="0" oncontextmenu="event.preventDefault()"></canvas>
+<canvas id="canvas" width="1280" height="720" tabindex="0" oncontextmenu="event.preventDefault()"></canvas>
+<input id="nameInput" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="24">
 
 <script>
     var canvas = document.getElementById('canvas');
-    var Module = {
-        canvas: canvas
-    };
-
-    // --- Coordinate scaling fix ---
-    // Keeps canvas internal resolution in sync with its CSS display size
-    // so GetMousePosition()/touch coords line up with what's on screen.
-    function resizeCanvas() {
-        var dpr = window.devicePixelRatio || 1;
-        canvas.width = canvas.clientWidth * dpr;
-        canvas.height = canvas.clientHeight * dpr;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+    var nameInput = document.getElementById('nameInput');
+    var Module = { canvas: canvas };
 
     function clickCanvas() {
-        canvas.dispatchEvent(new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-            view: window
-        }));
+        canvas.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
     }
 
-    // --- Focus handling ---
-    canvas.addEventListener('click', function () {
-        canvas.focus();
-    });
-    canvas.addEventListener('mousedown', function () {
-        canvas.focus();
-    });
-    canvas.addEventListener('touchstart', function () {
-        canvas.focus();
-    });
-    window.addEventListener('load', function () {
-        canvas.focus();
+    // Focus handling (don't steal focus from the name box while it's open)
+    function nameBoxOpen() { return nameInput.style.display === 'block'; }
+    canvas.addEventListener('click', function () { if (!nameBoxOpen()) canvas.focus(); });
+    canvas.addEventListener('mousedown', function () { if (!nameBoxOpen()) canvas.focus(); });
+    canvas.addEventListener('touchstart', function () { if (!nameBoxOpen()) canvas.focus(); });
+    window.addEventListener('load', function () { canvas.focus(); });
+
+    // Emscripten cancels Backspace/Tab defaults; keep keys typed in the name box away from it
+    ['keydown', 'keypress', 'keyup'].forEach(function (type) {
+        window.addEventListener(type, function (e) {
+            if (e.target === nameInput) e.stopImmediatePropagation();
+        }, true);
     });
 
-    // --- Key handling ---
+    // Game key handling
     window.addEventListener('keydown', function (event) {
         if (event.key === 'Enter' && !event.repeat) {
             clickCanvas();
             event.preventDefault();
             return;
         }
-        // Stop the browser from scrolling/consuming these while canvas is focused
         var blocked = ['Space', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
-        if (blocked.indexOf(event.code) !== -1) {
-            event.preventDefault();
-        }
+        if (blocked.indexOf(event.code) !== -1) event.preventDefault();
     });
+
+    // Name entry bridge (C++ calls these via EM_ASM)
+    nameInput.addEventListener('input', function () {
+        if (Module && Module.ccall) Module.ccall('SetNameFromJS', null, ['string'], [nameInput.value]);
+    });
+    window.showNameKeyboard = function () {
+        nameInput.value = '';
+        nameInput.style.display = 'block';
+        setTimeout(function () { nameInput.focus(); }, 50);
+    };
+    window.hideNameKeyboard = function () {
+        nameInput.blur();
+        nameInput.style.display = 'none';
+        canvas.focus();
+    };
 </script>
 
 {{{ SCRIPT }}}
