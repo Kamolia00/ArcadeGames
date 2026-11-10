@@ -223,7 +223,7 @@ int SnakeGame::Default_mode() {
         DrawText("P = pause", WINDOW_WIDTH - 120, 20, 18, GRAY);
 
         menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
-        menu_ui::DrawMenuButton(sfx_btn,muted_sfx?"SFX ON": "SFX OFF",20, mutedBGm ? GREEN : RED);
+        menu_ui::DrawMenuButton(sfx_btn,muted_sfx?"SFX ON": "SFX OFF",20, muted_sfx ? GREEN : RED);
 
         Color cellA = {26, 26, 52, 255};
         Color cellB = {18, 18, 38, 255};
@@ -398,7 +398,7 @@ int SnakeGame::play_gui(int level) {
         DrawText("P = pause", WINDOW_WIDTH - 120, 20, 18, GRAY);
 
         menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
-        menu_ui::DrawMenuButton(sfx_btn,muted_sfx?"SFX ON": "SFX OFF",20, mutedBGm ? GREEN : RED);
+        menu_ui::DrawMenuButton(sfx_btn,muted_sfx?"SFX ON": "SFX OFF",20, muted_sfx ? GREEN : RED);
         Color cellA = {26, 26, 52, 255};
         Color cellB = {18, 18, 38, 255};
 
