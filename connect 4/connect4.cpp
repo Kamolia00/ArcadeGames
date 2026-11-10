@@ -475,7 +475,7 @@ void connect4::pvp_gui() {
             DrawText(turn.c_str(), startX, startY - 40, 25, WHITE);
         }
         menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
-        menu_ui::DrawMenuButton(sfx_btn,mutedSFX?"SFX ON": "SFX OFF",20, mutedBGm ? GREEN : RED);
+        menu_ui::DrawMenuButton(sfx_btn,mutedSFX?"SFX ON": "SFX OFF",20, mutedSFX ? GREEN : RED);
         EndDrawing();
     }
 }
@@ -632,7 +632,7 @@ void connect4::ai_ez_gui() {
             DrawText(turn.c_str(), startX, startY - 40, 25, WHITE);
         }
         menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
-        menu_ui::DrawMenuButton(sfx_btn,mutedSFX?"SFX ON": "SFX OFF",20, mutedBGm ? GREEN : RED);
+        menu_ui::DrawMenuButton(sfx_btn,mutedSFX?"SFX ON": "SFX OFF",20, mutedSFX ? GREEN : RED);
         EndDrawing();
     }
 }
@@ -785,7 +785,7 @@ void connect4::ai_hard_gui() {
             DrawText(turn.c_str(), startX, startY - 40, 25, WHITE);
         }
         menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
-        menu_ui::DrawMenuButton(sfx_btn,mutedSFX?"SFX ON": "SFX OFF",20, mutedBGm ? GREEN : RED);
+        menu_ui::DrawMenuButton(sfx_btn,mutedSFX?"SFX ON": "SFX OFF",20, mutedSFX ? GREEN : RED);
         EndDrawing();
     }
 }

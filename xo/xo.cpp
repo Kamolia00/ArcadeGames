@@ -428,7 +428,7 @@ while (!WindowShouldClose()) {
     }
 
     menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
-    menu_ui::DrawMenuButton(sfx_btn,mutedSFX?"SFX ON": "SFX OFF",20, mutedBGm ? GREEN : RED);
+    menu_ui::DrawMenuButton(sfx_btn,mutedSFX?"SFX ON": "SFX OFF",20, mutedSFX ? GREEN : RED);
     EndDrawing();
 }
 }
@@ -560,7 +560,7 @@ while (!WindowShouldClose()) {
     }
 
     menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
-    menu_ui::DrawMenuButton(sfx_btn,mutedSFX?"SFX ON": "SFX OFF",20, mutedBGm ? GREEN : RED);
+    menu_ui::DrawMenuButton(sfx_btn,mutedSFX?"SFX ON": "SFX OFF",20, mutedSFX ? GREEN : RED);
     EndDrawing();
 }
 }
@@ -686,7 +686,7 @@ void XO::playGameGUI_ai_hard() {
         }
 
         menu_ui::DrawMenuButton(mute_btn, mutedBGm ? "SOUND" : "MUTE", 20, mutedBGm ? GREEN : RED);
-        menu_ui::DrawMenuButton(sfx_btn,mutedSFX?"SFX ON": "SFX OFF",20, mutedBGm ? GREEN : RED);
+        menu_ui::DrawMenuButton(sfx_btn,mutedSFX?"SFX ON": "SFX OFF",20, mutedSFX ? GREEN : RED);
         EndDrawing();
     }
 }
